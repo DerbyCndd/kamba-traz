@@ -438,6 +438,8 @@ views.inicio=function(){
             h("div",null,h("span",{class:"label"},"Frete estimado"),out.t),
             h("div",null,h("span",{class:"label"},"Viajante recebe"),out.v),
             h("div",null,h("span",{class:"label"},"Taxa Kamba"),out.k,pct))),
+        h("div",{class:"ln"},h("span",null,"Seguro do envio (opcional)"),h("span",{class:"pill ex"},"A CONFIRMAR")),
+        h("p",{class:"hint"},"O seguro do envio ainda está em preparação com um segurador. Quando existir, o prémio será calculado sobre o valor que declarares e aparecerá aqui antes de aceitares."),
         h("p",{class:"hint"},"Referência de "+kz(S.config.perKg)+" por kg. O valor final é combinado entre as duas partes e pode variar com a época do ano e o tipo de item."))),
 
     h("section",null,
@@ -645,6 +647,7 @@ function faqSection(){
     ["Posso enviar um telemóvel ou um portátil?","Sim, com verificação da equipa. Electrónicos têm regras de alfândega e de companhia aérea, por isso confirmamos o caso antes de publicar o pedido."],
     ["Quanto custa?","Tu e o viajante combinam o valor por kg. A Kamba cobra uma taxa sobre esse valor, que vês na calculadora antes de aceitares."],
     ["Quem vê o meu número de telefone?","Só a equipa. Os contactos só são partilhados com a outra parte depois de haver acordo."],
+    ["Há seguro para a minha encomenda?","Ainda não. Estamos a preparar um seguro opcional por envio, pago por quem envia e calculado sobre o valor declarado. Só será anunciado quando houver uma apólice confirmada. Até lá, aplicam-se as regras de responsabilidade e o pagamento fica retido até o caso estar resolvido."],
     ["Quem paga se a encomenda chegar danificada?","Depende da causa, e as regras são as mesmas para todos e ficam escritas antes da viagem. Se o dano acontece enquanto o volume está com o viajante, por descuido, o viajante responde. Se o volume foi mal embalado ou o conteúdo foi declarado de forma errada, responde quem enviou. As fotos tiradas na entrega e na recepção decidem. Em ambos os casos, o pagamento fica retido até o caso estar resolvido."],
     ["Porque é que me pedem o bilhete de avião?","Para confirmar que a viagem existe, na data e rota certas, antes de alguém te confiar uma encomenda. Só a equipa vê o documento. Podes tapar o número de reserva, o código de barras, o preço e o cartão. Precisamos de ver o nome, a rota, a data e o voo. Depois da viagem concluída, apagamos a cópia."],
     ["Quanto tempo demora a verificação?","A equipa contacta-te pelo número que indicaste para confirmar os dados. Podes acompanhar o estado em “Os meus”."]
@@ -704,6 +707,13 @@ views.regras=function(){
           li("Apreensão na alfândega por item não declarado: responde quem enviou o item"),
           li("Reclamações com fotos nas 48 horas seguintes à recepção; o pagamento fica retido até haver decisão"))),
       h("p",{class:"hint"},"A indemnização máxima é o valor declarado do item. Os limites exactos devem ser confirmados num texto legal revisto por um advogado antes de abrir ao público.")),
+    h("div",{class:"panel"},h("span",{class:"pill ex",style:"align-self:flex-start"},"EM PREPARAÇÃO"),h("h3",null,"Seguro do envio"),
+      h("ul",{style:"margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"},
+        li("Estamos a preparar um seguro opcional para cada envio, pago por quem envia e calculado sobre o valor declarado"),
+        li("Quando estiver activo, cobre danos e perda durante o transporte dentro de um limite por volume"),
+        li("Não cobre itens proibidos, itens mal declarados nem apreensão na alfândega"),
+        li("Até lá, aplicam-se as regras de responsabilidade acima e a retenção do pagamento")),
+      h("p",{class:"hint"},"Só passa a estar disponível depois de existir uma apólice confirmada. Nada nesta página é uma cobertura enquanto isso não acontecer.")),
     h("div",{class:"panel"},h("h3",null,"Porque pedimos o bilhete e a identidade"),
       h("ul",{style:"margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"},
         li("Quem envia entrega um bem a um desconhecido. A prova de que a viagem existe é o que torna isso razoável"),
@@ -729,11 +739,11 @@ views.admin=function(){
     h("div",null,h("span",{class:"label"},"Em garantia"),h("b",null,kz(held))),
     h("div",null,h("span",{class:"label"},"Comissão a receber"),h("b",null,kz(pipeline))),
     h("div",null,h("span",{class:"label"},"Comissão recebida"),h("b",null,kz(earned))));
-  const body={entradas:adminInbox,ligacoes:adminDeals,quadro:adminBoard,analise:adminAnalysis,economia:adminEconomics,pitch:adminPitch,tecnico:adminTech,definicoes:adminSettings}[S.adminTab]();
+  const body={entradas:adminInbox,ligacoes:adminDeals,quadro:adminBoard,analise:adminAnalysis,economia:adminEconomics,pitch:adminPitch,seguro:adminInsurance,tecnico:adminTech,definicoes:adminSettings}[S.adminTab]();
   return h("section",null,
     h("h2",null,"Painel da equipa"),
     stats,
-    h("div",{class:"tabs",role:"tablist"},tab("entradas","Por verificar",pend.length),tab("ligacoes","Entregas",S.deals.length),tab("quadro","Quadro",S.trips.length+S.requests.length),tab("analise","Análise"),tab("economia","Economia"),tab("pitch","Pitch"),tab("tecnico","Backend"),tab("definicoes","Definições")),
+    h("div",{class:"tabs",role:"tablist"},tab("entradas","Por verificar",pend.length),tab("ligacoes","Entregas",S.deals.length),tab("quadro","Quadro",S.trips.length+S.requests.length),tab("analise","Análise"),tab("economia","Economia"),tab("pitch","Pitch"),tab("seguro","Seguro"),tab("tecnico","Backend"),tab("definicoes","Definições")),
     body);
 };
 
@@ -915,14 +925,14 @@ function adminAnalysis(){
 
 /* ---------- economia ---------- */
 function adminEconomics(){
-  if(!S.eco)S.eco={n:40,kg:6,perKg:S.config.perKg,com:S.config.commission,pay:3,res:1.5,sup:1500,fix:150000,cac:4000,courier:25000};
+  if(!S.eco)S.eco={n:40,kg:6,perKg:S.config.perKg,com:S.config.commission,pay:3,res:1.5,sup:1500,fix:150000,cac:4000,courier:25000,ins:0,insc:0,decl:60000};
   const E=S.eco,out=h("div",{class:"panel"});
-  const defs=[["n","Entregas por mês",1],["kg","Kg médios por entrega",0.5],["perKg","Preço por kg (Kz)",500],["com","Comissão da Kamba (%)",0.5],["pay","Taxa do meio de pagamento (%)",0.1],["res","Reserva para sinistros (% do valor)",0.1],["sup","Custo de apoio por entrega (Kz)",100],["fix","Custos fixos por mês (Kz)",5000],["cac","Custo de conquistar um cliente (Kz)",500],["courier","Correio expresso, preço por kg (Kz)",1000]];
+  const defs=[["n","Entregas por mês",1],["kg","Kg médios por entrega",0.5],["perKg","Preço por kg (Kz)",500],["com","Comissão da Kamba (%)",0.5],["pay","Taxa do meio de pagamento (%)",0.1],["res","Reserva para sinistros (% do valor)",0.1],["sup","Custo de apoio por entrega (Kz)",100],["fix","Custos fixos por mês (Kz)",5000],["cac","Custo de conquistar um cliente (Kz)",500],["courier","Correio expresso, preço por kg (Kz)",1000],["decl","Valor declarado médio por entrega (Kz)",5000],["ins","Seguro: prémio cobrado ao cliente (% do valor declarado)",0.1],["insc","Seguro: custo para a Kamba (% do valor declarado)",0.1]];
   const inputs=defs.map(d=>{const i=h("input",{id:"e-"+d[0],type:"number",min:"0",step:d[2],value:E[d[0]],inputmode:"decimal"});i.addEventListener("input",()=>{E[d[0]]=parseFloat(i.value)||0;paint();});return field("e-"+d[0],d[1],i);});
-  const calc=n=>{const gmv=n*E.kg*E.perKg,rev=gmv*E.com/100,pay=gmv*E.pay/100,res=gmv*E.res/100,sup=n*E.sup,cm=rev-pay-res-sup;return{gmv,rev,pay,res,sup,cm,profit:cm-E.fix};};
+  const calc=n=>{const gmv=n*E.kg*E.perKg,rev=gmv*E.com/100,pay=gmv*E.pay/100,res=gmv*E.res/100,sup=n*E.sup,ib=n*E.decl*(E.ins-E.insc)/100,cm=rev-pay-res-sup+ib;return{gmv,rev,pay,res,sup,ib,cm,profit:cm-E.fix};};
   const ln=(a,b,cls)=>h("div",{class:"ln"},h("span",null,a),h("b",{class:cls||""},b));
   function paint(){
-    const c=calc(E.n),per=E.kg*E.perKg*(E.com-E.pay-E.res)/100-E.sup;
+    const c=calc(E.n),per=E.kg*E.perKg*(E.com-E.pay-E.res)/100-E.sup+E.decl*(E.ins-E.insc)/100;
     const be=per>0?Math.ceil(E.fix/per):null,pb=per>0?Math.ceil(E.cac/per):null;
     const save=E.courier>0?Math.round((1-E.perKg/E.courier)*100):0;
     out.replaceChildren(
@@ -934,6 +944,7 @@ function adminEconomics(){
         ln("Taxas do meio de pagamento","− "+kz(c.pay)),
         ln("Reserva para sinistros","− "+kz(c.res)),
         ln("Apoio ao cliente","− "+kz(c.sup)),
+        ln("Seguro (prémio menos custo)",kz(c.ib),c.ib<0?"neg":""),
         ln("Margem de contribuição",kz(c.cm)),
         ln("Custos fixos","− "+kz(E.fix)),
         ln("Lucro do mês",kz(c.profit),c.profit>=0?"pos":"neg")),
@@ -987,6 +998,25 @@ function adminPitch(){
         ["“Não quero mostrar o meu bilhete.”","Reconhece. Diz que só a equipa o vê, que pode tapar o número de reserva, o código de barras e o preço, e que a cópia é apagada depois da viagem. Se mesmo assim recusar, explica que sem a prova da viagem não a podemos publicar, mas pode continuar a enviar encomendas."],
         ["“Não conheço ninguém que use isto.”","Diz quantas entregas já foram feitas na rota dele e oferece-te a acompanhar a primeira pessoalmente."]
       ].map(q=>h("details",null,h("summary",null,q[0]),h("p",null,q[1]))))));
+}
+
+/* ---------- seguro ---------- */
+function adminInsurance(){
+  const ul=a=>h("ul",{style:"margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"},a.map(x=>h("li",null,x)));
+  const brokerMsg="Bom dia. Estou a lançar a Kamba Traz, uma plataforma que liga quem quer enviar encomendas para Angola a passageiros que já têm voo marcado. Preciso de uma proposta de seguro para cada envio, pago por quem envia e calculado sobre o valor declarado. Perguntas: 1) cobrem mercadorias de terceiros transportadas como bagagem de passageiro? 2) aceitam apólice por viagem ou só contrato anual? 3) qual o tecto por volume, a franquia e as exclusões? 4) que prova pedem em caso de sinistro? Tenho fotos do volume na entrega e na recepção e lista de conteúdo assinada pelas duas partes. 5) posso intermediar o seguro sem licença própria, ou tenho de trabalhar através de um corretor? Podemos marcar uma conversa esta semana?";
+  return h("div",{class:"list"},
+    h("div",{class:"notice bad"},"Não anuncies seguro a clientes antes de haver uma apólice assinada. O site mostra “a confirmar” e “em preparação” de propósito. Quando houver apólice, troca esses textos pelos termos reais."),
+    h("div",{class:"two"},
+      h("div",{class:"panel"},h("h3",null,"Passos"),
+        ul(["Pedir contacto a um corretor de seguros ou a dois ou três seguradores em Angola e comparar propostas","Enviar a mensagem ao lado e anotar as respostas às cinco perguntas","Confirmar com o corretor se a Kamba Traz pode intermediar o seguro ou se tem de o contratar por conta de quem envia","Pedir a minuta da apólice e as condições gerais por escrito, e mostrá-las a um advogado","Preencher o prémio, o custo e o valor declarado médio no separador Economia para ver o efeito na margem","Só depois: actualizar os textos do site e activar o seguro nos pedidos"])),
+      h("div",{class:"panel"},msgBox("Mensagem para corretor ou segurador",brokerMsg))),
+    h("div",{class:"two"},
+      h("div",{class:"panel"},h("h3",null,"O que a apólice deve cobrir"),
+        ul(["Danos e perda do volume entre a entrega ao viajante e o código de recepção","Valor máximo por volume que cubra a maioria dos pedidos","Prova aceite: fotos da entrega e da recepção e lista de conteúdo assinada"])),
+      h("div",{class:"panel"},h("h3",null,"O que normalmente fica de fora"),
+        ul(["Itens proibidos ou não declarados, e apreensão na alfândega","Itens de valor elevado, como electrónicos, acima de um limite","Embalagem insuficiente e defeitos do próprio item","Atrasos e perdas de lucro"]))),
+    h("div",{class:"panel"},h("h3",null,"Enquanto não há apólice"),
+      ul(["Define um valor máximo por volume e recusa pedidos acima dele","Mantém a reserva para sinistros no separador Economia e guarda todas as fotos de cada entrega","Segura as regras de responsabilidade e a retenção do pagamento até haver decisão","Regista cada dano que acontecer: serve de base à proposta do segurador"])));
 }
 
 /* ---------- roteiro técnico ---------- */

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Kamba Traz</title>
-<meta name="description" content="Envia encomendas para Angola com viajantes verificados. Pagamento em garantia até à entrega.">
+<meta name="description" content="Envia encomendas entre Portugal e Angola, nos dois sentidos, com viajantes verificados. Pagamento em garantia até à entrega.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600&display=swap">
@@ -219,8 +219,10 @@ main:focus{outline:none}
 /* ---------- dados de referência ---------- */
 const CITY={LIS:"Lisboa",OPO:"Porto",FAO:"Faro",GRU:"São Paulo",DXB:"Dubai",JNB:"Joanesburgo",CDG:"Paris",LHR:"Londres",
   LAD:"Luanda",BUG:"Benguela",SDD:"Lubango",NOV:"Huambo",CAB:"Cabinda",OTH:"Outra cidade"};
-const FROM=["LIS","OPO","FAO","GRU","DXB","JNB","CDG","LHR","OTH"];
-const TO=["LAD","BUG","SDD","NOV","CAB","OTH"];
+const PT=["LIS","OPO","FAO"],AO=["LAD","BUG","SDD","NOV","CAB"];
+const FROM=PT.concat(AO);
+const other=c=>PT.includes(c)?AO:PT;
+function linkRoute(from,to){from.addEventListener("change",()=>{const t=other(from.value);to.replaceChildren(...opts(t,t[0]));});}
 const CATS=["Roupa e calçado","Electrónicos (telemóvel, portátil, acessórios)","Cosméticos e higiene","Peças e ferramentas","Documentos e papelada","Medicamentos com receita","Brinquedos e artigos de bebé","Outro item legal"];
 const DEAL_STEPS=[["negociacao","Em negociação"],["garantia","Pago · em garantia"],["transito","Em trânsito"],["entregue","Entregue"],["liberado","Pago ao viajante"]];
 const ROUTES=["inicio","quadro","pedir","viajar","regras","meus","admin"];
@@ -329,9 +331,9 @@ async function boot(){
 function loadDemo(){
   const d=n=>{const x=new Date();x.setDate(x.getDate()+n);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,10);};
   const P=S.config.perKg;
-  S.trips=[["LIS","LAD",9,15,P,"Mário"],["OPO","LAD",16,8,Math.round(P*1.1),"Teresa"],["LIS","BUG",23,12,Math.round(P*.95),"Eduardo"]]
+  S.trips=[["LIS","LAD",9,15,P,"Mário"],["OPO","LAD",16,8,Math.round(P*1.1),"Teresa"],["LIS","BUG",23,12,Math.round(P*.95),"Eduardo"],["LAD","LIS",12,10,P,"Paulo"]]
     .map((t,i)=>({id:"demo-t"+i,from:t[0],to:t[1],date:d(t[2]),kg:t[3],perKg:t[4],name:t[5],status:"aberto",example:true}));
-  S.requests=[["LIS","LAD","Telemóvel novo na caixa",CATS[1],1,45000,"Carla"],["LIS","LAD","Peças de carro (filtros e pastilhas)",CATS[3],6,70000,"Joaquim"],["OPO","LAD","Roupa e calçado de criança",CATS[0],4,35000,"Ana"]]
+  S.requests=[["LIS","LAD","Telemóvel novo na caixa",CATS[1],1,45000,"Carla"],["LIS","LAD","Peças de carro (filtros e pastilhas)",CATS[3],6,70000,"Joaquim"],["OPO","LAD","Roupa e calçado de criança",CATS[0],4,35000,"Ana"],["LAD","LIS","Café e artesanato angolano",CATS[7],3,30000,"Beatriz"]]
     .map((r,i)=>({id:"demo-r"+i,from:r[0],to:r[1],item:r[2],category:r[3],kg:r[4],offer:r[5],name:r[6],status:"aberto",example:true,createdAt:i}));
   S.ready.trips=S.ready.requests=true;
 }
@@ -411,8 +413,8 @@ views.inicio=function(){
   return [
     h("section",{class:"hero"},
       h("div",{class:"copy"},
-        h("span",{class:"label"},"Portugal · Angola · e de volta"),
-        h("h1",null,"Alguém voa para Luanda esta semana. Leva a tua encomenda."),
+        h("span",{class:"label"},"Portugal ⇄ Angola · nos dois sentidos"),
+        h("h1",null,"Alguém voa entre Portugal e Angola esta semana. Leva a tua encomenda."),
         h("p",{class:"lead"},"A Kamba Traz liga quem precisa de enviar com quem já tem a viagem marcada. O pagamento fica em garantia até a entrega ser confirmada."),
         h("div",{class:"row"},h("a",{class:"btn primary",href:"#pedir"},"Preciso de enviar"),h("a",{class:"btn",href:"#viajar"},"Vou viajar")),
         h("div",{class:"counts"},
@@ -456,7 +458,7 @@ views.quadro=function(){
   const f=S.boardFrom;
   const trips=f?tripsAll.filter(t=>t.from===f):tripsAll,reqs=f?reqsAll.filter(r=>r.from===f):reqsAll;
   const sel=h("select",{id:"b-from","aria-label":"Filtrar por origem",style:"max-width:260px",onchange:e=>{S.boardFrom=e.target.value;render();}},
-    h("option",{value:""},"Todas as origens"),FROM.filter(c=>c!=="OTH").map(c=>h("option",{value:c,selected:c===f},cityName(c)+" ("+c+")")));
+    h("option",{value:""},"Todas as origens"),FROM.map(c=>h("option",{value:c,selected:c===f},cityName(c)+" ("+c+")")));
   const tab=(k,t,n)=>h("button",{role:"tab",type:"button","aria-selected":S.boardTab===k?"true":"false",onclick:()=>{S.boardTab=k;render();}},t,h("span",{class:"cnt"},n));
   const body=S.boardTab==="viagens"
     ?(trips.length?h("div",{class:"grid"},trips.map(tripPass)):loadingOrEmpty("trips",empty("Nenhuma viagem com este filtro","Publica a tua viagem e aparece aqui para quem precisa de enviar.","Publicar viagem","#viajar")))
@@ -511,7 +513,7 @@ views.pedir=function(){
     name:h("input",{id:"p-name",autocomplete:"name",maxlength:"60"}),
     contact:h("input",{id:"p-contact",type:"tel",autocomplete:"tel",placeholder:"+244 9XX XXX XXX",inputmode:"tel"}),
     from:h("select",{id:"p-from"},opts(FROM,"LIS")),
-    to:h("select",{id:"p-to"},opts(TO,"LAD")),
+    to:h("select",{id:"p-to"},opts(AO,"LAD")),
     item:h("input",{id:"p-item",maxlength:"90",placeholder:"Ex.: telemóvel novo na caixa"}),
     category:h("select",{id:"p-cat"},CATS.map(c=>h("option",{value:c},c))),
     kg:h("input",{id:"p-kg",type:"number",min:"0.1",step:"0.1",inputmode:"decimal"}),
@@ -520,6 +522,7 @@ views.pedir=function(){
     deadline:h("input",{id:"p-dead",type:"date",min:today()}),
     ok:h("input",{id:"p-ok",type:"checkbox"})
   };
+  linkRoute(f.from,f.to);
   const sug=h("span",{class:"hint",id:"p-sug"});
   f.kg.addEventListener("input",()=>{const k=parseFloat(f.kg.value);sug.textContent=k>0?"Referência: cerca de "+kz(k*S.config.perKg)+" para "+k+" kg.":"";});
   const form=h("form",{novalidate:true,onsubmit:async e=>{
@@ -573,13 +576,14 @@ views.viajar=function(){
     name:h("input",{id:"v-name",autocomplete:"name",maxlength:"60"}),
     contact:h("input",{id:"v-contact",type:"tel",autocomplete:"tel",placeholder:"+351 9XX XXX XXX",inputmode:"tel"}),
     from:h("select",{id:"v-from"},opts(FROM,"LIS")),
-    to:h("select",{id:"v-to"},opts(TO,"LAD")),
+    to:h("select",{id:"v-to"},opts(AO,"LAD")),
     date:h("input",{id:"v-date",type:"date",min:today()}),
     flight:h("input",{id:"v-flight",maxlength:"30",placeholder:"Ex.: TAAG DT 701"}),
     kg:h("input",{id:"v-kg",type:"number",min:"1",step:"1",inputmode:"numeric"}),
     perKg:h("input",{id:"v-perkg",type:"number",min:"0",step:"500",inputmode:"numeric",value:S.config.perKg}),
     ok:h("input",{id:"v-ok",type:"checkbox"})
   };
+  linkRoute(f.from,f.to);
   const form=h("form",{novalidate:true,onsubmit:async e=>{
     e.preventDefault();
     ["v-name","v-contact","v-date","v-kg","v-perkg","v-ok"].forEach(i=>setErr(i,""));
@@ -647,6 +651,7 @@ function faqSection(){
     ["Posso enviar um telemóvel ou um portátil?","Sim, com verificação da equipa. Electrónicos têm regras de alfândega e de companhia aérea, por isso confirmamos o caso antes de publicar o pedido."],
     ["Quanto custa?","Tu e o viajante combinam o valor por kg. A Kamba cobra uma taxa sobre esse valor, que vês na calculadora antes de aceitares."],
     ["Quem vê o meu número de telefone?","Só a equipa. Os contactos só são partilhados com a outra parte depois de haver acordo."],
+    ["E outras rotas, além de Portugal e Angola?","Por agora só Portugal e Angola, nos dois sentidos. Outras rotas abrem quando as regras da alfândega, o seguro e os pagamentos desses países estiverem preparados."],
     ["Há seguro para a minha encomenda?","Ainda não. Estamos a preparar um seguro opcional por envio, pago por quem envia e calculado sobre o valor declarado. Só será anunciado quando houver uma apólice confirmada. Até lá, aplicam-se as regras de responsabilidade e o pagamento fica retido até o caso estar resolvido."],
     ["Quem paga se a encomenda chegar danificada?","Depende da causa, e as regras são as mesmas para todos e ficam escritas antes da viagem. Se o dano acontece enquanto o volume está com o viajante, por descuido, o viajante responde. Se o volume foi mal embalado ou o conteúdo foi declarado de forma errada, responde quem enviou. As fotos tiradas na entrega e na recepção decidem. Em ambos os casos, o pagamento fica retido até o caso estar resolvido."],
     ["Porque é que me pedem o bilhete de avião?","Para confirmar que a viagem existe, na data e rota certas, antes de alguém te confiar uma encomenda. Só a equipa vê o documento. Podes tapar o número de reserva, o código de barras, o preço e o cartão. Precisamos de ver o nome, a rota, a data e o voo. Depois da viagem concluída, apagamos a cópia."],
@@ -683,7 +688,7 @@ views.regras=function(){
       h("div",{class:"panel"},h("span",{class:"pill warn",style:"align-self:flex-start"},"COM VERIFICAÇÃO"),h("h3",null,"Só com confirmação da equipa"),
         h("ul",{style:"margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"},
           li("Electrónicos novos: telemóveis, portáteis, consolas"),li("Medicamentos: só com receita e para uso pessoal"),li("Itens de valor elevado"),li("Peças e ferramentas"),
-          li("Tudo o que tenha limites de peso, quantidade ou valor na alfândega angolana ou na companhia aérea")))),
+          li("Tudo o que tenha limites de peso, quantidade ou valor na alfândega portuguesa, na alfândega angolana ou na companhia aérea")))),
     h("div",{class:"panel"},h("h3",null,"Como protegemos cada entrega"),
       h("div",{class:"two"},
         h("ul",{style:"margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"},
@@ -721,7 +726,7 @@ views.regras=function(){
         li("Podes tapar o número de reserva, o código de barras, o preço e o cartão. Basta ver nome, rota, data e voo"),
         li("A cópia é apagada depois da viagem concluída"),
         li("Quem prefere não mostrar o bilhete pode usar a Kamba Traz para enviar, mas não pode publicar viagens"))),
-    h("p",{class:"hint"},"As regras da alfândega e das companhias aéreas mudam. Cada viajante é responsável por conhecer os limites da sua viagem antes de aceitar um pedido."));
+    h("p",{class:"hint"},"As regras da alfândega e das companhias aéreas mudam. Cada viajante é responsável por conhecer os limites da sua viagem antes de aceitar um pedido. A lei de Portugal e a de Angola têm prioridade sobre estas regras, e cada sentido da rota tem limites próprios."));
 };
 
 /* ---------- administração ---------- */
@@ -970,10 +975,10 @@ function msgBox(title,text){
   return h("div",{class:"msg"},h("h3",null,title),ta,h("div",{class:"row"},h("button",{type:"button",class:"btn small",onclick:e=>copy(text,e.currentTarget)},"Copiar")));
 }
 function adminPitch(){
-  const pitch=[["Gancho","Quantas vezes ficaste semanas à espera de uma encomenda para Angola, ou pagaste uma fortuna para a enviar?"],
+  const pitch=[["Gancho","Quantas vezes ficaste semanas à espera de uma encomenda de ou para Angola, ou pagaste uma fortuna para a enviar?"],
     ["Problema","O correio expresso é caro e lento. Pedir a um conhecido que traga é barato, mas ninguém sabe em quem confiar."],
     ["Solução","A Kamba Traz liga quem quer enviar a viajantes verificados que já têm a viagem marcada. O dinheiro fica em garantia e só é libertado quando a entrega é confirmada com um código."],
-    ["Prova","Começámos com a rota Lisboa–Luanda. [Escreve aqui o número real de entregas feitas.]"],
+    ["Prova","Começámos com Portugal–Angola, nos dois sentidos. [Escreve aqui o número real de entregas feitas.]"],
     ["Pedido","Se vais a Luanda no próximo mês ou tens algo para enviar, diz-me e organizo-te a primeira entrega esta semana."]];
   const full=pitch.map(p=>p[1]).join(" ");
   return h("div",{class:"list"},
@@ -983,8 +988,8 @@ function adminPitch(){
       h("div",{class:"row"},h("button",{type:"button",class:"btn small",onclick:e=>copy(full,e.currentTarget)},"Copiar pitch completo"))),
     h("div",{class:"two"},
       h("div",{class:"panel"},
-        msgBox("Mensagem para viajantes","Olá! Vais viajar para Angola em breve? Tens espaço na mala que podes transformar em dinheiro. Na Kamba Traz publicas a tua viagem, escolhes os pedidos que aceitas e o pagamento fica garantido antes de levares. Diz-me a data e a rota e eu trato do resto."),
-        msgBox("Mensagem para quem quer enviar","Olá! Precisas de enviar algo para Angola? Na Kamba Traz ligamos-te a viajantes verificados que já têm voo marcado. Pagas em garantia e só libertamos o dinheiro depois da entrega confirmada. Diz-me o que é, o peso e de onde sai.")),
+        msgBox("Mensagem para viajantes","Olá! Vais viajar entre Portugal e Angola em breve? Tens espaço na mala que podes transformar em dinheiro. Na Kamba Traz publicas a tua viagem, escolhes os pedidos que aceitas e o pagamento fica garantido antes de levares. Diz-me a data e a rota e eu trato do resto."),
+        msgBox("Mensagem para quem quer enviar","Olá! Precisas de enviar algo entre Portugal e Angola? Na Kamba Traz ligamos-te a viajantes verificados que já têm voo marcado. Pagas em garantia e só libertamos o dinheiro depois da entrega confirmada. Diz-me o que é, o peso e de onde sai.")),
       h("div",{class:"panel"},
         msgBox("Depois da entrega (pedir testemunho)","Olá! A tua encomenda chegou bem? Se correu tudo bem, podes responder-me com uma frase sobre a experiência? Ajuda muito outras pessoas a confiar. E se conheceres alguém que vá viajar, diz-me."),
         msgBox("Resposta a quem tem medo de ser enganado","Percebo a preocupação, e é por isso que o dinheiro fica connosco até a entrega ser confirmada. O viajante tem identidade e bilhete verificados, o volume é aberto e fotografado à tua frente, e tu dizes o código só quando recebes."))),
@@ -1003,7 +1008,7 @@ function adminPitch(){
 /* ---------- seguro ---------- */
 function adminInsurance(){
   const ul=a=>h("ul",{style:"margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"},a.map(x=>h("li",null,x)));
-  const brokerMsg="Bom dia. Estou a lançar a Kamba Traz, uma plataforma que liga quem quer enviar encomendas para Angola a passageiros que já têm voo marcado. Preciso de uma proposta de seguro para cada envio, pago por quem envia e calculado sobre o valor declarado. Perguntas: 1) cobrem mercadorias de terceiros transportadas como bagagem de passageiro? 2) aceitam apólice por viagem ou só contrato anual? 3) qual o tecto por volume, a franquia e as exclusões? 4) que prova pedem em caso de sinistro? Tenho fotos do volume na entrega e na recepção e lista de conteúdo assinada pelas duas partes. 5) posso intermediar o seguro sem licença própria, ou tenho de trabalhar através de um corretor? Podemos marcar uma conversa esta semana?";
+  const brokerMsg="Bom dia. Estou a lançar a Kamba Traz, uma plataforma que liga quem quer enviar encomendas entre Portugal e Angola, nos dois sentidos, a passageiros que já têm voo marcado. Preciso de uma proposta de seguro para cada envio, pago por quem envia e calculado sobre o valor declarado. Perguntas: 1) cobrem mercadorias de terceiros transportadas como bagagem de passageiro? 2) aceitam apólice por viagem ou só contrato anual? 3) qual o tecto por volume, a franquia e as exclusões? 4) que prova pedem em caso de sinistro? Tenho fotos do volume na entrega e na recepção e lista de conteúdo assinada pelas duas partes. 5) posso intermediar o seguro sem licença própria, ou tenho de trabalhar através de um corretor? Podemos marcar uma conversa esta semana?";
   return h("div",{class:"list"},
     h("div",{class:"notice bad"},"Não anuncies seguro a clientes antes de haver uma apólice assinada. O site mostra “a confirmar” e “em preparação” de propósito. Quando houver apólice, troca esses textos pelos termos reais."),
     h("div",{class:"two"},

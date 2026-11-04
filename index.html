@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kamba Traz</title>
+<meta name="description" content="Envia encomendas para Angola com viajantes verificados. Pagamento em garantia até à entrega.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: cartão de embarque. Cada viagem é um bilhete, cada pedido é uma etiqueta de mala.
+   Cor: tinta azul-petróleo, papel de aeroporto, vermelho de Angola como único acento, amarelo só na etiqueta. */
+:root{
+  --paper:#EBEFF2; --card:#FFFFFF; --ink:#0F1A24; --muted:#4F5E6B; --line:#C9D2DA;
+  --red:#B8261E; --on-red:#FFFFFF; --sun:#F0B323; --on-sun:#1B1500;
+  --ok:#1B6B44; --ok-bg:#DDF1E6; --warn:#7A5300; --warn-bg:#FBEBC4; --bad:#9B1C1C; --bad-bg:#F8D9D6; --info:#1F4E79; --info-bg:#DCE9F5;
+  --f-display:"Familjen Grotesk","Segoe UI",Arial,sans-serif;
+  --f-body:"Public Sans","Segoe UI",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",Consolas,"Courier New",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0B1117; --card:#141D26; --ink:#E8EDF1; --muted:#95A3AF; --line:#28343F;
+  --red:#F0675C; --on-red:#1A0B09; --sun:#F0B323; --on-sun:#1B1500;
+  --ok:#6FD3A0; --ok-bg:#12301F; --warn:#F0C766; --warn-bg:#352906; --bad:#F59A94; --bad-bg:#3A1513; --info:#8EC1F0; --info-bg:#122535;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0B1117; --card:#141D26; --ink:#E8EDF1; --muted:#95A3AF; --line:#28343F;
+  --red:#F0675C; --on-red:#1A0B09; --sun:#F0B323; --on-sun:#1B1500;
+  --ok:#6FD3A0; --ok-bg:#12301F; --warn:#F0C766; --warn-bg:#352906; --bad:#F59A94; --bad-bg:#3A1513; --info:#8EC1F0; --info-bg:#122535;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:400 15px/1.55 var(--f-body);
+  padding-block:0 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;line-height:1.1;letter-spacing:-.01em}
+h1{font-size:clamp(30px,6.2vw,52px);font-weight:700}
+h2{font-size:clamp(22px,3.6vw,30px);font-weight:700}
+h3{font-size:17px;font-weight:600}
+p{margin:0}
+a{color:inherit}
+.mono{font-family:var(--f-mono)}
+.label{font:500 11px/1.2 var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+
+/* topo */
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 24px;padding:16px 0 12px;border-bottom:2px solid var(--ink)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 22px/1 var(--f-display)}
+.tag{width:26px;height:26px;background:var(--sun);border:2px solid var(--ink);border-radius:4px 4px 4px 12px;position:relative;flex:none}
+.tag::after{content:"";position:absolute;left:5px;top:5px;width:6px;height:6px;border-radius:50%;background:var(--ink)}
+nav{display:flex;gap:4px;overflow-x:auto;margin-left:auto;max-width:100%;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav a{padding:8px 12px;text-decoration:none;font-weight:600;font-size:14px;white-space:nowrap;border-bottom:3px solid transparent}
+nav a[aria-current="page"]{border-bottom-color:var(--red)}
+nav a:hover{background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.conn{font:500 11px var(--f-mono);color:var(--muted);padding:6px 0 0;min-height:22px}
+
+main{padding-top:28px;display:flex;flex-direction:column;gap:40px}
+section{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+/* botões */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 18px;border:2px solid var(--ink);background:var(--card);color:var(--ink);
+  font:600 15px var(--f-body);text-decoration:none;cursor:pointer;border-radius:6px}
+.btn:hover{background:color-mix(in srgb,var(--ink) 8%,var(--card))}
+.btn.primary{background:var(--red);border-color:var(--red);color:var(--on-red)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.small{min-height:36px;padding:6px 12px;font-size:13px}
+.btn.danger{border-color:var(--bad);color:var(--bad)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:center;padding-top:8px}
+.hero .copy{display:flex;flex-direction:column;gap:18px;min-width:0}
+.hero .lead{font-size:17px;max-width:52ch;color:var(--muted)}
+.counts{display:flex;gap:22px;flex-wrap:wrap}
+.counts b{display:block;font:700 28px/1 var(--f-display)}
+
+/* bilhete */
+.pass{background:var(--card);border:2px solid var(--ink);border-radius:10px;display:grid;grid-template-columns:1fr auto;min-width:0;overflow:hidden}
+.pass .main{padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.pass .stub{padding:14px 16px;border-left:2px dashed var(--ink);display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-width:132px;background:color-mix(in srgb,var(--sun) 16%,var(--card))}
+.route{display:flex;align-items:center;gap:10px;font:700 34px/1 var(--f-display);letter-spacing:.02em}
+.route .line{flex:1;height:0;border-top:2px dotted var(--ink);position:relative;min-width:24px}
+.route .line::after{content:"✈";position:absolute;right:-2px;top:-14px;font-size:18px;background:var(--card);padding-left:3px}
+.city{font:500 12px var(--f-mono);color:var(--muted);margin-top:2px}
+.facts{display:flex;flex-wrap:wrap;gap:6px 18px}
+.facts div{display:flex;flex-direction:column;gap:2px}
+.facts b{font:600 15px var(--f-mono)}
+.stub b.big{font:700 22px/1.1 var(--f-display)}
+
+/* etiqueta (pedido) */
+.bagtag{background:var(--card);border:2px solid var(--ink);border-radius:6px 6px 6px 26px;padding:14px 16px 14px 18px;display:flex;flex-direction:column;gap:8px;position:relative;min-width:0}
+.bagtag::before{content:"";position:absolute;left:8px;top:10px;width:7px;height:7px;border-radius:50%;background:var(--sun);border:1.5px solid var(--ink)}
+.bagtag .head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding-left:8px}
+.bagtag h3{overflow-wrap:anywhere}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr));gap:16px}
+.grid.tags{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
+
+.pill{display:inline-block;font:600 11px/1 var(--f-mono);padding:5px 8px;border-radius:99px;letter-spacing:.04em;white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok)} .pill.warn{background:var(--warn-bg);color:var(--warn)}
+.pill.bad{background:var(--bad-bg);color:var(--bad)} .pill.info{background:var(--info-bg);color:var(--info)}
+.pill.ex{background:transparent;border:1px dashed var(--muted);color:var(--muted)}
+
+/* painéis */
+.panel{background:var(--card);border:2px solid var(--ink);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.panel.flat{border-width:1px;border-color:var(--line)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:0;border:2px solid var(--ink);border-radius:8px;background:var(--card)}
+.steps>div{padding:18px;display:flex;flex-direction:column;gap:8px;border-right:1px dashed var(--ink);border-bottom:1px dashed var(--ink);margin:-1px -1px 0 0}
+.steps .n{font:600 12px var(--f-mono);color:var(--red)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+/* formulários */
+form{display:flex;flex-direction:column;gap:16px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field.full{grid-column:1/-1}
+label,.lab{font-weight:600;font-size:14px}
+input,select,textarea{font:400 16px var(--f-body);color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:6px;padding:10px 12px;min-height:44px;width:100%;min-width:0}
+input:focus,select:focus,textarea:focus{border-color:var(--ink);outline:none}
+textarea{min-height:90px;resize:vertical}
+.hint{font-size:13px;color:var(--muted)}
+.err{font-size:13px;color:var(--bad);font-weight:600}
+.check{display:flex;gap:10px;align-items:flex-start;font-weight:400}
+.check input{width:22px;min-height:22px;height:22px;margin-top:2px;flex:none;accent-color:var(--red)}
+.notice{border-left:5px solid var(--sun);background:color-mix(in srgb,var(--sun) 18%,var(--card));padding:12px 14px;border-radius:0 6px 6px 0;font-size:14px}
+.notice.bad{border-left-color:var(--bad);background:var(--bad-bg)}
+.ref{font:600 26px var(--f-mono);letter-spacing:.08em;background:var(--paper);border:2px dashed var(--ink);padding:10px 14px;display:inline-block;overflow-wrap:anywhere}
+.empty{border:2px dashed var(--line);border-radius:8px;padding:26px 20px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center;color:var(--muted)}
+.empty h3{color:var(--ink)}
+
+/* calculadora */
+.calc{display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:end}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sum div{background:var(--paper);padding:12px;border-radius:6px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.sum b{font:600 18px var(--f-mono);overflow-wrap:anywhere}
+
+/* abas */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:2px solid var(--ink)}
+.tabs button{font:600 14px var(--f-body);background:none;border:2px solid transparent;border-bottom:none;padding:9px 14px;cursor:pointer;color:var(--muted);border-radius:6px 6px 0 0;margin-bottom:-2px}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.tabs .cnt{font-family:var(--f-mono);font-size:11px;margin-left:6px;opacity:.85}
+
+/* admin */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px}
+.stats>div{background:var(--card);border:2px solid var(--ink);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.stats b{font:700 24px/1.1 var(--f-display);overflow-wrap:anywhere}
+.item{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.item .head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px 16px;font-size:14px}
+.kv span{display:block;font:500 11px var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.list{display:flex;flex-direction:column;gap:10px}
+.tablewrap{overflow-x:auto}
+
+@media (max-width:760px){
+  .hero{grid-template-columns:1fr}
+  .two{grid-template-columns:1fr}
+  .calc{grid-template-columns:1fr}
+  .sum{grid-template-columns:1fr}
+  .pass{grid-template-columns:1fr}
+  .pass .stub{border-left:none;border-top:2px dashed var(--ink);flex-direction:row;align-items:center;flex-wrap:wrap}
+  .route{font-size:28px}
+  nav{margin-left:0;width:100%}
+}
+:root{--s1:#2a78d6;--s2:#eb6834}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--s1:#3987e5;--s2:#d95926}}
+:root[data-theme="dark"]{--s1:#3987e5;--s2:#d95926}
+.skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:var(--paper);padding:10px 14px;z-index:20;border-radius:6px;font-weight:600}
+.skip:focus{left:max(16px,env(safe-area-inset-left,0px))}
+main:focus{outline:none}
+.faq{display:flex;flex-direction:column;gap:8px}
+.faq details{border:1px solid var(--line);background:var(--card);border-radius:8px}
+.faq summary{cursor:pointer;padding:12px 16px;font-weight:600;min-height:44px;display:flex;align-items:center}
+.faq details[open] summary{border-bottom:1px solid var(--line)}
+.faq details p{padding:12px 16px;color:var(--muted)}
+.code{font:400 13px/1.5 var(--f-mono);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px;overflow-x:auto;margin:0;white-space:pre;color:var(--ink)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.brow{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr);gap:4px 12px;align-items:center;padding:6px 0}
+.brow .nm{font-size:14px;font-weight:600;overflow-wrap:anywhere}
+.btracks{display:flex;flex-direction:column;gap:3px;min-width:0}
+.btrack{display:flex;align-items:center;gap:8px;min-width:0}
+.bfillw{flex:1;min-width:0}
+.bfill{height:12px;border-radius:0 4px 4px 0;min-width:2px}
+.bval{font:500 12px var(--f-mono);color:var(--muted);white-space:nowrap}
+.rtbl{width:100%;border-collapse:collapse;font-size:14px}
+.rtbl th,.rtbl td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.rtbl td.num,.rtbl th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.econ{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:20px;align-items:start}
+.ln{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.ln b{font-family:var(--f-mono);text-align:right}
+.pos{color:var(--ok)} .neg{color:var(--bad)}
+.msg{display:flex;flex-direction:column;gap:8px}
+.msg textarea{font-size:14px;min-height:110px}
+@media (max-width:760px){.econ{grid-template-columns:1fr}.brow{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:no-preference){.btn{transition:background .15s,filter .15s}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Saltar para o conteúdo</a>
+<div class="wrap">
+  <header>
+    <div class="top">
+      <a class="brand" href="#inicio" aria-label="Kamba Traz, início"><span class="tag" aria-hidden="true"></span>Kamba Traz</a>
+      <nav id="nav" aria-label="Principal"></nav>
+    </div>
+    <div class="conn" id="conn" role="status"></div>
+  </header>
+  <main id="main" tabindex="-1"></main>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- dados de referência ---------- */
+const CITY={LIS:"Lisboa",OPO:"Porto",FAO:"Faro",GRU:"São Paulo",DXB:"Dubai",JNB:"Joanesburgo",CDG:"Paris",LHR:"Londres",
+  LAD:"Luanda",BUG:"Benguela",SDD:"Lubango",NOV:"Huambo",CAB:"Cabinda",OTH:"Outra cidade"};
+const FROM=["LIS","OPO","FAO","GRU","DXB","JNB","CDG","LHR","OTH"];
+const TO=["LAD","BUG","SDD","NOV","CAB","OTH"];
+const CATS=["Roupa e calçado","Electrónicos (telemóvel, portátil, acessórios)","Cosméticos e higiene","Peças e ferramentas","Documentos e papelada","Medicamentos com receita","Brinquedos e artigos de bebé","Outro item legal"];
+const DEAL_STEPS=[["negociacao","Em negociação"],["garantia","Pago · em garantia"],["transito","Em trânsito"],["entregue","Entregue"],["liberado","Pago ao viajante"]];
+const ROUTES=["inicio","quadro","pedir","viajar","regras","meus","admin"];
+
+/* ---------- estado ---------- */
+const S={db:null,uid:null,isAdmin:false,canWrite:null,
+  trips:[],requests:[],inbox:[],handled:[],deals:[],
+  config:{commission:12,perKg:8000,whatsapp:""},
+  ready:{},err:null,mine:[],eco:null,route:"inicio",adminTab:"entradas",boardTab:"viagens",boardFrom:"",calcKg:5};
+
+/* ---------- utilitários ---------- */
+const $=s=>document.querySelector(s);
+function h(tag,attrs){
+  const e=document.createElement(tag);
+  if(attrs)for(const k in attrs){const v=attrs[k];
+    if(v==null||v===false)continue;
+    if(k==="class")e.className=v; else if(k==="text")e.textContent=v;
+    else if(k.slice(0,2)==="on")e.addEventListener(k.slice(2),v);
+    else if(v===true)e.setAttribute(k,""); else e.setAttribute(k,v);}
+  for(let i=2;i<arguments.length;i++){const c=arguments[i];
+    (Array.isArray(c)?c:[c]).forEach(x=>{if(x==null||x===false)return;e.append(x.nodeType?x:document.createTextNode(String(x)));});}
+  return e;
+}
+let nf;try{nf=new Intl.NumberFormat("pt-PT",{useGrouping:"always"});}catch(e){nf=new Intl.NumberFormat("pt-PT");}
+const kz=n=>nf.format(Math.round(Number(n)||0))+" Kz";
+function fdate(iso){if(!iso)return"";const d=new Date(iso+"T00:00:00");return isNaN(d)?iso:d.toLocaleDateString("pt-PT",{day:"numeric",month:"short"});}
+function today(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10);}
+const firstName=n=>String(n||"").trim().split(/\s+/)[0]||"—";
+const cityName=c=>CITY[c]||c;
+function uid8(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function digits(s){return String(s||"").replace(/\D/g,"");}
+function waLink(num,text){const d=digits(num);return d?"https://wa.me/"+d+(text?"?text="+encodeURIComponent(text):""):null;}
+function copy(text,btn){
+  const done=()=>{const o=btn.textContent;btn.textContent="Copiado";setTimeout(()=>btn.textContent=o,1500);};
+  try{navigator.clipboard.writeText(text).then(done,()=>btn.textContent="Seleccione e copie");}catch(e){btn.textContent="Seleccione e copie";}
+}
+function opts(codes,sel){return codes.map(c=>h("option",{value:c,selected:c===sel},cityName(c)+(c!=="OTH"?" ("+c+")":"")));}
+function field(id,label,control,hint,full){
+  return h("div",{class:"field"+(full?" full":"")},h("label",{for:id},label),control,hint?h("span",{class:"hint",id:id+"-h"},hint):null,h("span",{class:"err",id:id+"-e",role:"alert"}));
+}
+function setErr(id,msg){
+  const e=$("#"+id+"-e");if(e)e.textContent=msg||"";
+  if(!msg){S._f=false;return;}
+  if(!S._f){S._f=true;const el=$("#"+id);if(el&&el.focus)el.focus();}
+}
+function twoStep(label,onGo,cls){
+  const b=h("button",{type:"button",class:"btn small "+(cls||"danger")},label);
+  let armed=false,t;
+  b.addEventListener("click",()=>{
+    if(!armed){armed=true;b.textContent="Confirmar?";t=setTimeout(()=>{armed=false;b.textContent=label;},3500);}
+    else{clearTimeout(t);armed=false;b.textContent=label;onGo();}
+  });
+  return b;
+}
+const openTrips=()=>S.trips.filter(t=>t.status!=="concluida"&&(!t.date||t.date>=today())).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+const openReqs=()=>S.requests.filter(r=>r.status==="aberto").sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+
+/* ---------- ligação à base de dados ---------- */
+let rerenderTimer;
+function refresh(force){
+  const m=$("#main"),a=document.activeElement;
+  if(!force){
+    if(S.route==="pedir"||S.route==="viajar")return;
+    if(a&&m.contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return;
+  }
+  clearTimeout(rerenderTimer);
+  rerenderTimer=setTimeout(render,30);
+}
+function listen(name,key,map){
+  const timer=setTimeout(()=>{if(!S.ready[key]){S.err="lento";conn();}},10000);
+  S.db.collection(name).onSnapshot(snap=>{
+    clearTimeout(timer);
+    S[key]=snap.docs.map(d=>Object.assign({id:d.id},d.data()));
+    if(map)S[key]=map(S[key]);
+    S.ready[key]=true;if(S.err==="lento")S.err=null;conn();refresh();
+  },e=>{clearTimeout(timer);S.err=e&&e.code||"erro";S.ready[key]=true;conn();refresh();});
+}
+function conn(){
+  const c=$("#conn");
+  if(!S.db)c.textContent="Modo de leitura local: a base de dados não está disponível nesta vista.";
+  else if(S.err==="lento")c.textContent="A base de dados está lenta a responder. Os dados podem estar desactualizados.";
+  else if(S.err)c.textContent="Sem acesso a alguns dados ("+S.err+").";
+  else c.textContent="";
+}
+async function boot(){
+  render();
+  let user=null;
+  try{user=await claude.use("user");}catch(e){}
+  if(user){
+    try{S.isAdmin=await user.canEdit();}catch(e){}
+    try{S.canWrite=await user.can("data.write");}catch(e){}
+    try{S.uid=await user.id();}catch(e){}
+  }
+  try{S.db=await claude.use("db");}catch(e){}
+  conn();
+  if(!S.db)loadDemo();
+  if(S.db){
+    listen("trips","trips");
+    listen("requests","requests");
+    if(S.uid)S.db.doc("inbox/"+S.uid).onSnapshot(s=>{S.mine=s.exists&&Array.isArray(s.data().items)?s.data().items:[];S.ready.mine=true;refresh();},()=>{S.ready.mine=true;});
+    S.db.doc("config/main").onSnapshot(s=>{if(s.exists)Object.assign(S.config,s.data());S.ready.config=true;refresh();},()=>{});
+    if(S.isAdmin){listen("inbox","inbox",docs=>docs);listen("handled","handled");listen("deals","deals");}
+  }
+  render();
+}
+function loadDemo(){
+  const d=n=>{const x=new Date();x.setDate(x.getDate()+n);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,10);};
+  const P=S.config.perKg;
+  S.trips=[["LIS","LAD",9,15,P,"Mário"],["OPO","LAD",16,8,Math.round(P*1.1),"Teresa"],["LIS","BUG",23,12,Math.round(P*.95),"Eduardo"]]
+    .map((t,i)=>({id:"demo-t"+i,from:t[0],to:t[1],date:d(t[2]),kg:t[3],perKg:t[4],name:t[5],status:"aberto",example:true}));
+  S.requests=[["LIS","LAD","Telemóvel novo na caixa",CATS[1],1,45000,"Carla"],["LIS","LAD","Peças de carro (filtros e pastilhas)",CATS[3],6,70000,"Joaquim"],["OPO","LAD","Roupa e calçado de criança",CATS[0],4,35000,"Ana"]]
+    .map((r,i)=>({id:"demo-r"+i,from:r[0],to:r[1],item:r[2],category:r[3],kg:r[4],offer:r[5],name:r[6],status:"aberto",example:true,createdAt:i}));
+  S.ready.trips=S.ready.requests=true;
+}
+function pendingInbox(){
+  const done=new Set(S.handled.map(x=>x.id)),out=[];
+  S.inbox.forEach(doc=>(doc.items||[]).forEach(it=>{if(!done.has(it.id))out.push(Object.assign({owner:doc.id},it));}));
+  return out.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+}
+function loadingOrEmpty(key,emptyNode){return S.db&&!S.ready[key]?h("div",{class:"empty"},h("p",{text:"A carregar…"})):emptyNode;}
+
+/* ---------- componentes ---------- */
+function statusPill(s){
+  const m={aberto:["ok","Aberto"],ligado:["info","Com viajante"],entregue:["ok","Entregue"],cheia:["warn","Mala cheia"],concluida:["bad","Concluída"]};
+  const x=m[s]||["ok","Aberto"];return h("span",{class:"pill "+x[0]},x[1]);
+}
+function exBadge(o){return o.example?h("span",{class:"pill ex",title:"Registo de demonstração"},"EXEMPLO"):null;}
+function tripPass(t){
+  const wa=waLink(S.config.whatsapp,"Olá! Quero enviar uma encomenda na viagem "+cityName(t.from)+" → "+cityName(t.to)+" de "+fdate(t.date)+" (ref. "+t.id.slice(-5).toUpperCase()+").");
+  return h("article",{class:"pass"},
+    h("div",{class:"main"},
+      h("div",{class:"route"},h("span",null,t.from),h("span",{class:"line"}),h("span",null,t.to)),
+      h("div",{class:"city"},cityName(t.from)+" para "+cityName(t.to)),
+      h("div",{class:"facts"},
+        h("div",null,h("span",{class:"label"},"Data"),h("b",null,fdate(t.date))),
+        h("div",null,h("span",{class:"label"},"Livre"),h("b",null,(t.kg||0)+" kg")),
+        h("div",null,h("span",{class:"label"},"Viajante"),h("b",null,t.name||"—"))),
+      h("div",{class:"row"},statusPill(t.status),exBadge(t))),
+    h("div",{class:"stub"},
+      h("div",null,h("span",{class:"label"},"Por kg"),h("div",null,h("b",{class:"big"},kz(t.perKg)))),
+      wa?h("a",{class:"btn small primary",href:wa,target:"_blank",rel:"noopener"},"Quero enviar"):h("a",{class:"btn small primary",href:"#pedir"},"Pedir envio")));
+}
+function reqTag(r){
+  return h("article",{class:"bagtag"},
+    h("div",{class:"head"},
+      h("div",null,h("span",{class:"label"},r.from+" → "+r.to),h("h3",null,r.item||"Encomenda")),
+      statusPill(r.status)),
+    h("div",{class:"kv",style:"padding-left:8px"},
+      h("div",null,h("span",null,"Peso"),(r.kg||"?")+" kg"),
+      h("div",null,h("span",null,"Oferta"),kz(r.offer)),
+      r.deadline?h("div",null,h("span",null,"Até"),fdate(r.deadline)):null,
+      h("div",null,h("span",null,"Pedido por"),r.name||"—")),
+    h("div",{class:"row",style:"padding-left:8px"},h("span",{class:"hint"},r.category||""),exBadge(r)),
+    r.status==="aberto"?reqCta(r):null);
+}
+function empty(title,text,cta,href){
+  return h("div",{class:"empty"},h("h3",null,title),h("p",null,text),cta?h("a",{class:"btn primary",href},cta):null);
+}
+
+/* ---------- vistas ---------- */
+const views={};
+
+views.inicio=function(){
+  const trips=openTrips(),reqs=openReqs();
+  const demo=trips[0]||{id:"demo0",from:"LIS",to:"LAD",date:"",kg:0,perKg:S.config.perKg,name:"Viajante",status:"aberto"};
+  const sample=trips[0]?tripPass(trips[0]):
+    h("article",{class:"pass","aria-label":"Exemplo de viagem"},
+      h("div",{class:"main"},
+        h("div",{class:"route"},h("span",null,"LIS"),h("span",{class:"line"}),h("span",null,"LAD")),
+        h("div",{class:"city"},"Lisboa para Luanda"),
+        h("div",{class:"facts"},
+          h("div",null,h("span",{class:"label"},"Data"),h("b",null,"a definir")),
+          h("div",null,h("span",{class:"label"},"Livre"),h("b",null,"10 kg"))),
+        h("div",{class:"row"},h("span",{class:"pill ex"},"EXEMPLO"))),
+      h("div",{class:"stub"},h("div",null,h("span",{class:"label"},"Por kg"),h("div",null,h("b",{class:"big"},kz(S.config.perKg)))),
+        h("a",{class:"btn small primary",href:"#viajar"},"Publicar a minha")));
+
+  const kgIn=h("input",{id:"c-kg",type:"number",min:"0.5",step:"0.5",value:S.calcKg,inputmode:"decimal"});
+  const out={t:h("b"),v:h("b"),k:h("b")},pct=h("span",{class:"label"});
+  function upd(){
+    const kg=Math.max(0,parseFloat(kgIn.value)||0);S.calcKg=kg;
+    const total=kg*S.config.perKg,fee=total*S.config.commission/100;
+    out.t.textContent=kz(total);out.v.textContent=kz(total-fee);out.k.textContent=kz(fee);
+    pct.textContent="Kamba "+S.config.commission+"%";
+  }
+  kgIn.addEventListener("input",upd);upd();
+
+  return [
+    h("section",{class:"hero"},
+      h("div",{class:"copy"},
+        h("span",{class:"label"},"Portugal · Angola · e de volta"),
+        h("h1",null,"Alguém voa para Luanda esta semana. Leva a tua encomenda."),
+        h("p",{class:"lead"},"A Kamba Traz liga quem precisa de enviar com quem já tem a viagem marcada. O pagamento fica em garantia até a entrega ser confirmada."),
+        h("div",{class:"row"},h("a",{class:"btn primary",href:"#pedir"},"Preciso de enviar"),h("a",{class:"btn",href:"#viajar"},"Vou viajar")),
+        h("div",{class:"counts"},
+          h("div",null,h("b",null,S.ready.trips?trips.length:"–"),h("span",{class:"label"},"viagens abertas")),
+          h("div",null,h("b",null,S.ready.requests?reqs.length:"–"),h("span",{class:"label"},"pedidos à espera")))),
+      h("div",null,sample)),
+
+    h("section",null,
+      h("h2",null,"Como funciona"),
+      h("div",{class:"steps"},
+        h("div",null,h("span",{class:"n"},"PASSO 1"),h("h3",null,"Publicas o pedido"),h("p",{class:"muted"},"Dizes o que é, o peso, de onde para onde e quanto ofereces pelo transporte.")),
+        h("div",null,h("span",{class:"n"},"PASSO 2"),h("h3",null,"Ligamos-te a um viajante"),h("p",{class:"muted"},"Só mostramos viajantes com identidade e bilhete verificados. Combinam o valor final.")),
+        h("div",null,h("span",{class:"n"},"PASSO 3"),h("h3",null,"Pagas à Kamba"),h("p",{class:"muted"},"O dinheiro fica em garantia. O viajante só recebe depois da entrega.")),
+        h("div",null,h("span",{class:"n"},"PASSO 4"),h("h3",null,"Entrega com código"),h("p",{class:"muted"},"Quem recebe diz o código ao viajante. Confirmado o código, o pagamento é libertado."))
+      )),
+
+    h("section",null,
+      h("h2",null,"Quanto custa enviar"),
+      h("div",{class:"panel"},
+        h("div",{class:"calc"},
+          h("div",{class:"field"},h("label",{for:"c-kg"},"Peso da encomenda (kg)"),kgIn),
+          h("div",{class:"sum"},
+            h("div",null,h("span",{class:"label"},"Frete estimado"),out.t),
+            h("div",null,h("span",{class:"label"},"Viajante recebe"),out.v),
+            h("div",null,h("span",{class:"label"},"Taxa Kamba"),out.k,pct))),
+        h("p",{class:"hint"},"Referência de "+kz(S.config.perKg)+" por kg. O valor final é combinado entre as duas partes e pode variar com a época do ano e o tipo de item."))),
+
+    h("section",null,
+      h("h2",null,"Próximas viagens"),
+      trips.length?h("div",{class:"grid"},trips.slice(0,4).map(tripPass)):
+        loadingOrEmpty("trips",empty("Ainda não há viagens publicadas","Se vais viajar para Angola, publica a tua viagem e começa a receber pedidos.","Publicar viagem","#viajar")),
+      trips.length?h("a",{class:"btn",href:"#quadro",style:"align-self:flex-start"},"Ver o quadro completo"):null),
+    faqSection()
+  ];
+};
+
+views.quadro=function(){
+  const tripsAll=openTrips(),reqsAll=openReqs();
+  const f=S.boardFrom;
+  const trips=f?tripsAll.filter(t=>t.from===f):tripsAll,reqs=f?reqsAll.filter(r=>r.from===f):reqsAll;
+  const sel=h("select",{id:"b-from","aria-label":"Filtrar por origem",style:"max-width:260px",onchange:e=>{S.boardFrom=e.target.value;render();}},
+    h("option",{value:""},"Todas as origens"),FROM.filter(c=>c!=="OTH").map(c=>h("option",{value:c,selected:c===f},cityName(c)+" ("+c+")")));
+  const tab=(k,t,n)=>h("button",{role:"tab",type:"button","aria-selected":S.boardTab===k?"true":"false",onclick:()=>{S.boardTab=k;render();}},t,h("span",{class:"cnt"},n));
+  const body=S.boardTab==="viagens"
+    ?(trips.length?h("div",{class:"grid"},trips.map(tripPass)):loadingOrEmpty("trips",empty("Nenhuma viagem com este filtro","Publica a tua viagem e aparece aqui para quem precisa de enviar.","Publicar viagem","#viajar")))
+    :(reqs.length?h("div",{class:"grid tags"},reqs.map(reqTag)):loadingOrEmpty("requests",empty("Nenhum pedido com este filtro","Precisas de trazer algo? Faz o teu pedido e os viajantes vêem-no aqui.","Pedir envio","#pedir")));
+  return h("section",null,
+    h("h2",null,"Quadro de viagens e pedidos"),
+    h("p",{class:"muted"},"Só aparece o que a equipa já verificou. Os contactos são partilhados depois de haver acordo."),
+    h("div",{class:"row"},sel),
+    h("div",{class:"tabs",role:"tablist"},tab("viagens","Viagens",trips.length),tab("pedidos","Pedidos",reqs.length)),
+    body);
+};
+
+/* ---------- formulários de entrada ---------- */
+function summaryText(kind,d){
+  const L=kind==="trip"
+    ?["VIAGEM · Kamba Traz","Nome: "+d.name,"Contacto: "+d.contact,"Rota: "+cityName(d.from)+" → "+cityName(d.to),"Data: "+d.date,d.flight?"Voo: "+d.flight:null,"Espaço livre: "+d.kg+" kg","Preço por kg: "+kz(d.perKg)]
+    :["PEDIDO · Kamba Traz","Nome: "+d.name,"Contacto: "+d.contact,"Rota: "+cityName(d.from)+" → "+cityName(d.to),"Item: "+d.item+" ("+d.category+")","Peso: "+d.kg+" kg","Valor do item: "+d.value+" €","Oferta pelo transporte: "+kz(d.offer),d.deadline?"Preciso até: "+d.deadline:null];
+  return L.filter(Boolean).join("\n");
+}
+async function submitInbox(kind,data){
+  if(!S.db||!S.uid||S.canWrite===false)throw new Error("sem-escrita");
+  const ref=S.db.doc("inbox/"+S.uid),snap=await ref.get();
+  const items=snap.exists&&Array.isArray(snap.data().items)?snap.data().items.slice():[];
+  const id=uid8();
+  items.push(Object.assign({id,kind,createdAt:Date.now()},data));
+  await ref.set({items:items.slice(-30)});
+  return "KT-"+id.slice(-5).toUpperCase();
+}
+function afterSubmit(host,kind,data,ref,failed){
+  const text=summaryText(kind,data),wa=waLink(S.config.whatsapp,text);
+  host.replaceChildren(
+    h("div",{class:"panel",role:"status"},
+      failed?h("div",{class:"notice bad"},"Não foi possível registar o teu pedido directamente nesta vista. Copia o resumo abaixo e envia-o por WhatsApp para a equipa."):
+        h("div",null,h("span",{class:"label"},"Pedido recebido"),h("h2",{style:"margin-top:6px"},kind==="trip"?"A tua viagem está em verificação":"O teu pedido está em verificação")),
+      ref?h("div",null,h("div",{class:"label",style:"margin-bottom:6px"},"Referência"),h("div",{class:"ref"},ref)):null,
+      h("p",{class:"muted"},kind==="trip"
+        ?"Antes de publicar a viagem pedimos uma foto do passaporte ou BI e do bilhete de avião. Falamos contigo pelo contacto que indicaste."
+        :"A equipa confirma os detalhes do item e publica o pedido no quadro. Falamos contigo pelo contacto que indicaste."),
+      h("textarea",{readonly:true,rows:"7","aria-label":"Resumo","style":"font-family:var(--f-mono);font-size:13px"},text),
+      h("div",{class:"row"},
+        wa?h("a",{class:"btn primary",href:wa,target:"_blank",rel:"noopener"},"Enviar por WhatsApp"):null,
+        h("button",{type:"button",class:"btn",onclick:e=>copy(text,e.currentTarget)},"Copiar resumo"),
+        h("a",{class:"btn",href:"#quadro"},"Ver o quadro")),
+      wa?h("p",{class:"hint"},"WhatsApp da equipa: "+S.config.whatsapp):null));
+}
+function needNum(v){const n=parseFloat(v);return isFinite(n)&&n>0?n:null;}
+function validContact(v){return digits(v).length>=9;}
+
+views.pedir=function(){
+  const host=h("div");
+  const f={
+    name:h("input",{id:"p-name",autocomplete:"name",maxlength:"60"}),
+    contact:h("input",{id:"p-contact",type:"tel",autocomplete:"tel",placeholder:"+244 9XX XXX XXX",inputmode:"tel"}),
+    from:h("select",{id:"p-from"},opts(FROM,"LIS")),
+    to:h("select",{id:"p-to"},opts(TO,"LAD")),
+    item:h("input",{id:"p-item",maxlength:"90",placeholder:"Ex.: telemóvel novo na caixa"}),
+    category:h("select",{id:"p-cat"},CATS.map(c=>h("option",{value:c},c))),
+    kg:h("input",{id:"p-kg",type:"number",min:"0.1",step:"0.1",inputmode:"decimal"}),
+    value:h("input",{id:"p-val",type:"number",min:"0",step:"1",inputmode:"decimal"}),
+    offer:h("input",{id:"p-offer",type:"number",min:"0",step:"500",inputmode:"numeric"}),
+    deadline:h("input",{id:"p-dead",type:"date",min:today()}),
+    ok:h("input",{id:"p-ok",type:"checkbox"})
+  };
+  const sug=h("span",{class:"hint",id:"p-sug"});
+  f.kg.addEventListener("input",()=>{const k=parseFloat(f.kg.value);sug.textContent=k>0?"Referência: cerca de "+kz(k*S.config.perKg)+" para "+k+" kg.":"";});
+  const form=h("form",{novalidate:true,onsubmit:async e=>{
+    e.preventDefault();
+    ["p-name","p-contact","p-item","p-kg","p-val","p-offer","p-ok"].forEach(i=>setErr(i,""));
+    let bad=false;const E=(i,m)=>{setErr(i,m);bad=true;};
+    if(f.name.value.trim().length<2)E("p-name","Escreve o teu nome.");
+    if(!validContact(f.contact.value))E("p-contact","Indica um número com indicativo, por exemplo +244 923 000 000.");
+    if(f.item.value.trim().length<3)E("p-item","Descreve o que queres enviar.");
+    if(!needNum(f.kg.value))E("p-kg","Indica o peso aproximado em kg.");
+    if(f.value.value===""||Number(f.value.value)<0)E("p-val","Indica o valor do item em euros.");
+    if(!needNum(f.offer.value))E("p-offer","Indica quanto ofereces pelo transporte, em Kz.");
+    if(!f.ok.checked)E("p-ok","Tens de confirmar para continuar.");
+    if(f.from.value===f.to.value&&f.from.value!=="OTH")E("p-item","A origem e o destino não podem ser iguais.");
+    if(bad)return;
+    const data={name:f.name.value.trim(),contact:f.contact.value.trim(),from:f.from.value,to:f.to.value,item:f.item.value.trim(),
+      category:f.category.value,kg:needNum(f.kg.value),value:Number(f.value.value),offer:needNum(f.offer.value),deadline:f.deadline.value||""};
+    const btn=form.querySelector("button[type=submit]");btn.disabled=true;btn.textContent="A enviar…";
+    try{const ref=await submitInbox("request",data);afterSubmit(host,"request",data,ref,false);}
+    catch(err){afterSubmit(host,"request",data,null,true);}
+    window.scrollTo(0,0);
+  }},
+    h("div",{class:"fields"},
+      field("p-name","O teu nome",f.name),
+      field("p-contact","WhatsApp ou telefone",f.contact,"Só a equipa vê este número."),
+      field("p-from","Sai de",f.from),
+      field("p-to","Chega a",f.to),
+      field("p-item","O que queres enviar",f.item,null,true),
+      field("p-cat","Tipo de item",f.category,null,true),
+      field("p-kg","Peso aproximado (kg)",f.kg,null),
+      field("p-val","Valor do item (€)",f.value,"Serve para o seguro e a alfândega."),
+      field("p-offer","Quanto ofereces pelo transporte (Kz)",f.offer),
+      field("p-dead","Preciso até (opcional)",f.deadline)),
+    sug,
+    h("div",{class:"field"},
+      h("label",{class:"check",for:"p-ok"},f.ok,h("span",null,"Confirmo que o item é legal, que posso mostrá-lo ao viajante para inspecção e que li as ",h("a",{href:"#regras"},"regras de itens proibidos"),".")),
+      h("span",{class:"hint"},"Porquê? Se o item vier danificado, as fotos da entrega e da recepção decidem quem responde, e a indemnização máxima é o valor que declaras. Detalhes nas ",h("a",{href:"#regras"},"Regras"),"."),
+      h("span",{class:"err",id:"p-ok-e",role:"alert"})),
+    h("div",{class:"row"},h("button",{type:"submit",class:"btn primary"},"Enviar pedido")));
+  host.append(h("div",{class:"panel"},form));
+  return h("section",null,
+    h("h2",null,"Preciso de enviar uma encomenda"),
+    h("p",{class:"muted"},"Preenche em menos de dois minutos. A equipa verifica e publica o pedido no quadro."),
+    S.db&&S.uid&&S.canWrite!==false?null:h("div",{class:"notice"},"Nesta vista o envio directo pode não estar disponível. Se for esse o caso, damos-te um resumo para enviares por WhatsApp."),
+    host);
+};
+
+views.viajar=function(){
+  const host=h("div");
+  const f={
+    name:h("input",{id:"v-name",autocomplete:"name",maxlength:"60"}),
+    contact:h("input",{id:"v-contact",type:"tel",autocomplete:"tel",placeholder:"+351 9XX XXX XXX",inputmode:"tel"}),
+    from:h("select",{id:"v-from"},opts(FROM,"LIS")),
+    to:h("select",{id:"v-to"},opts(TO,"LAD")),
+    date:h("input",{id:"v-date",type:"date",min:today()}),
+    flight:h("input",{id:"v-flight",maxlength:"30",placeholder:"Ex.: TAAG DT 701"}),
+    kg:h("input",{id:"v-kg",type:"number",min:"1",step:"1",inputmode:"numeric"}),
+    perKg:h("input",{id:"v-perkg",type:"number",min:"0",step:"500",inputmode:"numeric",value:S.config.perKg}),
+    ok:h("input",{id:"v-ok",type:"checkbox"})
+  };
+  const form=h("form",{novalidate:true,onsubmit:async e=>{
+    e.preventDefault();
+    ["v-name","v-contact","v-date","v-kg","v-perkg","v-ok"].forEach(i=>setErr(i,""));
+    let bad=false;const E=(i,m)=>{setErr(i,m);bad=true;};
+    if(f.name.value.trim().length<2)E("v-name","Escreve o teu nome.");
+    if(!validContact(f.contact.value))E("v-contact","Indica um número com indicativo, por exemplo +351 912 000 000.");
+    if(!f.date.value||f.date.value<today())E("v-date","Escolhe a data da viagem.");
+    if(!needNum(f.kg.value))E("v-kg","Indica quantos kg tens livres.");
+    if(!needNum(f.perKg.value))E("v-perkg","Indica o preço por kg em Kz.");
+    if(!f.ok.checked)E("v-ok","Tens de confirmar para continuar.");
+    if(f.from.value===f.to.value&&f.from.value!=="OTH")E("v-date","A origem e o destino não podem ser iguais.");
+    if(bad)return;
+    const data={name:f.name.value.trim(),contact:f.contact.value.trim(),from:f.from.value,to:f.to.value,date:f.date.value,flight:f.flight.value.trim(),
+      kg:needNum(f.kg.value),perKg:needNum(f.perKg.value)};
+    const btn=form.querySelector("button[type=submit]");btn.disabled=true;btn.textContent="A enviar…";
+    try{const ref=await submitInbox("trip",data);afterSubmit(host,"trip",data,ref,false);}
+    catch(err){afterSubmit(host,"trip",data,null,true);}
+    window.scrollTo(0,0);
+  }},
+    h("div",{class:"fields"},
+      field("v-name","O teu nome",f.name,"No quadro mostramos só o primeiro nome."),
+      field("v-contact","WhatsApp ou telefone",f.contact,"Só a equipa vê este número."),
+      field("v-from","Sais de",f.from),
+      field("v-to","Chegas a",f.to),
+      field("v-date","Data da viagem",f.date),
+      field("v-flight","Companhia e voo (opcional)",f.flight),
+      field("v-kg","Espaço livre na mala (kg)",f.kg),
+      field("v-perkg","Preço por kg (Kz)",f.perKg,"Podes ajustar a cada pedido.")),
+    h("div",{class:"field"},
+      h("label",{class:"check",for:"v-ok"},f.ok,h("span",null,"Aceito mostrar passaporte ou BI e bilhete de avião, abrir e fotografar cada volume junto de quem envia, e não levar nada que esteja nas ",h("a",{href:"#regras"},"regras de itens proibidos"),".")),
+      h("span",{class:"hint"},"Porquê? O bilhete só é visto pela equipa, podes tapar o número de reserva e o preço, e a cópia é apagada depois da viagem. Ao levar o volume, cuidas dele como da tua bagagem. Vê quem responde por danos nas ",h("a",{href:"#regras"},"Regras"),"."),
+      h("span",{class:"err",id:"v-ok-e",role:"alert"})),
+    h("div",{class:"row"},h("button",{type:"submit",class:"btn primary"},"Publicar viagem")));
+  host.append(h("div",{class:"panel"},form));
+  return h("section",null,
+    h("h2",null,"Vou viajar e tenho espaço na mala"),
+    h("p",{class:"muted"},"Ganhas dinheiro com o espaço que já tens. Tu defines o preço por kg e escolhes os pedidos que aceitas."),
+    S.db&&S.uid&&S.canWrite!==false?null:h("div",{class:"notice"},"Nesta vista o envio directo pode não estar disponível. Se for esse o caso, damos-te um resumo para enviares por WhatsApp."),
+    host);
+};
+
+function reqCta(r){
+  const wa=waLink(S.config.whatsapp,"Olá! Vou viajar de "+cityName(r.from)+" para "+cityName(r.to)+" e posso levar este pedido: "+r.item+" (ref. "+r.id.slice(-5).toUpperCase()+").");
+  return h("div",{style:"padding-left:8px"},wa?h("a",{class:"btn small primary",href:wa,target:"_blank",rel:"noopener"},"Posso levar"):h("a",{class:"btn small",href:"#viajar"},"Publicar a minha viagem"));
+}
+function adminChecklist(){
+  const steps=[
+    [!!S.config.whatsapp,"Definir o WhatsApp da equipa","definicoes"],
+    [S.trips.length+S.requests.length>0,"Ter a primeira viagem ou pedido no quadro (ou carregar exemplos)","quadro"],
+    [S.deals.length>0,"Criar a primeira entrega","ligacoes"]];
+  return h("div",{class:"panel"},h("h3",null,"Primeiros passos"),
+    h("div",{class:"list"},steps.map(s=>h("div",{class:"row"},h("span",{class:"pill "+(s[0]?"ok":"warn")},s[0]?"FEITO":"POR FAZER"),h("span",null,s[1]),s[0]?null:h("button",{type:"button",class:"btn small",onclick:()=>{S.adminTab=s[2];render();}},"Ir")))),
+    h("p",{class:"hint"},"Para receber formulários directamente, partilha o link com permissão de Contributor. Quem abrir só como visualizador usa o resumo por WhatsApp."));
+}
+async function exportDeals(){
+  let dl=null;try{dl=await claude.use("downloads");}catch(e){}
+  if(!dl)return;
+  const safe=v=>{let s=String(v==null?"":v);if(/^[=+\-@]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};
+  const rows=[["data","pedido","viajante","cliente","valor_kz","comissao_kz","estado"]].concat(S.deals.map(d=>[new Date(d.createdAt||0).toISOString().slice(0,10),d.label,d.traveler,d.requester,d.price,d.commission,d.status]));
+  try{await dl.save({filename:"entregas-kamba.csv",data:"﻿"+rows.map(r=>r.map(safe).join(",")).join("\n")});}catch(e){}
+}
+function faqSection(){
+  const Q=[
+    ["E se o viajante não entregar?","O pagamento fica em garantia na Kamba. O viajante só recebe depois de quem recebe dizer o código de entrega. Antes disso, a equipa tem a identidade, o bilhete e as fotos do volume."],
+    ["Posso enviar um telemóvel ou um portátil?","Sim, com verificação da equipa. Electrónicos têm regras de alfândega e de companhia aérea, por isso confirmamos o caso antes de publicar o pedido."],
+    ["Quanto custa?","Tu e o viajante combinam o valor por kg. A Kamba cobra uma taxa sobre esse valor, que vês na calculadora antes de aceitares."],
+    ["Quem vê o meu número de telefone?","Só a equipa. Os contactos só são partilhados com a outra parte depois de haver acordo."],
+    ["Quem paga se a encomenda chegar danificada?","Depende da causa, e as regras são as mesmas para todos e ficam escritas antes da viagem. Se o dano acontece enquanto o volume está com o viajante, por descuido, o viajante responde. Se o volume foi mal embalado ou o conteúdo foi declarado de forma errada, responde quem enviou. As fotos tiradas na entrega e na recepção decidem. Em ambos os casos, o pagamento fica retido até o caso estar resolvido."],
+    ["Porque é que me pedem o bilhete de avião?","Para confirmar que a viagem existe, na data e rota certas, antes de alguém te confiar uma encomenda. Só a equipa vê o documento. Podes tapar o número de reserva, o código de barras, o preço e o cartão. Precisamos de ver o nome, a rota, a data e o voo. Depois da viagem concluída, apagamos a cópia."],
+    ["Quanto tempo demora a verificação?","A equipa contacta-te pelo número que indicaste para confirmar os dados. Podes acompanhar o estado em “Os meus”."]
+  ];
+  return h("section",null,h("h2",null,"Perguntas frequentes"),h("div",{class:"faq"},Q.map(q=>h("details",null,h("summary",null,q[0]),h("p",null,q[1])))));
+}
+
+views.meus=function(){
+  const items=[...S.mine].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const published=id=>S.trips.some(t=>t.id===id)||S.requests.some(r=>r.id===id);
+  return h("section",null,
+    h("h2",null,"Os meus pedidos e viagens"),
+    h("p",{class:"muted"},"Aqui vês o estado de tudo o que enviaste nesta conta."),
+    items.length?h("div",{class:"list"},items.map(it=>{
+      const pub=published(it.id);
+      return h("article",{class:"item"},
+        h("div",{class:"head"},h("div",null,h("span",{class:"label"},(it.kind==="trip"?"Viagem":"Pedido")+" · KT-"+it.id.slice(-5).toUpperCase()),h("h3",null,it.kind==="trip"?cityName(it.from)+" → "+cityName(it.to)+" · "+fdate(it.date):it.item)),
+          h("span",{class:"pill "+(pub?"ok":"warn")},pub?"PUBLICADO":"EM VERIFICAÇÃO")),
+        h("p",{class:"hint"},pub?"Já aparece no quadro. A equipa fala contigo quando houver um interessado.":"A equipa vai contactar-te pelo número que indicaste. Se nada acontecer em dois dias, escreve-nos por WhatsApp."));
+    })):(S.db&&!S.ready.mine?h("div",{class:"empty"},h("p",null,"A carregar…")):empty("Ainda não enviaste nada","Quando enviares um pedido ou uma viagem, acompanhas o estado aqui.","Pedir envio","#pedir")));
+};
+
+views.regras=function(){
+  const li=(t)=>h("li",null,t);
+  return h("section",null,
+    h("h2",null,"Regras de segurança"),
+    h("p",{class:"muted"},"Estas regras protegem quem envia, quem leva e a própria plataforma. Quem as quebrar é removido."),
+    h("div",{class:"two"},
+      h("div",{class:"panel"},h("span",{class:"pill bad",style:"align-self:flex-start"},"PROIBIDO"),h("h3",null,"Nunca transportamos"),
+        h("ul",{style:"margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"},
+          li("Drogas e substâncias controladas"),li("Armas, munições e réplicas"),li("Dinheiro em numerário e documentos de valor"),
+          li("Baterias soltas, gás, líquidos inflamáveis e químicos"),li("Produtos falsificados"),li("Animais, plantas e alimentos perecíveis"),li("Qualquer volume fechado que o viajante não possa abrir"))),
+      h("div",{class:"panel"},h("span",{class:"pill warn",style:"align-self:flex-start"},"COM VERIFICAÇÃO"),h("h3",null,"Só com confirmação da equipa"),
+        h("ul",{style:"margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"},
+          li("Electrónicos novos: telemóveis, portáteis, consolas"),li("Medicamentos: só com receita e para uso pessoal"),li("Itens de valor elevado"),li("Peças e ferramentas"),
+          li("Tudo o que tenha limites de peso, quantidade ou valor na alfândega angolana ou na companhia aérea")))),
+    h("div",{class:"panel"},h("h3",null,"Como protegemos cada entrega"),
+      h("div",{class:"two"},
+        h("ul",{style:"margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"},
+          li("Viajante com identidade e bilhete verificados antes de aparecer no quadro"),
+          li("Volume aberto, fotografado e selado na presença de quem envia"),
+          li("Lista do conteúdo escrita e aceite pelas duas partes")),
+        h("ul",{style:"margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"},
+          li("Pagamento em garantia na Kamba até haver código de entrega"),
+          li("Quem recebe confirma o estado do volume no momento"),
+          li("Em caso de problema, a equipa analisa as fotos e o histórico")))),
+    h("div",{class:"panel"},h("h3",null,"Quem responde por danos"),
+      h("p",{class:"hint"},"Resumo prático para as duas partes. Está escrito antes da viagem para ninguém ser surpreendido depois."),
+      h("div",{class:"two"},
+        h("ul",{style:"margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"},
+          li("O viajante cuida do volume desde a entrega até ao código de recepção, como cuidaria da sua própria bagagem"),
+          li("Quem envia embala bem, declara o conteúdo e o valor com verdade e responde por itens proibidos ou mal declarados"),
+          li("Fotos do volume na entrega e na recepção são a prova das duas partes")),
+        h("ul",{style:"margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"},
+          li("Dano por descuido do viajante: o viajante responde"),
+          li("Embalagem insuficiente, defeito do próprio item ou declaração errada: responde quem envia"),
+          li("Apreensão na alfândega por item não declarado: responde quem enviou o item"),
+          li("Reclamações com fotos nas 48 horas seguintes à recepção; o pagamento fica retido até haver decisão"))),
+      h("p",{class:"hint"},"A indemnização máxima é o valor declarado do item. Os limites exactos devem ser confirmados num texto legal revisto por um advogado antes de abrir ao público.")),
+    h("div",{class:"panel"},h("h3",null,"Porque pedimos o bilhete e a identidade"),
+      h("ul",{style:"margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"},
+        li("Quem envia entrega um bem a um desconhecido. A prova de que a viagem existe é o que torna isso razoável"),
+        li("Só a equipa vê os documentos. Nunca aparecem no quadro, onde mostramos apenas o primeiro nome"),
+        li("Podes tapar o número de reserva, o código de barras, o preço e o cartão. Basta ver nome, rota, data e voo"),
+        li("A cópia é apagada depois da viagem concluída"),
+        li("Quem prefere não mostrar o bilhete pode usar a Kamba Traz para enviar, mas não pode publicar viagens"))),
+    h("p",{class:"hint"},"As regras da alfândega e das companhias aéreas mudam. Cada viajante é responsável por conhecer os limites da sua viagem antes de aceitar um pedido."));
+};
+
+/* ---------- administração ---------- */
+views.admin=function(){
+  if(!S.isAdmin)return h("section",null,h("h2",null,"Área reservada"),h("div",{class:"notice"},"Esta área é só para a equipa da Kamba Traz. Se és o responsável, abre a página com a tua conta de proprietário ou editor."));
+  const pend=pendingInbox();
+  const tab=(k,t,n)=>h("button",{role:"tab",type:"button","aria-selected":S.adminTab===k?"true":"false",onclick:()=>{S.adminTab=k;render();}},t,n!=null?h("span",{class:"cnt"},n):null);
+  const active=S.deals.filter(d=>d.status!=="liberado"&&d.status!=="cancelado");
+  const held=S.deals.filter(d=>["garantia","transito","entregue"].includes(d.status)).reduce((a,d)=>a+(d.price||0),0);
+  const earned=S.deals.filter(d=>d.status==="liberado").reduce((a,d)=>a+(d.commission||0),0);
+  const pipeline=active.reduce((a,d)=>a+(d.commission||0),0);
+  const stats=h("div",{class:"stats"},
+    h("div",null,h("span",{class:"label"},"Por verificar"),h("b",null,pend.length)),
+    h("div",null,h("span",{class:"label"},"Entregas em curso"),h("b",null,active.length)),
+    h("div",null,h("span",{class:"label"},"Em garantia"),h("b",null,kz(held))),
+    h("div",null,h("span",{class:"label"},"Comissão a receber"),h("b",null,kz(pipeline))),
+    h("div",null,h("span",{class:"label"},"Comissão recebida"),h("b",null,kz(earned))));
+  const body={entradas:adminInbox,ligacoes:adminDeals,quadro:adminBoard,analise:adminAnalysis,economia:adminEconomics,pitch:adminPitch,tecnico:adminTech,definicoes:adminSettings}[S.adminTab]();
+  return h("section",null,
+    h("h2",null,"Painel da equipa"),
+    stats,
+    h("div",{class:"tabs",role:"tablist"},tab("entradas","Por verificar",pend.length),tab("ligacoes","Entregas",S.deals.length),tab("quadro","Quadro",S.trips.length+S.requests.length),tab("analise","Análise"),tab("economia","Economia"),tab("pitch","Pitch"),tab("tecnico","Backend"),tab("definicoes","Definições")),
+    body);
+};
+
+async function approve(it){
+  const pub=it.kind==="trip"
+    ?{from:it.from,to:it.to,date:it.date,kg:it.kg,perKg:it.perKg,name:firstName(it.name),flight:it.flight||"",status:"aberto",createdAt:Date.now()}
+    :{from:it.from,to:it.to,item:it.item,category:it.category,kg:it.kg,offer:it.offer,deadline:it.deadline||"",name:firstName(it.name),status:"aberto",createdAt:Date.now()};
+  await S.db.doc((it.kind==="trip"?"trips/":"requests/")+it.id).set(pub);
+  await S.db.doc("handled/"+it.id).set({action:"approved",at:Date.now()});
+  render();
+}
+async function reject(it){await S.db.doc("handled/"+it.id).set({action:"rejected",at:Date.now()});render();}
+
+function adminInbox(){
+  const pend=pendingInbox();
+  if(!pend.length)return h("div",{class:"list"},adminChecklist(),h("div",{class:"empty"},h("h3",null,"Nada por verificar"),h("p",null,"Os pedidos e viagens enviados aparecem aqui com o contacto de quem os fez.")));
+  return h("div",{class:"list"},pend.map(it=>{
+    const wa=waLink(it.contact,"Olá "+firstName(it.name)+", daqui a equipa da Kamba Traz. Recebemos o seu "+(it.kind==="trip"?"registo de viagem":"pedido")+" e precisamos de confirmar alguns dados.");
+    return h("article",{class:"item"},
+      h("div",{class:"head"},h("div",null,h("span",{class:"label"},it.kind==="trip"?"Viagem":"Pedido de envio"),h("h3",null,it.kind==="trip"?cityName(it.from)+" → "+cityName(it.to)+" · "+fdate(it.date):it.item)),
+        h("span",{class:"pill warn"},"NOVO")),
+      h("div",{class:"kv"},
+        h("div",null,h("span",null,"Nome"),it.name),
+        h("div",null,h("span",null,"Contacto"),it.contact),
+        it.kind==="trip"
+          ?[h("div",null,h("span",null,"Espaço livre"),it.kg+" kg"),h("div",null,h("span",null,"Preço por kg"),kz(it.perKg)),it.flight?h("div",null,h("span",null,"Voo"),it.flight):null]
+          :[h("div",null,h("span",null,"Rota"),cityName(it.from)+" → "+cityName(it.to)),h("div",null,h("span",null,"Tipo"),it.category),h("div",null,h("span",null,"Peso"),it.kg+" kg"),
+            h("div",null,h("span",null,"Valor do item"),it.value+" €"),h("div",null,h("span",null,"Oferta"),kz(it.offer))]),
+      h("div",{class:"row"},
+        h("button",{type:"button",class:"btn small primary",onclick:()=>approve(it).catch(()=>{})},"Aprovar e publicar"),
+        wa?h("a",{class:"btn small",href:wa,target:"_blank",rel:"noopener"},"Contactar por WhatsApp"):null,
+        twoStep("Recusar",()=>reject(it))));
+  }));
+}
+
+function adminDeals(){
+  const reqs=openReqs(),trips=S.trips.filter(t=>t.status!=="concluida");
+  const selR=h("select",{id:"d-req"},h("option",{value:""},"Escolher pedido…"),reqs.map(r=>h("option",{value:r.id},r.item+" · "+r.from+"→"+r.to+" · "+r.name)));
+  const selT=h("select",{id:"d-trip"},h("option",{value:""},"Escolher viagem…"),trips.map(t=>h("option",{value:t.id},t.from+"→"+t.to+" · "+fdate(t.date)+" · "+t.name)));
+  const price=h("input",{id:"d-price",type:"number",min:"0",step:"500",inputmode:"numeric"});
+  const calc=h("span",{class:"hint"},"");
+  const msg=h("span",{class:"err",id:"d-e"});
+  function upd(){
+    const p=parseFloat(price.value)||0,c=Math.round(p*S.config.commission/100);
+    calc.textContent=p?"Comissão "+S.config.commission+"%: "+kz(c)+" · Viajante recebe "+kz(p-c):"";
+  }
+  selR.addEventListener("change",()=>{const r=S.requests.find(x=>x.id===selR.value);if(r&&!price.value){price.value=r.offer||"";upd();}});
+  price.addEventListener("input",upd);
+  const create=async()=>{
+    msg.textContent="";
+    const r=S.requests.find(x=>x.id===selR.value),t=S.trips.find(x=>x.id===selT.value),p=parseFloat(price.value);
+    if(!r||!t||!(p>0)){msg.textContent="Escolhe um pedido, uma viagem e o valor acordado.";return;}
+    const commission=Math.round(p*S.config.commission/100);
+    try{
+      await S.db.collection("deals").add({requestId:r.id,tripId:t.id,label:r.item+" · "+r.from+" → "+r.to,traveler:t.name,requester:r.name,price:p,commissionPct:S.config.commission,commission,status:"negociacao",createdAt:Date.now()});
+      await S.db.doc("requests/"+r.id).update({status:"ligado"});
+      render();
+    }catch(e){msg.textContent="Não foi possível criar a entrega ("+(e&&e.code||"erro")+").";}
+  };
+  const form=h("div",{class:"panel flat"},h("h3",null,"Ligar pedido a viajante"),
+    h("div",{class:"fields"},field("d-req","Pedido",selR),field("d-trip","Viagem",selT),field("d-price","Valor acordado (Kz)",price)),
+    calc,msg,h("div",{class:"row"},h("button",{type:"button",class:"btn primary small",onclick:create},"Criar entrega")));
+  const list=S.deals.length?[...S.deals].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).map(d=>{
+    const idx=DEAL_STEPS.findIndex(s=>s[0]===d.status),cancelled=d.status==="cancelado";
+    const next=!cancelled&&idx>=0&&idx<DEAL_STEPS.length-1?DEAL_STEPS[idx+1]:null;
+    const set=async s=>{try{await S.db.doc("deals/"+d.id).update({status:s});render();}catch(e){}};
+    const pillCls=cancelled?"bad":d.status==="liberado"?"ok":d.status==="negociacao"?"warn":"info";
+    return h("article",{class:"item"},
+      h("div",{class:"head"},h("div",null,h("span",{class:"label"},d.traveler+" leva o pedido de "+d.requester),h("h3",null,d.label)),
+        h("span",{class:"pill "+pillCls},cancelled?"CANCELADO":DEAL_STEPS[idx]?DEAL_STEPS[idx][1].toUpperCase():d.status)),
+      h("div",{class:"kv"},h("div",null,h("span",null,"Valor"),kz(d.price)),h("div",null,h("span",null,"Comissão ("+d.commissionPct+"%)"),kz(d.commission)),h("div",null,h("span",null,"Viajante recebe"),kz(d.price-d.commission))),
+      h("div",{class:"row"},
+        next?h("button",{type:"button",class:"btn small primary",onclick:()=>set(next[0])},"Marcar: "+next[1]):null,
+        !cancelled&&d.status!=="liberado"?twoStep("Cancelar",()=>set("cancelado")):null,
+        twoStep("Apagar",async()=>{try{await S.db.doc("deals/"+d.id).delete();render();}catch(e){}})));
+  }):[h("div",{class:"empty"},h("h3",null,"Ainda não há entregas"),h("p",null,"Quando ligares um pedido a um viajante, acompanhas aqui o pagamento em garantia, o transporte e a libertação do dinheiro."))];
+  return h("div",{class:"list"},form,S.deals.length?h("div",{class:"row"},h("button",{type:"button",class:"btn small",onclick:exportDeals},"Exportar entregas (CSV)")):null,list);
+}
+
+function adminBoard(){
+  const setS=async(coll,id,s)=>{try{await S.db.doc(coll+"/"+id).update({status:s});render();}catch(e){}};
+  const del=async(coll,id)=>{try{await S.db.doc(coll+"/"+id).delete();render();}catch(e){}};
+  const hasEx=S.trips.concat(S.requests).some(x=>x.example);
+  const tools=h("div",{class:"row"},
+    h("button",{type:"button",class:"btn small",onclick:seedExamples},"Carregar exemplos"),
+    hasEx?twoStep("Remover exemplos",removeExamples):null);
+  const tripRows=S.trips.map(t=>h("article",{class:"item"},
+    h("div",{class:"head"},h("div",null,h("span",{class:"label"},"Viagem"),h("h3",null,t.from+" → "+t.to+" · "+fdate(t.date)+" · "+t.name)),h("div",{class:"row"},statusPill(t.status),exBadge(t))),
+    h("div",{class:"row"},
+      h("select",{"aria-label":"Estado da viagem",style:"max-width:200px",onchange:e=>setS("trips",t.id,e.target.value)},[["aberto","Aberto"],["cheia","Mala cheia"],["concluida","Concluída"]].map(o=>h("option",{value:o[0],selected:o[0]===t.status},o[1]))),
+      twoStep("Apagar",()=>del("trips",t.id)))));
+  const reqRows=S.requests.map(r=>h("article",{class:"item"},
+    h("div",{class:"head"},h("div",null,h("span",{class:"label"},"Pedido"),h("h3",null,r.item+" · "+r.from+" → "+r.to)),h("div",{class:"row"},statusPill(r.status),exBadge(r))),
+    h("div",{class:"row"},
+      h("select",{"aria-label":"Estado do pedido",style:"max-width:200px",onchange:e=>setS("requests",r.id,e.target.value)},[["aberto","Aberto"],["ligado","Com viajante"],["entregue","Entregue"]].map(o=>h("option",{value:o[0],selected:o[0]===r.status},o[1]))),
+      twoStep("Apagar",()=>del("requests",r.id)))));
+  const all=tripRows.concat(reqRows);
+  return h("div",{class:"list"},tools,all.length?all:h("div",{class:"empty"},h("h3",null,"O quadro está vazio"),h("p",null,"Aprova entradas em “Por verificar” para as publicar. Para ver o site cheio, carrega os exemplos e remove-os quando quiseres.")));
+}
+async function seedExamples(){
+  const d=(n)=>{const x=new Date();x.setDate(x.getDate()+n);x.setMinutes(x.getMinutes()-x.getTimezoneOffset());return x.toISOString().slice(0,10);};
+  const T=[["ex-t1","LIS","LAD",9,15,Math.round(S.config.perKg),"Mário","aberto"],["ex-t2","OPO","LAD",16,8,Math.round(S.config.perKg*1.1),"Teresa","aberto"],["ex-t3","LIS","BUG",23,12,Math.round(S.config.perKg*.95),"Eduardo","aberto"]];
+  const R=[["ex-r1","LIS","LAD","Telemóvel novo na caixa",CATS[1],1,45000,"Carla"],["ex-r2","LIS","LAD","Peças de carro (filtros e pastilhas)",CATS[3],6,70000,"Joaquim"],["ex-r3","OPO","LAD","Roupa e calçado de criança",CATS[0],4,35000,"Ana"],["ex-r4","FAO","SDD","Medicamentos com receita",CATS[5],0.8,25000,"Domingos"]];
+  try{
+    for(const t of T)await S.db.doc("trips/"+t[0]).set({from:t[1],to:t[2],date:d(t[3]),kg:t[4],perKg:t[5],name:t[6],status:t[7],example:true,createdAt:Date.now()});
+    for(const r of R)await S.db.doc("requests/"+r[0]).set({from:r[1],to:r[2],item:r[3],category:r[4],kg:r[5],offer:r[6],name:r[7],status:"aberto",example:true,createdAt:Date.now()});
+    render();
+  }catch(e){}
+}
+async function removeExamples(){
+  try{
+    for(const x of S.trips.filter(t=>t.example))await S.db.doc("trips/"+x.id).delete();
+    for(const x of S.requests.filter(t=>t.example))await S.db.doc("requests/"+x.id).delete();
+    render();
+  }catch(e){}
+}
+
+function adminSettings(){
+  const c=S.config;
+  const inCom=h("input",{id:"s-com",type:"number",min:"0",max:"50",step:"0.5",value:c.commission});
+  const inKg=h("input",{id:"s-kg",type:"number",min:"0",step:"500",value:c.perKg});
+  const inWa=h("input",{id:"s-wa",type:"tel",value:c.whatsapp,placeholder:"+351 9XX XXX XXX"});
+  const msg=h("span",{class:"hint",role:"status"});
+  const save=async()=>{
+    const v={commission:Math.min(50,Math.max(0,parseFloat(inCom.value)||0)),perKg:Math.max(0,parseFloat(inKg.value)||0),whatsapp:inWa.value.trim()};
+    try{await S.db.doc("config/main").set(v);Object.assign(S.config,v);msg.textContent="Guardado.";}
+    catch(e){msg.textContent="Não foi possível guardar ("+(e&&e.code||"erro")+").";}
+  };
+  return h("div",{class:"panel"},h("h3",null,"Definições do negócio"),
+    h("div",{class:"fields"},
+      field("s-com","Comissão da Kamba (%)",inCom,"Aplica-se a novas entregas."),
+      field("s-kg","Preço de referência por kg (Kz)",inKg,"Valor inicial. Substitui pelos preços reais que ouvires do mercado."),
+      field("s-wa","WhatsApp da equipa",inWa,"Aparece nos botões “Quero enviar” e no resumo dos formulários.")),
+    h("div",{class:"row"},h("button",{type:"button",class:"btn primary",onclick:save},"Guardar definições"),msg));
+}
+
+/* ---------- análise de dados ---------- */
+const pct=(a,b)=>b?Math.round(a/b*100)+"%":"–";
+function adminAnalysis(){
+  const subs=S.inbox.reduce((a,d)=>a+(Array.isArray(d.items)?d.items.length:0),0);
+  const approved=S.handled.filter(x=>x.action==="approved").length;
+  const linked=S.deals.length,done=S.deals.filter(d=>d.status==="liberado").length;
+  const steps=[["Entradas recebidas",subs],["Aprovadas e publicadas",approved],["Ligadas a viajante",linked],["Entregas concluídas",done]];
+  const mx=Math.max(1,...steps.map(s=>s[1]));
+  const funnel=steps.map((s,i)=>h("div",{class:"brow",title:s[0]+": "+s[1]},
+    h("div",{class:"nm"},s[0]),
+    h("div",{class:"btrack"},h("div",{class:"bfillw"},h("div",{class:"bfill",style:"width:"+(s[1]/mx*100)+"%;background:var(--s1)"})),
+      h("span",{class:"bval"},s[1]+(i?" · "+pct(s[1],steps[i-1][1])+" do passo anterior":"")))));
+  const m={};
+  openTrips().forEach(t=>{const k=t.from+" → "+t.to;(m[k]=m[k]||{s:0,d:0}).s+=Number(t.kg)||0;});
+  openReqs().forEach(r=>{const k=r.from+" → "+r.to;(m[k]=m[k]||{s:0,d:0}).d+=Number(r.kg)||0;});
+  const rows=Object.keys(m).map(k=>({k,s:m[k].s,d:m[k].d,gap:m[k].d-m[k].s})).sort((a,b)=>Math.max(b.s,b.d)-Math.max(a.s,a.d));
+  const rmx=Math.max(1,...rows.map(r=>Math.max(r.s,r.d)));
+  const tr=(label,v,color)=>h("div",{class:"btrack",title:label+": "+v+" kg"},h("div",{class:"bfillw"},h("div",{class:"bfill",style:"width:"+(v/rmx*100)+"%;background:"+color})),h("span",{class:"bval"},v+" kg"));
+  const chart=rows.map(r=>h("div",{class:"brow"},h("div",{class:"nm"},r.k),h("div",{class:"btracks"},tr("Espaço dos viajantes",r.s,"var(--s1)"),tr("Procura dos pedidos",r.d,"var(--s2)"))));
+  let insight="Sem dados de rotas ainda.";
+  if(rows.length){
+    const short=[...rows].sort((a,b)=>b.gap-a.gap)[0],spare=[...rows].sort((a,b)=>a.gap-b.gap)[0];
+    insight=short.gap>0?"Faltam "+short.gap+" kg de espaço na rota "+short.k+". Recruta viajantes para esta rota primeiro."
+      :spare.gap<0?"Há espaço livre de sobra na rota "+spare.k+" ("+(-spare.gap)+" kg). Promove-a junto de quem quer enviar.":"Oferta e procura estão equilibradas.";
+  }
+  const avg=S.deals.length?S.deals.reduce((a,d)=>a+(d.price||0),0)/S.deals.length:0;
+  const kpi=h("div",{class:"stats"},
+    h("div",null,h("span",{class:"label"},"Taxa de aprovação"),h("b",null,pct(approved,subs))),
+    h("div",null,h("span",{class:"label"},"Conversão até entrega"),h("b",null,pct(done,subs))),
+    h("div",null,h("span",{class:"label"},"Valor médio por entrega"),h("b",null,avg?kz(avg):"–")));
+  const table=h("details",null,h("summary",{style:"cursor:pointer;font-weight:600;min-height:36px"},"Ver como tabela"),
+    h("div",{class:"tablewrap"},h("table",{class:"rtbl"},h("thead",null,h("tr",null,h("th",null,"Rota"),h("th",{class:"num"},"Espaço (kg)"),h("th",{class:"num"},"Procura (kg)"),h("th",{class:"num"},"Diferença"))),
+      h("tbody",null,rows.map(r=>h("tr",null,h("td",null,r.k),h("td",{class:"num"},r.s),h("td",{class:"num"},r.d),h("td",{class:"num"},(r.gap>0?"+":"")+r.gap)))))));
+  return h("div",{class:"list"},
+    kpi,
+    h("div",{class:"panel"},h("h3",null,"Do primeiro contacto à entrega"),h("p",{class:"hint"},"Onde perdes pessoas pelo caminho."),h("div",{role:"img","aria-label":"Funil: "+steps.map(s=>s[0]+" "+s[1]).join(", ")},funnel)),
+    h("div",{class:"panel"},h("h3",null,"Espaço dos viajantes contra procura, por rota"),
+      h("p",{class:"notice"},insight),
+      rows.length?[h("div",{class:"legend"},h("span",null,h("i",{class:"sw",style:"background:var(--s1)"}),"Espaço dos viajantes"),h("span",null,h("i",{class:"sw",style:"background:var(--s2)"}),"Procura dos pedidos")),
+        h("div",{role:"img","aria-label":"Espaço e procura em kg por rota. "+insight},chart),table]
+        :h("div",{class:"empty"},h("p",null,"Quando houver viagens e pedidos abertos, vês aqui onde falta espaço e onde sobra. Usa “Carregar exemplos” no separador Quadro para ver como fica."))));
+}
+
+/* ---------- economia ---------- */
+function adminEconomics(){
+  if(!S.eco)S.eco={n:40,kg:6,perKg:S.config.perKg,com:S.config.commission,pay:3,res:1.5,sup:1500,fix:150000,cac:4000,courier:25000};
+  const E=S.eco,out=h("div",{class:"panel"});
+  const defs=[["n","Entregas por mês",1],["kg","Kg médios por entrega",0.5],["perKg","Preço por kg (Kz)",500],["com","Comissão da Kamba (%)",0.5],["pay","Taxa do meio de pagamento (%)",0.1],["res","Reserva para sinistros (% do valor)",0.1],["sup","Custo de apoio por entrega (Kz)",100],["fix","Custos fixos por mês (Kz)",5000],["cac","Custo de conquistar um cliente (Kz)",500],["courier","Correio expresso, preço por kg (Kz)",1000]];
+  const inputs=defs.map(d=>{const i=h("input",{id:"e-"+d[0],type:"number",min:"0",step:d[2],value:E[d[0]],inputmode:"decimal"});i.addEventListener("input",()=>{E[d[0]]=parseFloat(i.value)||0;paint();});return field("e-"+d[0],d[1],i);});
+  const calc=n=>{const gmv=n*E.kg*E.perKg,rev=gmv*E.com/100,pay=gmv*E.pay/100,res=gmv*E.res/100,sup=n*E.sup,cm=rev-pay-res-sup;return{gmv,rev,pay,res,sup,cm,profit:cm-E.fix};};
+  const ln=(a,b,cls)=>h("div",{class:"ln"},h("span",null,a),h("b",{class:cls||""},b));
+  function paint(){
+    const c=calc(E.n),per=E.kg*E.perKg*(E.com-E.pay-E.res)/100-E.sup;
+    const be=per>0?Math.ceil(E.fix/per):null,pb=per>0?Math.ceil(E.cac/per):null;
+    const save=E.courier>0?Math.round((1-E.perKg/E.courier)*100):0;
+    out.replaceChildren(
+      h("h3",null,"Resultado por mês"),
+      per<=0?h("div",{class:"notice bad"},"Cada entrega dá prejuízo com estas premissas. Sobe a comissão, o peso médio ou o preço por kg, ou baixa os custos."):null,
+      h("div",null,
+        ln("Valor movimentado",kz(c.gmv)),
+        ln("Comissão recebida",kz(c.rev)),
+        ln("Taxas do meio de pagamento","− "+kz(c.pay)),
+        ln("Reserva para sinistros","− "+kz(c.res)),
+        ln("Apoio ao cliente","− "+kz(c.sup)),
+        ln("Margem de contribuição",kz(c.cm)),
+        ln("Custos fixos","− "+kz(E.fix)),
+        ln("Lucro do mês",kz(c.profit),c.profit>=0?"pos":"neg")),
+      h("div",{class:"stats"},
+        h("div",null,h("span",{class:"label"},"Margem por entrega"),h("b",{class:per>0?"":"neg"},kz(per))),
+        h("div",null,h("span",{class:"label"},"Ponto de equilíbrio"),h("b",null,be?be+" entregas":"–")),
+        h("div",null,h("span",{class:"label"},"Recuperar custo de cliente"),h("b",null,pb?pb+" entrega"+(pb>1?"s":""):"–"))),
+      E.courier>0?h("p",{class:"hint"},"O cliente paga "+kz(E.perKg)+"/kg contra "+kz(E.courier)+"/kg no correio expresso: "+(save>0?"poupa "+save+"%.":"não poupa.")):null,
+      h("h3",null,"Cenários"),
+      h("div",{class:"tablewrap"},h("table",{class:"rtbl"},h("thead",null,h("tr",null,h("th",{class:"num"},"Entregas/mês"),h("th",{class:"num"},"Comissão"),h("th",{class:"num"},"Lucro"))),
+        h("tbody",null,[10,30,60,100,200].map(n=>{const x=calc(n);return h("tr",null,h("td",{class:"num"},n),h("td",{class:"num"},kz(x.rev)),h("td",{class:"num "+(x.profit>=0?"pos":"neg")},kz(x.profit)));})))));
+  }
+  const root=h("div",{class:"list"},
+    h("div",{class:"notice"},"Estes números são premissas ilustrativas que eu escolhi como ponto de partida. Substitui cada um pelo que for real (cotações do correio, taxa do meio de pagamento, os teus custos). O resultado só vale tanto quanto elas."),
+    h("div",{class:"econ"},h("div",{class:"panel"},h("h3",null,"Premissas"),h("div",{class:"fields",style:"grid-template-columns:1fr"},inputs)),out));
+  paint();
+  return root;
+}
+
+/* ---------- pitch ---------- */
+function msgBox(title,text){
+  const ta=h("textarea",{readonly:true,"aria-label":title},text);
+  return h("div",{class:"msg"},h("h3",null,title),ta,h("div",{class:"row"},h("button",{type:"button",class:"btn small",onclick:e=>copy(text,e.currentTarget)},"Copiar")));
+}
+function adminPitch(){
+  const pitch=[["Gancho","Quantas vezes ficaste semanas à espera de uma encomenda para Angola, ou pagaste uma fortuna para a enviar?"],
+    ["Problema","O correio expresso é caro e lento. Pedir a um conhecido que traga é barato, mas ninguém sabe em quem confiar."],
+    ["Solução","A Kamba Traz liga quem quer enviar a viajantes verificados que já têm a viagem marcada. O dinheiro fica em garantia e só é libertado quando a entrega é confirmada com um código."],
+    ["Prova","Começámos com a rota Lisboa–Luanda. [Escreve aqui o número real de entregas feitas.]"],
+    ["Pedido","Se vais a Luanda no próximo mês ou tens algo para enviar, diz-me e organizo-te a primeira entrega esta semana."]];
+  const full=pitch.map(p=>p[1]).join(" ");
+  return h("div",{class:"list"},
+    h("div",{class:"panel"},h("h3",null,"Pitch de 30 segundos"),
+      h("p",{class:"hint"},"Uma ideia por frase. Fala de pessoas e de dinheiro poupado, não de tecnologia. Treina em voz alta até caber em 30 segundos."),
+      h("div",{class:"list"},pitch.map(p=>h("div",null,h("span",{class:"label"},p[0]),h("p",null,p[1])))),
+      h("div",{class:"row"},h("button",{type:"button",class:"btn small",onclick:e=>copy(full,e.currentTarget)},"Copiar pitch completo"))),
+    h("div",{class:"two"},
+      h("div",{class:"panel"},
+        msgBox("Mensagem para viajantes","Olá! Vais viajar para Angola em breve? Tens espaço na mala que podes transformar em dinheiro. Na Kamba Traz publicas a tua viagem, escolhes os pedidos que aceitas e o pagamento fica garantido antes de levares. Diz-me a data e a rota e eu trato do resto."),
+        msgBox("Mensagem para quem quer enviar","Olá! Precisas de enviar algo para Angola? Na Kamba Traz ligamos-te a viajantes verificados que já têm voo marcado. Pagas em garantia e só libertamos o dinheiro depois da entrega confirmada. Diz-me o que é, o peso e de onde sai.")),
+      h("div",{class:"panel"},
+        msgBox("Depois da entrega (pedir testemunho)","Olá! A tua encomenda chegou bem? Se correu tudo bem, podes responder-me com uma frase sobre a experiência? Ajuda muito outras pessoas a confiar. E se conheceres alguém que vá viajar, diz-me."),
+        msgBox("Resposta a quem tem medo de ser enganado","Percebo a preocupação, e é por isso que o dinheiro fica connosco até a entrega ser confirmada. O viajante tem identidade e bilhete verificados, o volume é aberto e fotografado à tua frente, e tu dizes o código só quando recebes."))),
+    h("div",{class:"panel"},h("h3",null,"Objecções e como responder"),
+      h("p",{class:"hint"},"Método: reconhece, responde com um facto, propõe um passo pequeno."),
+      h("div",{class:"faq"},[
+        ["“E se o viajante levar algo ilegal no meio?”","Reconhece o risco. Explica que o volume é aberto e fotografado, a lista do conteúdo é aceite pelas duas partes e existe uma lista de itens proibidos. Propõe começar com um item pequeno e simples."],
+        ["“Porque tenho de pagar a vocês e não ao viajante?”","Porque o dinheiro só sai quando a entrega é confirmada. Sem isto, só tens a palavra de um desconhecido."],
+        ["“Os preços do correio expresso são mais seguros.”","Reconhece que é uma opção. Compara o custo por kg e o prazo na calculadora e deixa a decisão com o cliente."],
+        ["“Não quero ser responsável se algo se estragar.”","Reconhece que a preocupação é justa. Explica que o viajante só responde por descuido seu, que o volume é fotografado na entrega e na recepção, e que dano por embalagem ou declaração errada é de quem enviou. Mostra a secção “Quem responde por danos” nas Regras."],
+        ["“Não quero mostrar o meu bilhete.”","Reconhece. Diz que só a equipa o vê, que pode tapar o número de reserva, o código de barras e o preço, e que a cópia é apagada depois da viagem. Se mesmo assim recusar, explica que sem a prova da viagem não a podemos publicar, mas pode continuar a enviar encomendas."],
+        ["“Não conheço ninguém que use isto.”","Diz quantas entregas já foram feitas na rota dele e oferece-te a acompanhar a primeira pessoalmente."]
+      ].map(q=>h("details",null,h("summary",null,q[0]),h("p",null,q[1]))))));
+}
+
+/* ---------- roteiro técnico ---------- */
+function adminTech(){
+  const sql1="create table profiles (\n  id uuid primary key references auth.users,\n  full_name text not null,\n  role text not null default 'user' check (role in ('user','admin')),\n  verified_at timestamptz\n);\n\ncreate table private_contacts (\n  user_id uuid primary key references profiles(id),\n  phone text not null\n);\n\ncreate table trips (\n  id uuid primary key default gen_random_uuid(),\n  traveler_id uuid not null references profiles(id),\n  origin text not null,\n  destination text not null,\n  travel_date date not null,\n  kg_free numeric not null check (kg_free > 0),\n  price_per_kg_aoa integer not null check (price_per_kg_aoa >= 0),\n  status text not null default 'pending',\n  created_at timestamptz not null default now()\n);\ncreate index on trips (status, origin, destination, travel_date);";
+  const sql2="alter table trips enable row level security;\n\ncreate policy trips_public_read on trips\n  for select using (status = 'open');\n\ncreate policy trips_owner_insert on trips\n  for insert with check (auth.uid() = traveler_id);\n\ncreate policy trips_admin_all on trips\n  for all using (\n    exists (select 1 from profiles p\n            where p.id = auth.uid() and p.role = 'admin'));\n\nalter table private_contacts enable row level security;\ncreate policy contacts_owner on private_contacts\n  for all using (auth.uid() = user_id);";
+  const flow="pending → open → matched → paid_escrow → in_transit\n                                      ↓\n                               delivered → released\n\nqualquer estado antes de released → cancelled / disputed";
+  const ul=a=>h("ul",{style:"margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"},a.map(x=>h("li",null,x)));
+  return h("div",{class:"list"},
+    h("div",{class:"notice"},"Este separador é o desenho para passar do protótipo a produção. Nada daqui está ligado ainda: o protótipo usa a base de dados do artefacto."),
+    h("div",{class:"two"},
+      h("div",{class:"panel"},h("h3",null,"Stack"),ul(["Next.js (Route Handlers) no mesmo projecto do site","Supabase: Postgres, autenticação e Row Level Security","Vercel para o site e a API; segredos em variáveis de ambiente","Fornecedor de pagamentos com Multicaixa Express, Unitel Money ou referência, a confirmar qual está disponível para o teu caso"])),
+      h("div",{class:"panel"},h("h3",null,"Rotas da API"),ul(["POST /api/requests e POST /api/trips: validam no servidor e gravam como pending","POST /api/admin/approve: só admin, com sessão verificada no servidor","POST /api/deals: cria a entrega e o registo de pagamento","POST /api/payments/webhook: verifica assinatura e usa chave de idempotência","POST /api/deals/:id/confirm: valida o código de entrega e liberta o pagamento"]))),
+    h("div",{class:"panel"},h("h3",null,"Estados de uma entrega"),h("pre",{class:"code"},flow),
+      ul(["Cada mudança de estado grava uma linha num registo de auditoria (quem, quando, de onde para onde)","O código de entrega guarda-se só como hash; nunca em texto simples","Libertar o pagamento só é possível a partir de delivered"])),
+    h("div",{class:"panel"},h("h3",null,"Tabelas principais"),h("pre",{class:"code"},sql1)),
+    h("div",{class:"panel"},h("h3",null,"Segurança com RLS"),h("p",{class:"hint"},"O público só lê viagens abertas. Contactos e entregas ficam privados."),h("pre",{class:"code"},sql2)),
+    h("div",{class:"panel"},h("h3",null,"Antes de abrir ao público"),ul(["RLS activo e testado em todas as tabelas","Nenhuma chave secreta no código do browser (a service_role só no servidor)","Toda a escrita validada no servidor, com limites de tamanho","Rate limiting nos formulários e no login","Listagens paginadas e índices nos filtros por rota e data","Termos de uso e política de privacidade revistos por um advogado, sobretudo a parte de transporte de bens e dados pessoais"])));
+}
+
+/* ---------- navegação ---------- */
+function render(){
+  const r=(location.hash||"#inicio").slice(1);
+  S.route=ROUTES.includes(r)?r:"inicio";
+  const nav=$("#nav");nav.replaceChildren();
+  [["inicio","Início"],["quadro","Quadro"],["pedir","Pedir envio"],["viajar","Vou viajar"],["regras","Regras"]].concat(S.uid?[["meus","Os meus"]]:[]).concat(S.isAdmin?[["admin","Equipa"]]:[]).forEach(x=>{
+    nav.append(h("a",{href:"#"+x[0],"aria-current":S.route===x[0]?"page":null},x[1]));});
+  const main=$("#main");
+  let v;try{v=views[S.route]();}catch(e){v=h("div",{class:"notice bad"},"Ocorreu um erro ao mostrar esta página.");console.error(e);}
+  main.replaceChildren.apply(main,Array.isArray(v)?v:[v]);
+}
+let lastRoute="";
+window.addEventListener("hashchange",()=>{render();if(lastRoute!==S.route){window.scrollTo(0,0);lastRoute=S.route;try{$("#main").focus({preventScroll:true});}catch(e){}}});
+lastRoute=(location.hash||"#inicio").slice(1);
+boot();
+})();
+</script>
+</body>
+</html>

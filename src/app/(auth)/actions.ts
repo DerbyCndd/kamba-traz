@@ -2,6 +2,9 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { clientIp, isLimited, recordHit, TOO_MANY } from "@/lib/ratelimit";
+
+const MIN = 60;
 
 export type AuthState = { error?: string; message?: string; email?: string; needsConfirm?: boolean };
 
@@ -19,9 +22,14 @@ export async function login(_: AuthState, fd: FormData): Promise<AuthState> {
   const password = String(fd.get("password") ?? "");
   if (!validEmail(email) || !password) return { error: "Indica o email e a palavra-passe.", email };
 
+  const ip = await clientIp();
+  if ((await isLimited("login-ip", ip, 10, 5 * MIN)) || (await isLimited("login-email", email, 5, 15 * MIN))) return { error: TOO_MANY, email };
+  await recordHit("login-ip", ip);
+
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
+    await recordHit("login-email", email);
     if (/not confirmed/i.test(error.message)) {
       return { error: "Ainda não confirmaste o teu email. Abre a mensagem que te enviámos e clica no link.", email, needsConfirm: true };
     }
@@ -40,6 +48,10 @@ export async function signup(_: AuthState, fd: FormData): Promise<AuthState> {
   if (password.length < 8) return { error: "A palavra-passe precisa de pelo menos 8 caracteres.", email };
   if (password !== again) return { error: "As palavras-passe não coincidem.", email };
 
+  const ip = await clientIp();
+  if (await isLimited("signup-ip", ip, 5, 15 * MIN)) return { error: TOO_MANY, email };
+  await recordHit("signup-ip", ip);
+
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
     email,
@@ -57,6 +69,10 @@ export async function signup(_: AuthState, fd: FormData): Promise<AuthState> {
 export async function resendConfirmation(_: AuthState, fd: FormData): Promise<AuthState> {
   const email = str(fd, "email").toLowerCase();
   if (!validEmail(email)) return { error: "Email inválido." };
+  const ip = await clientIp();
+  if ((await isLimited("mail-ip", ip, 5, 15 * MIN)) || (await isLimited("mail-email", email, 3, 15 * MIN))) return { error: TOO_MANY, email };
+  await recordHit("mail-ip", ip);
+  await recordHit("mail-email", email);
   const supabase = await createClient();
   const { error } = await supabase.auth.resend({
     type: "signup",
@@ -70,6 +86,10 @@ export async function resendConfirmation(_: AuthState, fd: FormData): Promise<Au
 export async function requestReset(_: AuthState, fd: FormData): Promise<AuthState> {
   const email = str(fd, "email").toLowerCase();
   if (!validEmail(email)) return { error: "Indica um email válido.", email };
+  const ip = await clientIp();
+  if ((await isLimited("mail-ip", ip, 5, 15 * MIN)) || (await isLimited("mail-email", email, 3, 15 * MIN))) return { error: TOO_MANY, email };
+  await recordHit("mail-ip", ip);
+  await recordHit("mail-email", email);
   const supabase = await createClient();
   await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: (await siteUrl()) + "/auth/callback?next=/nova-palavra-passe",

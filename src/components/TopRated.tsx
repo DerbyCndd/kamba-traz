@@ -1,4 +1,4 @@
-import { getTopRated } from "@/lib/data";
+import { getLastWinners, getTopRated } from "@/lib/data";
 import { initials, monthLabel, PRIZE_MIN } from "@/lib/format";
 import type { TopEntry } from "@/lib/types";
 import { Stars } from "./Stars";
@@ -36,7 +36,7 @@ export function RankColumn({ title, text, list, empty }: { title: string; text: 
 
 /** Os 3 mais bem classificados de cada função, no mês corrente. O 1.º de cada função ganha um mês sem taxas. */
 export async function TopRated() {
-  const { travelers, requesters } = await getTopRated();
+  const [{ travelers, requesters }, winners] = await Promise.all([getTopRated(), getLastWinners()]);
   const month = monthLabel();
   const empty = `Ainda sem avaliações em ${month}. O quadro enche à medida que as entregas do mês forem sendo avaliadas.`;
   return (
@@ -46,9 +46,15 @@ export async function TopRated() {
         <span className="prize-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" /></svg></span>
         <p>
           <b>Um mês sem pagar taxas.</b> No fim de cada mês, o entregador e o remetente mais bem avaliados ficam o mês seguinte sem pagar a taxa da Kamba.
-          Para concorrer é preciso ter pelo menos {PRIZE_MIN} avaliações dentro do mês. A classificação recomeça no dia 1.
+          Para concorrer é preciso ter pelo menos {PRIZE_MIN} avaliações dentro do mês. Em caso de empate na média, ganha quem tiver menos entregas avaliadas. A classificação recomeça no dia 1.
         </p>
       </div>
+      {winners.length ? (
+        <p className="last-win">
+          <b>Este mês sem taxas:</b>{" "}
+          {winners.map((w) => `${w.first_name} (${w.role === "traveler" ? "entregador" : "remetente"})`).join(" e ")}, os mais bem avaliados do mês passado.
+        </p>
+      ) : null}
       <div className="two">
         <RankColumn title="Entregadores" text="Quem leva as encomendas na mala" list={travelers} empty={empty} />
         <RankColumn title="Remetentes" text="Quem pede o envio das encomendas" list={requesters} empty={empty} />

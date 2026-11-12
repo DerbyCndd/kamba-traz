@@ -428,3 +428,5 @@ body.in{padding-left:0;padding-right:0}
 .prize-ico svg{fill:currentColor}
 .pill.prize{align-self:flex-start;background:var(--sun);color:var(--on-sun);font-weight:700;margin-top:2px}
 .who small.hint{font-size:12.5px}
+.last-win{font-size:15px;color:var(--ink);max-width:none}
+.last-win b{color:var(--sun)}

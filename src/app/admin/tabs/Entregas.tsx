@@ -2,16 +2,16 @@ import { SubmitButton } from "@/components/SubmitButton";
 import { TwoStepButton } from "@/components/TwoStepButton";
 import { DEAL_STEPS } from "@/lib/constants";
 import { kz } from "@/lib/format";
-import type { Deal, Req, Trip } from "@/lib/types";
+import type { Deal, Req, Trip, WaiverHolder } from "@/lib/types";
 import { deleteDeal, setDealStatus } from "../actions";
 import { DealForm } from "./DealForm";
 
-export function Entregas({ trips, reqs, deals, commission }: { trips: Trip[]; reqs: Req[]; deals: Deal[]; commission: number }) {
+export function Entregas({ trips, reqs, deals, commission, holders }: { trips: Trip[]; reqs: Req[]; deals: Deal[]; commission: number; holders: WaiverHolder[] }) {
   const openReqs = reqs.filter((r) => r.status === "aberto");
   const openTrips = trips.filter((t) => t.status === "aberto" || t.status === "cheia");
   return (
     <div className="list">
-      <DealForm reqs={openReqs} trips={openTrips} commission={commission} />
+      <DealForm reqs={openReqs} trips={openTrips} commission={commission} holders={holders} />
       {deals.length ? <div className="row"><a className="btn small" href="/admin/export">Exportar entregas (CSV)</a></div> : null}
       {deals.length ? deals.map((d) => {
         const idx = DEAL_STEPS.findIndex((s) => s[0] === d.status);
@@ -22,7 +22,10 @@ export function Entregas({ trips, reqs, deals, commission }: { trips: Trip[]; re
           <article className="item" key={d.id}>
             <div className="head">
               <div><span className="label">{d.traveler} leva o pedido de {d.requester}</span><h3>{d.label}</h3></div>
-              <span className={"pill " + cls}>{cancelled ? "CANCELADO" : (DEAL_STEPS[idx]?.[1] ?? d.status).toUpperCase()}</span>
+              <div className="row">
+                {d.fee_waived ? <span className="pill prize" title="Prémio do mês: sem comissão">SEM TAXA</span> : null}
+                <span className={"pill " + cls}>{cancelled ? "CANCELADO" : (DEAL_STEPS[idx]?.[1] ?? d.status).toUpperCase()}</span>
+              </div>
             </div>
             <div className="kv">
               <div><span>Valor</span>{kz(d.price)}</div>

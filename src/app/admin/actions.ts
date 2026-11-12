@@ -51,16 +51,20 @@ export async function createDeal(_: AdminState, fd: FormData): Promise<AdminStat
   if (!r || !t) return { error: "Pedido ou viagem não encontrados." };
   if (r.status !== "aberto") return { error: "Esse pedido já não está aberto." };
 
-  const pct = Number(c?.commission ?? 12);
+  // Prémio do mês: se o entregador ou o remetente ganhou o mês passado, a comissão é 0. Quem decide é a base de dados.
+  const { data: waived } = await supabase.rpc("deal_fee_waived", { p_request: r.id, p_trip: t.id });
+  const fee_waived = waived === true;
+  const pct = fee_waived ? 0 : Number(c?.commission ?? 12);
   const { error } = await supabase.from("deals").insert({
     request_id: r.id, trip_id: t.id, label: `${r.item} · ${r.origin} → ${r.destination}`,
     traveler: firstName(t.name), requester: firstName(r.name), price,
     commission_pct: pct, commission: Math.round((price * pct) / 100), status: "negociacao",
+    ...(fee_waived ? { fee_waived: true } : {}),
   });
   if (error) return { error: "Não foi possível criar a entrega." };
   await supabase.from("requests").update({ status: "ligado" }).eq("id", r.id);
   done();
-  return { message: "Entrega criada." };
+  return { message: fee_waived ? "Entrega criada, sem comissão (prémio do mês)." : "Entrega criada." };
 }
 
 export async function setDealStatus(id: string, status: string) {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
-import { getConfig } from "@/lib/data";
+import { getConfig, getWaiverHolders } from "@/lib/data";
 import { kz } from "@/lib/format";
 import type { Deal, Req, Trip } from "@/lib/types";
 import { Entradas } from "./tabs/Entradas";
@@ -21,8 +21,9 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const { tab: raw } = await searchParams;
   const tab = TABS.some((t) => t[0] === raw) ? raw! : "entradas";
 
-  const [config, trips, reqs, deals] = await Promise.all([
+  const [config, holders, trips, reqs, deals] = await Promise.all([
     getConfig(),
+    getWaiverHolders(),
     supabase.from("trips").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Trip[]),
     supabase.from("requests").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Req[]),
     supabase.from("deals").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Deal[]),
@@ -53,7 +54,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         ))}
       </div>
       {tab === "entradas" && <Entradas trips={trips} reqs={reqs} deals={deals} config={config} />}
-      {tab === "ligacoes" && <Entregas trips={trips} reqs={reqs} deals={deals} commission={config.commission} />}
+      {tab === "ligacoes" && <Entregas trips={trips} reqs={reqs} deals={deals} commission={config.commission} holders={holders} />}
       {tab === "quadro" && <Quadro trips={trips} reqs={reqs} />}
       {tab === "analise" && <Analise trips={trips} reqs={reqs} deals={deals} />}
       {tab === "economia" && <Economia perKg={config.per_kg} commission={config.commission} />}

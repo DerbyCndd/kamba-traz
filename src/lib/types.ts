@@ -28,7 +28,11 @@ export type Req = ReqPub & { user_id: string; contact: string; item_value: numbe
 export type Deal = {
   id: string; request_id: string | null; trip_id: string | null; label: string; traveler: string; requester: string;
   price: number; commission_pct: number; commission: number; status: string; created_at: string;
+  fee_waived?: boolean;
 };
+
+export type Winner = { role: RatingRole; first_name: string };
+export type WaiverHolder = { user_id: string; role: RatingRole; first_name: string };
 
 export type FormState = {
   errors: Record<string, string>;

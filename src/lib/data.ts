@@ -1,6 +1,6 @@
 import { createClient } from "./supabase/server";
 import { today } from "./format";
-import type { Config, PendingRating, RatingRole, RatingSummary, ReqPreview, ReqPub, TopEntry, TripPreview, TripPub } from "./types";
+import type { Config, PendingRating, RatingRole, RatingSummary, ReqPreview, ReqPub, TopEntry, TripPreview, TripPub, WaiverHolder, Winner } from "./types";
 
 const DEFAULT_CONFIG: Config = { commission: 12, per_kg: 8000, whatsapp: "" };
 
@@ -51,6 +51,27 @@ export async function getTopRated(): Promise<{ travelers: TopEntry[]; requesters
     supabase.rpc("top_rated", { p_role: "requester", p_limit: 3, p_since: monthStart() }),
   ]);
   return { travelers: (t.data ?? []) as TopEntry[], requesters: (r.data ?? []) as TopEntry[] };
+}
+
+/** Ganhadores do mês passado (só o primeiro nome). Este mês estão sem taxas. */
+export async function getLastWinners(): Promise<Winner[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("last_month_winners");
+  return (data ?? []) as Winner[];
+}
+
+/** Funções em que esta pessoa tem a isenção este mês. */
+export async function getMyWaivers(): Promise<RatingRole[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("my_fee_waivers");
+  return ((data ?? []) as { role: RatingRole }[]).map((x) => x.role);
+}
+
+/** Quem tem a isenção agora, com o identificador (só a equipa pode chamar). */
+export async function getWaiverHolders(): Promise<WaiverHolder[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("fee_waiver_holders");
+  return (data ?? []) as WaiverHolder[];
 }
 
 /** Entregas concluídas que esta pessoa ainda não avaliou. */

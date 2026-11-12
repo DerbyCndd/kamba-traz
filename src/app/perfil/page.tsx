@@ -4,7 +4,7 @@ import { logout } from "@/app/(auth)/actions";
 import { Icon } from "@/components/Icons";
 import { Stars } from "@/components/Stars";
 import { getProfile, requireUser } from "@/lib/auth";
-import { getMyRatings } from "@/lib/data";
+import { getMyRatings, getMyWaivers } from "@/lib/data";
 import { initials } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Meu perfil" };
@@ -22,7 +22,7 @@ export default async function PerfilPage() {
     if (status) q = q.eq("status", status);
     return q.then((r) => r.count ?? 0);
   };
-  const mine = await getMyRatings();
+  const [mine, waivers] = await Promise.all([getMyRatings(), getMyWaivers()]);
   const [reqs, trips, waiting] = await Promise.all([count("requests"), count("trips"), Promise.all([count("requests", "pendente"), count("trips", "pendente")]).then(([a, b]) => a + b)]);
 
   return (
@@ -35,6 +35,13 @@ export default async function PerfilPage() {
         </div>
         {admin ? <span className="pill info" title="Tens acesso ao painel da equipa">EQUIPA</span> : null}
       </div>
+
+      {waivers.length ? (
+        <div className="prize-note">
+          <span className="prize-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" /></svg></span>
+          <p><b>Este mês estás sem pagar taxas.</b> Foste o mais bem avaliado do mês passado como {waivers.map((w) => (w === "traveler" ? "entregador" : "remetente")).join(" e como ")}. A isenção aplica-se às entregas criadas este mês, automaticamente.</p>
+        </div>
+      ) : null}
 
       <div className="two">
         <div className="panel">

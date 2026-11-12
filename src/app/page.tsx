@@ -1,69 +1,84 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from "next/link";
+import { TripPass } from "@/components/Cards";
+import { Calculator } from "@/components/Calculator";
+import { HowItWorks } from "@/components/HowItWorks";
+import { Landing } from "@/components/Landing";
+import { Empty, Faq } from "@/components/ui";
+import { getProfile } from "@/lib/auth";
+import { getConfig, getOpenRequests, getOpenTrips } from "@/lib/data";
+import { FAQ } from "@/lib/faq";
+import { kz } from "@/lib/format";
 
-export default function Home() {
+export default async function Home() {
+  if (!(await getProfile())) return <Landing />;
+  const [config, trips, reqs] = await Promise.all([getConfig(), getOpenTrips(), getOpenRequests()]);
+  const first = trips[0];
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      <section className="hero">
+        <div className="copy">
+          <h1>Alguém voa para Luanda esta semana. Leva a tua encomenda.</h1>
+          <p className="lead">A Kamba Traz liga quem precisa de enviar encomendas para Angola com quem já tem a viagem marcada. A equipa analisa cada entrada antes de a publicar.</p>
+          <div className="row">
+            <Link className="btn primary" href="/pedir">Preciso de enviar</Link>
+            <Link className="btn" href="/viajar">Vou viajar</Link>
+          </div>
+          <div className="counts">
+            <div><b>{trips.length}</b><span className="label">viagens abertas</span></div>
+            <div><b>{reqs.length}</b><span className="label">pedidos à espera</span></div>
+          </div>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div>
+          {first ? <TripPass t={first} whatsapp={config.whatsapp} /> : (
+            <article className="pass" aria-label="Exemplo de viagem">
+              <div className="main">
+                <div className="route"><span>LIS</span><span className="line" /><span>LAD</span></div>
+                <div className="city">Lisboa para Luanda</div>
+                <div className="facts">
+                  <div><span className="label">Data</span><b>a definir</b></div>
+                  <div><span className="label">Livre</span><b>10 kg</b></div>
+                </div>
+                <div className="row"><span className="pill ex">EXEMPLO</span></div>
+              </div>
+              <div className="stub">
+                <div><span className="label">Por kg</span><div><b className="big">{kz(config.per_kg)}</b></div></div>
+                <Link className="btn small primary" href="/viajar">Publicar a minha</Link>
+              </div>
+            </article>
+          )}
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section>
+        <h2>Como funciona</h2>
+        <HowItWorks />
+      </section>
+
+      <section>
+        <h2>Quanto custa enviar</h2>
+        <div className="panel">
+          <Calculator perKg={config.per_kg} commission={config.commission} />
+          <p className="hint">Referência de {kz(config.per_kg)} por kg. O valor final é combinado entre as duas partes e pode variar com a época do ano e o tipo de item.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Próximas viagens</h2>
+        {trips.length ? (
+          <>
+            <div className="grid">{trips.slice(0, 4).map((t) => <TripPass key={t.id} t={t} whatsapp={config.whatsapp} />)}</div>
+            <Link className="btn" href="/quadro" style={{ alignSelf: "flex-start" }}>Ver o quadro completo</Link>
+          </>
+        ) : (
+          <Empty title="Ainda não há viagens publicadas" text="Se vais viajar para Angola, publica a tua viagem e começa a receber pedidos." cta="Publicar viagem" href="/viajar" />
+        )}
+      </section>
+
+      <section>
+        <h2>Perguntas frequentes</h2>
+        <Faq items={FAQ} />
+      </section>
+    </>
   );
 }

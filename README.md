@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kamba Traz
 
-## Getting Started
+Next.js (App Router) + Supabase (login por email verificado, Postgres, RLS).
 
-First, run the development server:
+## Pôr a funcionar
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. **Criar o projecto Supabase** (gratuito) em https://supabase.com → New project.
+2. **Base de dados:** Supabase → SQL Editor → cola `supabase/schema.sql` → Run.
+3. **Chaves:** Project Settings → API. Copia `.env.example` para `.env.local` e preenche
+   `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (chave anon/publishable, nunca a service_role).
+4. **Verificação por email:** Authentication → Sign In / Providers → Email → deixa **Confirm email** ligado.
+5. **Links dos emails** (para funcionarem noutro telemóvel/browser): Authentication → Email Templates.
+   - *Confirm signup*: troca o link por
+     `<a href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email">Confirmar email</a>`
+   - *Reset password*: troca o link por
+     `<a href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=recovery">Escolher nova palavra-passe</a>`
+6. **URLs:** Authentication → URL Configuration → Site URL = o endereço do site
+   (`http://localhost:3000` em desenvolvimento) e adiciona `http://localhost:3000/**` aos Redirect URLs.
+7. `npm install` e `npm run dev` → http://localhost:3000. Regista-te e confirma o email.
+8. **Tornar-te administrador** (SQL Editor, com o teu email):
+   ```sql
+   update public.profiles set role = 'admin'
+   where id = (select id from auth.users where email = 'o-teu-email@exemplo.com');
+   ```
+   Aparece o separador **Equipa**. Em Definições põe o WhatsApp e a comissão.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Antes de ir para produção
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- O envio de emails do Supabase por omissão tem limite muito baixo (poucos por hora). Configura SMTP próprio
+  (Authentication → SMTP Settings), por exemplo Resend ou Brevo, ambos com plano gratuito.
+- Projectos gratuitos do Supabase pausam após cerca de uma semana sem actividade.
+- Define `NEXT_PUBLIC_SITE_URL` com o domínio real (ex.: no Vercel) e actualiza o Site URL no Supabase.
+- O pagamento em garantia e o código de entrega ainda não estão ligados a nenhum fornecedor: hoje a equipa
+  acompanha os estados à mão no painel (como no protótipo).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Estrutura
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/proxy.ts` — renova a sessão e manda para `/login` quem não tem email verificado.
+- `src/app/(auth)` — login, registo, recuperação. `src/app/auth/callback` — links dos emails.
+- `src/app/actions.ts` — pedidos e viagens (validação no servidor, entram como `pendente`).
+- `src/app/admin` — painel da equipa (só `role = 'admin'`, protegido no servidor e por RLS).
+- `supabase/schema.sql` — tabelas, políticas RLS e vistas públicas (sem contactos).

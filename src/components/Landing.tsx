@@ -100,15 +100,15 @@ export async function Landing() {
       <section>
         <h2>Para quem é</h2>
         <div className="two">
-          <div className="panel warm">
+          <div className="panel block red">
             <h3>Recebe em dias, não em semanas</h3>
-            <p className="muted">Publica o que queres enviar e oferece um valor pelo transporte. A equipa liga-te a quem já vai viajar.</p>
+            <p>Publica o que queres enviar e oferece um valor pelo transporte. A equipa liga-te a quem já vai viajar.</p>
             <Link className="btn primary" href="/registo?para=pedir" style={{ alignSelf: "flex-start" }}>Pedir um envio</Link>
           </div>
-          <div className="panel">
+          <div className="panel block blue">
             <h3>Rentabiliza o espaço livre na mala</h3>
-            <p className="muted">Diz quando voas e quantos kg tens livres. Recebes o valor combinado por cada volume que levares.</p>
-            <Link className="btn" href="/registo?para=viajar" style={{ alignSelf: "flex-start" }}>Publicar a minha viagem</Link>
+            <p>Diz quando voas e quantos kg tens livres. Recebes o valor combinado por cada volume que levares.</p>
+            <Link className="btn primary" href="/registo?para=viajar" style={{ alignSelf: "flex-start" }}>Publicar a minha viagem</Link>
           </div>
         </div>
       </section>

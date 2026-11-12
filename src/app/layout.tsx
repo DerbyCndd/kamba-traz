@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
-import { Familjen_Grotesk, IBM_Plex_Mono, Public_Sans } from "next/font/google";
+import { Bricolage_Grotesque, Geist_Mono, Public_Sans } from "next/font/google";
 import { Header } from "@/components/Header";
 import "./globals.css";
 
-const display = Familjen_Grotesk({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-display" });
+const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display" });
 const body = Public_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-body" });
-const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-mono" });
+const mono = Geist_Mono({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
   title: { default: "Kamba Traz", template: "%s · Kamba Traz" },
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 export const viewport: Viewport = {
   width: "device-width", initialScale: 1, viewportFit: "cover",
-  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#EBEFF2" }, { media: "(prefers-color-scheme: dark)", color: "#0B1117" }],
+  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#1636B5" }, { media: "(prefers-color-scheme: dark)", color: "#0E1840" }],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

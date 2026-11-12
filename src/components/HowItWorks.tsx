@@ -9,7 +9,7 @@ export function HowItWorks() {
         <li><span className="n" aria-hidden="true">4</span><h3>Acompanhamos até ao fim</h3><p className="muted">A equipa acompanha a entrega até estar concluída.</p></li>
       </ol>
       <p className="notice">
-        <b>Em preparação:</b> pagamento em garantia e verificação de identidade dos viajantes. Até estarem prontos, combina sempre o pagamento com a equipa antes de enviar.
+        <b>Em preparação:</b> pagamento em garantia. Até estar pronto, combina sempre o pagamento com a equipa antes de enviar.
       </p>
     </>
   );

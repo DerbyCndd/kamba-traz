@@ -22,7 +22,13 @@ export type TripPreview = Omit<TripPub, "id" | "name">;
 export type ReqPreview = Omit<ReqPub, "id" | "name" | "item">;
 
 // Linhas completas (só o dono e a equipa as vêem).
-export type Trip = TripPub & { user_id: string; contact: string; flight: string; created_at: string };
+export type Trip = TripPub & { user_id: string; contact: string; flight: string; created_at: string; return_date?: string | null };
+
+/** Documentos do viajante, sem o passaporte nem o caminho da foto (esses só passam por acções da equipa). */
+export type TravelerDocView = {
+  trip_id: string; full_name: string; passport_last4: string; outbound_date: string; return_date: string;
+  status: "pendente" | "confirmado" | "recusado"; created_at: string;
+};
 export type Req = ReqPub & { user_id: string; contact: string; item_value: number; created_at: string };
 
 export type Deal = {

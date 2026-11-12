@@ -568,3 +568,13 @@ ol.steps li:not(:last-child)::after{content:"";position:absolute;top:26px;left:6
   .hero .heroart .bag{width:80%}
   .hero .heroart .pass{width:88%;margin-top:-26px}
 }
+
+/* identificação do viajante */
+.privacy{padding:10px 12px;border-radius:12px;background:var(--blue-soft);color:var(--ink);font-size:14px}
+.ticketpreview{margin:0;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.ticketpreview img{max-width:100%;max-height:260px;border-radius:12px;border:1px solid var(--edge);object-fit:contain;background:var(--paper)}
+input[type="file"]{padding:9px 10px;cursor:pointer}
+input[type="file"]::file-selector-button{margin-right:12px;padding:8px 14px;border:0;border-radius:8px;background:var(--sun);color:var(--on-sun);font:700 14px var(--f-body);cursor:pointer}
+.docblock{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:var(--blue-soft);border:1px solid var(--edge)}
+.docblock .head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.docblock h4{margin:0;font:800 16px var(--f-display)}

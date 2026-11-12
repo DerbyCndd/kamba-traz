@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { CATS, DEAL_STEPS, REQ_STATES, TRIP_STATES } from "@/lib/constants";
 import { firstName } from "@/lib/format";
+import { decryptPii } from "@/lib/pii";
 
 export type AdminState = { error?: string; message?: string };
 
@@ -10,8 +11,18 @@ type Kind = "trip" | "request";
 const TABLE = (k: Kind) => (k === "trip" ? "trips" : "requests");
 const done = () => revalidatePath("/", "layout");
 
+/** Uma viagem só se publica com os documentos do viajante confirmados (as de exemplo ficam de fora). */
+async function docsOk(supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"], tripId: string) {
+  const [{ data: d }, { data: t }] = await Promise.all([
+    supabase.from("traveler_docs").select("status").eq("trip_id", tripId).maybeSingle(),
+    supabase.from("trips").select("example").eq("id", tripId).maybeSingle(),
+  ]);
+  return d?.status === "confirmado" || t?.example === true;
+}
+
 export async function approveItem(kind: Kind, id: string) {
   const { supabase } = await requireAdmin();
+  if (kind === "trip" && !(await docsOk(supabase, id))) return; // sem documentos confirmados não se aprova
   await supabase.from(TABLE(kind)).update({ status: "aberto" }).eq("id", id).eq("status", "pendente");
   done();
 }
@@ -26,6 +37,7 @@ export async function setItemStatus(kind: Kind, id: string, status: string) {
   const { supabase } = await requireAdmin();
   const allowed = (kind === "trip" ? TRIP_STATES : REQ_STATES).map((s) => s[0]);
   if (!allowed.includes(status)) return;
+  if (kind === "trip" && status === "aberto" && !(await docsOk(supabase, id))) return;
   await supabase.from(TABLE(kind)).update({ status }).eq("id", id);
   done();
 }
@@ -116,4 +128,35 @@ export async function saveConfig(_: AdminState, fd: FormData): Promise<AdminStat
   if (error) return { error: "Não foi possível guardar." };
   done();
   return { message: "Guardado." };
+}
+
+// ---------- documentos do viajante ----------
+/** Mostra o número do passaporte (decifrado só aqui, no servidor, e só à equipa). Cada consulta fica no registo. */
+export async function revealPassport(tripId: string): Promise<{ value?: string; error?: string }> {
+  const { supabase, profile } = await requireAdmin();
+  const { data } = await supabase.from("traveler_docs").select("passport_enc").eq("trip_id", tripId).maybeSingle();
+  if (!data) return { error: "Esta viagem não tem documentos." };
+  const value = decryptPii(data.passport_enc);
+  if (!value) return { error: "Não foi possível ler o número (a chave de cifra pode estar em falta)." };
+  console.info("[auditoria] passaporte consultado", { equipa: profile.id, viagem: tripId });
+  return { value };
+}
+
+/** Ligação à foto do bilhete, válida só 2 minutos. A foto nunca é pública. */
+export async function ticketUrl(tripId: string): Promise<{ url?: string; error?: string }> {
+  const { supabase, profile } = await requireAdmin();
+  const { data } = await supabase.from("traveler_docs").select("ticket_path").eq("trip_id", tripId).maybeSingle();
+  if (!data) return { error: "Esta viagem não tem documentos." };
+  const { data: signed, error } = await supabase.storage.from("tickets").createSignedUrl(data.ticket_path, 120);
+  if (error || !signed) return { error: "Não foi possível abrir a foto." };
+  console.info("[auditoria] bilhete consultado", { equipa: profile.id, viagem: tripId });
+  return { url: signed.signedUrl };
+}
+
+export async function setDocStatus(tripId: string, status: "confirmado" | "recusado" | "pendente") {
+  const { supabase, profile } = await requireAdmin();
+  if (!["confirmado", "recusado", "pendente"].includes(status)) return;
+  await supabase.from("traveler_docs").update({ status }).eq("trip_id", tripId);
+  console.info("[auditoria] documentos", { equipa: profile.id, viagem: tripId, estado: status });
+  done();
 }

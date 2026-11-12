@@ -17,7 +17,7 @@ export default async function ViajarPage() {
         <aside className="panel flat aside" aria-label="O que acontece a seguir">
           <h3>O que acontece a seguir</h3>
           <ol className="next">
-            <li>A equipa verifica a viagem e fala contigo pelo número que deixaste.</li>
+            <li>A equipa confirma o teu passaporte e o bilhete e fala contigo pelo número que deixaste.</li>
             <li>Depois de aprovada, aparece no quadro só com o teu primeiro nome.</li>
             <li>Escolhes os pedidos que aceitas. Cada volume é aberto e fotografado junto de quem envia.</li>
           </ol>

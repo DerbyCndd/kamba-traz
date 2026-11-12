@@ -1,11 +1,13 @@
 import { SubmitButton } from "@/components/SubmitButton";
 import { TwoStepButton } from "@/components/TwoStepButton";
 import { cityName, fdate, firstName, kz, waLink } from "@/lib/format";
-import type { Config, Deal, Req, Trip } from "@/lib/types";
+import type { Config, Deal, Req, TravelerDocView, Trip } from "@/lib/types";
+import { DocBlock } from "./DocBlock";
 import { approveItem, rejectItem } from "../actions";
 import Link from "next/link";
 
-export function Entradas({ trips, reqs, deals, config }: { trips: Trip[]; reqs: Req[]; deals: Deal[]; config: Config }) {
+export function Entradas({ trips, reqs, deals, config, docs }: { trips: Trip[]; reqs: Req[]; deals: Deal[]; config: Config; docs: TravelerDocView[] }) {
+  const docOf = new Map(docs.map((d) => [d.trip_id, d]));
   const items = [
     ...trips.filter((t) => t.status === "pendente").map((t) => ({ kind: "trip" as const, it: t })),
     ...reqs.filter((r) => r.status === "pendente").map((r) => ({ kind: "request" as const, it: r })),
@@ -60,6 +62,7 @@ export function Entradas({ trips, reqs, deals, config }: { trips: Trip[]; reqs: 
                   <div><span>Espaço livre</span>{t.kg} kg</div>
                   <div><span>Preço por kg</span>{kz(t.per_kg)}</div>
                   {t.flight ? <div><span>Voo</span>{t.flight}</div> : null}
+                  {t.return_date ? <div><span>Regresso</span>{fdate(t.return_date)}</div> : null}
                 </>
               ) : (
                 <>
@@ -71,10 +74,15 @@ export function Entradas({ trips, reqs, deals, config }: { trips: Trip[]; reqs: 
                 </>
               )}
             </div>
+            {isTrip ? <DocBlock tripId={it.id} doc={docOf.get(it.id)} accountName={it.name} /> : null}
             <div className="row">
-              <form action={approveItem.bind(null, kind, it.id)} className="inline">
-                <SubmitButton className="btn small primary" pending="A publicar…">Aprovar e publicar</SubmitButton>
-              </form>
+              {isTrip && docOf.get(it.id)?.status !== "confirmado" ? (
+                <span className="hint">Confirma primeiro os documentos para poderes aprovar.</span>
+              ) : (
+                <form action={approveItem.bind(null, kind, it.id)} className="inline">
+                  <SubmitButton className="btn small primary" pending="A publicar…">Aprovar e publicar</SubmitButton>
+                </form>
+              )}
               {wa ? <a className="btn small" href={wa} target="_blank" rel="noopener">Contactar por WhatsApp</a> : null}
               <TwoStepButton label="Recusar" action={rejectItem.bind(null, kind, it.id)} />
             </div>

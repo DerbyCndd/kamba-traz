@@ -8,17 +8,20 @@ import { cityName, fdate, refCode } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Os meus" };
 
-type Mine = { id: string; kind: "trip" | "request"; title: string; status: string; created_at: string };
+type Mine = { id: string; kind: "trip" | "request"; title: string; status: string; created_at: string; docs?: string };
+const DOCS: Record<string, string> = { pendente: "Documentos enviados, à espera de confirmação da equipa.", confirmado: "Documentos confirmados pela equipa.", recusado: "A equipa não conseguiu confirmar os documentos. Fala com ela por WhatsApp." };
 
 export default async function MeusPage() {
   const { user, supabase } = await requireUser();
   const toRate = await getPendingRatings();
+  const { data: docRows } = await supabase.from("traveler_docs").select("trip_id, status").eq("user_id", user.id);
+  const docOf = new Map((docRows ?? []).map((d) => [d.trip_id as string, d.status as string]));
   const [t, r] = await Promise.all([
     supabase.from("trips").select("id, origin, destination, travel_date, status, created_at").eq("user_id", user.id),
     supabase.from("requests").select("id, item, status, created_at").eq("user_id", user.id),
   ]);
   const items: Mine[] = [
-    ...(t.data ?? []).map((x) => ({ id: x.id, kind: "trip" as const, title: `${cityName(x.origin)} para ${cityName(x.destination)}, ${fdate(x.travel_date)}`, status: x.status, created_at: x.created_at })),
+    ...(t.data ?? []).map((x) => ({ id: x.id, kind: "trip" as const, title: `${cityName(x.origin)} para ${cityName(x.destination)}, ${fdate(x.travel_date)}`, status: x.status, created_at: x.created_at, docs: docOf.get(x.id) })),
     ...(r.data ?? []).map((x) => ({ id: x.id, kind: "request" as const, title: x.item as string, status: x.status, created_at: x.created_at })),
   ].sort((a, b) => b.created_at.localeCompare(a.created_at));
 
@@ -66,6 +69,7 @@ export default async function MeusPage() {
                   <span className={"pill " + cls}>{text}</span>
                 </div>
                 <p className="hint">{note(it.status)}</p>
+                {it.kind === "trip" && it.docs ? <p className="hint">{DOCS[it.docs]}</p> : null}
               </article>
             );
           })}

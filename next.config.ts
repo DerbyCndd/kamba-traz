@@ -4,6 +4,8 @@ import type { NextConfig } from "next";
 // (sem Cache Components, que obrigaria a envolver cada leitura de cookies em Suspense).
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // A foto do bilhete segue no pedido do formulário (a app reduz-na antes; 4 MB de limite + margem do multipart).
+  experimental: { serverActions: { bodySizeLimit: "5mb" } },
   async headers() {
     return [{
       source: "/:path*",

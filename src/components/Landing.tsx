@@ -141,6 +141,7 @@ export async function Landing() {
         <div className="panel dark care">
           <ul className="bullets">
             <li>Cada pedido e cada viagem é analisado por uma pessoa da equipa antes de aparecer no quadro.</li>
+            <li>Quem leva as encomendas é identificado: a equipa confirma o passaporte e o bilhete de avião antes de publicar cada viagem.</li>
             <li>O teu número de telefone só a equipa o vê. No quadro aparece apenas o teu primeiro nome.</li>
             <li>Há uma lista de coisas que nunca transportamos.</li>
           </ul>

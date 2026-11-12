@@ -46,7 +46,7 @@ export default async function Home() {
               </div>
               <div className="stub">
                 <div><span className="label">Por kg</span><div><b className="big">{kz(config.per_kg)}</b></div></div>
-                <Link className="btn small primary" href="/viajar">Publicar a minha</Link>
+                <Link className="btn small primary" href="/viajar">Publicar viagem</Link>
               </div>
             </article>
           )}

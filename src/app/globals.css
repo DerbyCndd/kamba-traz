@@ -273,7 +273,7 @@ main:focus{outline:none}
   .econ{grid-template-columns:1fr}.brow{grid-template-columns:1fr}
   .steps .n::after{display:none}
   .tabs{overflow-x:auto;flex-wrap:nowrap;width:100%;scrollbar-width:none}.tabs a,.tabs button{white-space:nowrap}
-  .brand{order:1}.authcta{order:2;margin-left:auto}nav{order:3;width:100%;margin-left:0}
+  .top .brand{order:1}.authcta{order:2;margin-left:auto}.top nav{order:3;width:100%;margin-left:0}
   .userbar{justify-content:space-between}
   main{gap:44px}
 }
@@ -347,7 +347,7 @@ body.in{padding-left:0;padding-right:0}
 @media (max-width:900px){
   .app{display:block;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
   .side{display:none}
-  .mtop{display:flex;position:sticky;top:0;z-index:20;align-items:center;justify-content:space-between;padding:10px clamp(16px,4vw,24px);padding-top:max(10px,env(safe-area-inset-top,0px));background:var(--ground);border-bottom:1px solid var(--line)}
+  .mtop{display:flex;position:sticky;top:0;z-index:40;align-items:center;justify-content:space-between;padding:10px clamp(16px,4vw,24px);padding-top:max(10px,env(safe-area-inset-top,0px));background:var(--ground);border-bottom:1px solid var(--line)}
   .mtop .brand{font-size:21px}
   .appmain main{padding-top:24px}
   .in .hero{padding:24px 20px;border-radius:20px}
@@ -365,7 +365,7 @@ body.in{padding-left:0;padding-right:0}
   .mhead{display:flex;gap:14px;align-items:center}
   .mhead .pinfo{flex:1;padding:0}
   .mclose{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:none;border:1px solid var(--edge);color:var(--ink);cursor:pointer;flex:none;align-self:flex-start}
-  .mlinks{display:flex;flex-direction:column;gap:2px}
+  .mlinks{display:flex;flex-direction:column;gap:2px;margin-left:0;width:100%;overflow:visible}
   .mlinks a{display:flex;align-items:center;gap:14px;min-height:54px;padding:12px;border-radius:14px;text-decoration:none;font-weight:600;font-size:16px;color:var(--ink)}
   .mlinks a:hover{background:color-mix(in srgb,var(--ink) 8%,transparent)}
   .mlinks a svg{color:var(--sun)}
@@ -472,4 +472,11 @@ input[type="date"]{color-scheme:dark}
 }
 @media (max-width:560px){
   .tiles{grid-template-columns:1fr}
+}
+
+@media (max-width:560px){
+  .stats{grid-template-columns:1fr 1fr;gap:10px}
+  .stats>div:last-child:nth-child(odd){grid-column:1/-1}
+  .stats>div{padding:14px}
+  .stats b{font-size:22px}
 }

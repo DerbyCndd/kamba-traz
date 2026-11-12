@@ -158,3 +158,37 @@ do $$ begin
     $v$;
   end if;
 end $$;
+
+-- ============ Quadro em tempo real ============
+-- As avaliações são privadas, por isso o browser não as pode "ouvir". Esta tabela pública só diz que houve
+-- uma avaliação (e de que função), sem nomes nem estrelas. O site ouve-a e recalcula o quadro no servidor.
+create table if not exists public.rank_events (
+  id bigserial primary key,
+  at timestamptz not null default now(),
+  role text not null check (role in ('traveler', 'requester'))
+);
+alter table public.rank_events enable row level security;
+revoke all on public.rank_events from anon, authenticated;
+grant select on public.rank_events to anon, authenticated;
+drop policy if exists rank_events_read on public.rank_events;
+create policy rank_events_read on public.rank_events for select to anon, authenticated using (true);
+
+create or replace function public.notify_rank()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.rank_events (role) values (new.ratee_role);
+  if random() < 0.05 then delete from public.rank_events where at < now() - interval '1 day'; end if;
+  return new;
+exception when others then
+  return new; -- avisar o quadro nunca pode impedir uma avaliação
+end $$;
+revoke execute on function public.notify_rank() from public, anon, authenticated;
+drop trigger if exists ratings_notify_rank on public.ratings;
+create trigger ratings_notify_rank after insert on public.ratings
+  for each row execute function public.notify_rank();
+
+-- Liga a tabela ao Supabase Realtime.
+do $$ begin
+  alter publication supabase_realtime add table public.rank_events;
+exception when duplicate_object then null;
+end $$;

@@ -1,6 +1,7 @@
 import { getLastWinners, getTopRated } from "@/lib/data";
 import { initials, monthLabel, PRIZE_MIN } from "@/lib/format";
 import type { TopEntry } from "@/lib/types";
+import { LiveRank } from "./LiveRank";
 import { Stars } from "./Stars";
 
 export function RankColumn({ title, text, list, empty }: { title: string; text: string; list: TopEntry[]; empty: string }) {
@@ -15,7 +16,7 @@ export function RankColumn({ title, text, list, empty }: { title: string; text: 
       {list.length ? (
         <ol className="podium">
           {list.map((p, i) => (
-            <li key={i} className={"p" + (i + 1)}>
+            <li key={p.first_name + p.avg_stars + p.total} className={"p" + (i + 1)}>
               <span className="place" aria-label={`${i + 1}.º lugar`}>{i + 1}</span>
               <span className="avatar sm" aria-hidden="true">{initials(p.first_name, p.first_name)}</span>
               <div className="who">
@@ -42,6 +43,7 @@ export async function TopRated() {
   return (
     <section>
       <h2>Os mais bem avaliados de {month}</h2>
+      <LiveRank />
       <div className="prize-note">
         <span className="prize-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" /></svg></span>
         <p>

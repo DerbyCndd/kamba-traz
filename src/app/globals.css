@@ -480,3 +480,14 @@ input[type="date"]{color-scheme:dark}
   .stats>div{padding:14px}
   .stats b{font-size:22px}
 }
+
+.live{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--muted);max-width:none}
+.dotlive{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:none}
+.live.on{color:var(--ink)}
+.live.on .dotlive{background:var(--ok)}
+@media (prefers-reduced-motion:no-preference){
+  .live.on .dotlive{animation:livepulse 1.8s ease-out infinite}
+  @keyframes livepulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 60%,transparent)}100%{box-shadow:0 0 0 9px transparent}}
+  .podium li{animation:rankin .5s cubic-bezier(.2,.7,.2,1)}
+  @keyframes rankin{from{opacity:.2;transform:translateY(6px)}}
+}

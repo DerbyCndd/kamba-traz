@@ -4,12 +4,18 @@ import { Calculator } from "@/components/Calculator";
 import { HowItWorks } from "@/components/HowItWorks";
 import { Landing } from "@/components/Landing";
 import { TopRated } from "@/components/TopRated";
-import { Empty, Faq } from "@/components/ui";
+import { Empty } from "@/components/ui";
 import { getProfile } from "@/lib/auth";
 import { getConfig, getOpenRequests, getOpenTrips } from "@/lib/data";
-import { FAQ } from "@/lib/faq";
 import { Icon } from "@/components/Icons";
+import { FaqBlock } from "@/components/FaqBlock";
 import { firstName, kz } from "@/lib/format";
+
+/** Bom dia, boa tarde ou boa noite, pela hora em Luanda. */
+function greeting() {
+  const h = Number(new Date().toLocaleString("pt-PT", { hour: "numeric", hour12: false, timeZone: "Africa/Luanda" }));
+  return h < 12 ? "Bom dia" : h < 19 ? "Boa tarde" : "Boa noite";
+}
 
 export default async function Home() {
   const profile = await getProfile();
@@ -21,16 +27,18 @@ export default async function Home() {
     <>
       <section className="hero">
         <div className="copy">
-          <h1>Olá, {firstName(profile.full_name || profile.email)}.</h1>
-          <p className="lead">O que queres fazer hoje?</p>
+          <h1>{greeting()}, {firstName(profile.full_name || profile.email)}.</h1>
+          <p className="lead">Em que te podemos ajudar hoje?</p>
           <div className="tiles">
             <Link className="tile red" href="/pedir"><Icon name="box" size={26} /><b>Preciso de enviar</b><span>Pede o envio de uma encomenda para Angola.</span></Link>
             <Link className="tile blue" href="/viajar"><Icon name="plane" size={26} /><b>Vou viajar</b><span>Rentabiliza o espaço livre na tua mala.</span></Link>
           </div>
-          <div className="counts">
-            <div><b>{trips.length}</b><span className="label">viagens abertas</span></div>
-            <div><b>{reqs.length}</b><span className="label">pedidos à espera</span></div>
-          </div>
+          {trips.length + reqs.length > 0 ? (
+            <div className="counts">
+              <div><b>{trips.length}</b><span className="label">viagens abertas</span></div>
+              <div><b>{reqs.length}</b><span className="label">pedidos à espera</span></div>
+            </div>
+          ) : <p className="hand note">Ainda ninguém publicou. Podes ser a primeira pessoa.</p>}
         </div>
         <div>
           {first ? <TripPass t={first} whatsapp={config.whatsapp} /> : (
@@ -76,14 +84,11 @@ export default async function Home() {
             <Link className="btn" href="/quadro" style={{ alignSelf: "flex-start" }}>Ver o quadro completo</Link>
           </>
         ) : (
-          <Empty title="Ainda não há viagens publicadas" text="Se vais viajar para Angola, publica a tua viagem e começa a receber pedidos." cta="Publicar viagem" href="/viajar" />
+          <Empty title="Ainda ninguém publicou uma viagem" text="Vais voar para Angola? Podes ser a primeira pessoa a publicar e a receber pedidos." cta="Publicar viagem" href="/viajar" />
         )}
       </section>
 
-      <section>
-        <h2>Perguntas frequentes</h2>
-        <Faq items={FAQ} />
-      </section>
+      <FaqBlock whatsapp={config.whatsapp} />
     </>
   );
 }

@@ -12,7 +12,7 @@
 
 -- ============ Data de regresso na viagem ============
 alter table public.trips add column if not exists return_date date;
-do $$ begin
+do $$ begin 
   if not exists (select 1 from pg_constraint where conname = 'trips_return_chk') then
     alter table public.trips add constraint trips_return_chk check (return_date is null or return_date >= travel_date) not valid;
   end if;

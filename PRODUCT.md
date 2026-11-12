@@ -33,7 +33,7 @@ Uma plataforma com revisão humana de cada entrada e o contacto das pessoas esco
 
 ## Capabilities and Constraints
 
-- Conta com email verificado para ver o quadro e publicar. Um único login; o papel `admin` dá acesso ao painel da equipa.
+- Visitantes sem conta vêem na página inicial só uma pré-visualização (rota, peso, data e valor das entradas aprovadas; nunca nome, contacto nem descrição). Quem quer pedir um envio ou viajar é levado ao registo e, depois de confirmar o email, volta ao formulário. Conta com email verificado para ver o quadro completo e publicar. Um único login; o papel `admin` dá acesso ao painel da equipa.
 - Pedidos de envio, viagens, quadro público filtrável, "Os meus", calculadora de referência, painel da equipa (verificação, entregas, análise, economia, definições).
 - Stack: Next.js 16, React 19, Supabase (Postgres, Auth, RLS).
 - **Não existe ainda**: pagamento em garantia e verificação de identidade/bilhete dos viajantes. A app não tem código de pagamento. O código de entrega não está implementado.

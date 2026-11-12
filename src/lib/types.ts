@@ -9,6 +9,9 @@ export type ReqPub = {
   kg: number; offer: number; deadline: string | null; name: string; status: string; example: boolean;
 };
 
+export type TripPreview = Omit<TripPub, "id" | "name">;
+export type ReqPreview = Omit<ReqPub, "id" | "name" | "item">;
+
 // Linhas completas (só o dono e a equipa as vêem).
 export type Trip = TripPub & { user_id: string; contact: string; flight: string; created_at: string };
 export type Req = ReqPub & { user_id: string; contact: string; item_value: number; created_at: string };

@@ -1,6 +1,6 @@
 import { createClient } from "./supabase/server";
 import { today } from "./format";
-import type { Config, ReqPub, TripPub } from "./types";
+import type { Config, ReqPreview, ReqPub, TripPreview, TripPub } from "./types";
 
 const DEFAULT_CONFIG: Config = { commission: 12, per_kg: 8000, whatsapp: "" };
 
@@ -35,4 +35,17 @@ export async function getOpenRequests(from?: string): Promise<ReqPub[]> {
   if (from) q = q.eq("origin", from);
   const { data } = await q.limit(200);
   return (data ?? []) as ReqPub[];
+}
+
+/** O que a página inicial mostra a quem ainda não tem conta: só rota, peso, data e valor (nada de nomes nem contactos). */
+export async function getPreview(): Promise<{ trips: TripPreview[]; reqs: ReqPreview[]; tripCount: number; reqCount: number }> {
+  const supabase = await createClient();
+  const [t, r] = await Promise.all([
+    supabase.from("trips_preview").select("*", { count: "exact" }).order("travel_date").limit(4),
+    supabase.from("requests_preview").select("*", { count: "exact" }).order("kg", { ascending: false }).limit(4),
+  ]);
+  return {
+    trips: (t.data ?? []) as TripPreview[], reqs: (r.data ?? []) as ReqPreview[],
+    tripCount: t.count ?? 0, reqCount: r.count ?? 0,
+  };
 }

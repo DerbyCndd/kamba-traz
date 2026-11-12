@@ -3,8 +3,9 @@ import { LoginForm } from "./LoginForm";
 
 export const metadata: Metadata = { title: "Entrar" };
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ erro?: string }> }) {
-  const { erro } = await searchParams;
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ erro?: string; para?: string }> }) {
+  const { erro, para: raw } = await searchParams;
+  const para = raw === "pedir" || raw === "viajar" ? raw : undefined;
   return (
     <section>
       <div className="panel narrow">
@@ -12,7 +13,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         {erro === "link" ? (
           <div className="notice bad">Esse link expirou ou já foi usado. Entra com a tua palavra-passe, ou pede um novo email abaixo.</div>
         ) : null}
-        <LoginForm />
+        <LoginForm para={para} />
       </div>
     </section>
   );

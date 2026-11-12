@@ -5,11 +5,12 @@ import { signup, type AuthState } from "../actions";
 import { SubmitButton } from "@/components/SubmitButton";
 import { Field } from "@/components/ui";
 
-export function SignupForm() {
+export function SignupForm({ para }: { para?: string }) {
   const [state, action] = useActionState(signup, {} as AuthState);
   return (
     <>
       <form action={action} noValidate>
+        {para ? <input type="hidden" name="para" value={para} /> : null}
         <Field id="name" label="Nome completo">
           <input id="name" name="name" autoComplete="name" maxLength={60} required />
         </Field>
@@ -25,7 +26,7 @@ export function SignupForm() {
         {state.error ? <div className="notice bad" role="alert">{state.error}</div> : null}
         <div className="row"><SubmitButton pending="A criar…">Criar conta</SubmitButton></div>
       </form>
-      <p className="hint">Já tens conta? <Link href="/login"><b>Entrar</b></Link></p>
+      <p className="hint">Já tens conta? <Link href={para ? `/login?para=${para}` : "/login"}><b>Entrar</b></Link></p>
     </>
   );
 }

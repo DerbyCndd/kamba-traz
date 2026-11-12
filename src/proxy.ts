@@ -31,8 +31,10 @@ export async function proxy(request: NextRequest) {
 
   if (!ok && !isPublic(path)) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.search = "";
+    // Quem quer pedir um envio ou viajar e ainda não tem conta vai direito ao registo.
+    const para = path === "/pedir" ? "pedir" : path === "/viajar" ? "viajar" : "";
+    url.pathname = para ? "/registo" : "/login";
+    url.search = para ? "?para=" + para : "";
     return NextResponse.redirect(url);
   }
   if (ok && (path === "/login" || path === "/registo")) {

@@ -14,6 +14,7 @@ async function siteUrl() {
   return h.get("origin") ?? "http://localhost:3000";
 }
 
+const NEXT: Record<string, string> = { pedir: "/pedir", viajar: "/viajar" };
 const str = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
 const validEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e) && e.length <= 120;
 
@@ -35,7 +36,7 @@ export async function login(_: AuthState, fd: FormData): Promise<AuthState> {
     }
     return { error: "Email ou palavra-passe incorrectos.", email };
   }
-  redirect("/");
+  redirect(NEXT[str(fd, "para")] ?? "/");
 }
 
 export async function signup(_: AuthState, fd: FormData): Promise<AuthState> {
@@ -56,7 +57,7 @@ export async function signup(_: AuthState, fd: FormData): Promise<AuthState> {
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: name }, emailRedirectTo: (await siteUrl()) + "/auth/callback" },
+    options: { data: { full_name: name }, emailRedirectTo: (await siteUrl()) + "/auth/callback" + (NEXT[str(fd, "para")] ? "?next=" + NEXT[str(fd, "para")] : "") },
   });
   if (error) {
     if (/rate|too many|seconds/i.test(error.message)) return { error: "Demasiadas tentativas. Espera um minuto e tenta de novo.", email };

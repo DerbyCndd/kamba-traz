@@ -7,12 +7,13 @@ import { Field } from "@/components/ui";
 
 const init: AuthState = {};
 
-export function LoginForm() {
+export function LoginForm({ para }: { para?: string }) {
   const [state, action] = useActionState(login, init);
   const [resent, resend] = useActionState(resendConfirmation, init);
   return (
     <>
       <form action={action} noValidate>
+        {para ? <input type="hidden" name="para" value={para} /> : null}
         <Field id="email" label="Email">
           <input id="email" name="email" type="email" autoComplete="email" inputMode="email" defaultValue={state.email} required />
         </Field>
@@ -35,7 +36,7 @@ export function LoginForm() {
         </form>
       ) : null}
 
-      <p className="hint">Ainda não tens conta? <Link href="/registo"><b>Criar conta</b></Link></p>
+      <p className="hint">Ainda não tens conta? <Link href={para ? `/registo?para=${para}` : "/registo"}><b>Criar conta</b></Link></p>
     </>
   );
 }

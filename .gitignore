@@ -43,3 +43,6 @@ next-env.d.ts
 # ferramentas de IA (reinstalam-se com skills-lock.json)
 /.claude/
 /supabase/secret.local.sql
+
+.vercel
+.env*

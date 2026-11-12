@@ -4,7 +4,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { logout } from "@/app/(auth)/actions";
 import { Icon } from "./Icons";
-import { initials, type Who } from "./ProfileMenu";
+import { initials } from "@/lib/format";
+import type { Who } from "./ProfileMenu";
 
 /** No telemóvel: botão com as iniciais no topo, que abre uma folha com o perfil e as ligações secundárias. */
 export function MobileMenu({ who, pending }: { who: Who; pending: number }) {

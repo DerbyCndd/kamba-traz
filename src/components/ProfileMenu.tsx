@@ -3,15 +3,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { logout } from "@/app/(auth)/actions";
+import { initials } from "@/lib/format";
 import { Icon } from "./Icons";
 
 export type Who = { name: string; email: string; admin: boolean };
-
-export const initials = (name: string, email: string) => {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  const s = parts.length > 1 ? parts[0][0] + parts[parts.length - 1][0] : (parts[0] ?? email).slice(0, 2);
-  return s.toUpperCase();
-};
 
 /** Cartão do utilizador no fundo da barra lateral. Abre um menu com o perfil e o botão de sair. */
 export function ProfileMenu({ who }: { who: Who }) {

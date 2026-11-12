@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Empty } from "@/components/ui";
+import { RateForm } from "@/components/RateForm";
+import { getPendingRatings } from "@/lib/data";
 import { requireUser } from "@/lib/auth";
 import { cityName, fdate, refCode } from "@/lib/format";
 
@@ -10,6 +12,7 @@ type Mine = { id: string; kind: "trip" | "request"; title: string; status: strin
 
 export default async function MeusPage() {
   const { user, supabase } = await requireUser();
+  const toRate = await getPendingRatings();
   const [t, r] = await Promise.all([
     supabase.from("trips").select("id, origin, destination, travel_date, status, created_at").eq("user_id", user.id),
     supabase.from("requests").select("id, item, status, created_at").eq("user_id", user.id),
@@ -30,6 +33,21 @@ export default async function MeusPage() {
     <section>
       <h2>Os meus pedidos e viagens</h2>
       <p className="muted">Aqui vês o estado de tudo o que enviaste nesta conta.</p>
+      {toRate.length ? (
+        <div className="torate">
+          <h3>Por avaliar ({toRate.length})</h3>
+          <p className="hint">As entregas já concluídas. A tua avaliação ajuda a escolher os melhores.</p>
+          {toRate.map((p) => (
+            <article className="item" key={p.deal_id}>
+              <div className="head">
+                <div><span className="label">{p.ratee_role === "traveler" ? "Avalias o entregador" : "Avalias o remetente"}</span><h3>{p.label}</h3></div>
+                <span className="pill ok">ENTREGUE</span>
+              </div>
+              <RateForm p={p} />
+            </article>
+          ))}
+        </div>
+      ) : null}
       <div className="row">
         <Link className="btn small primary" href="/pedir">Novo pedido</Link>
         <Link className="btn small" href="/viajar">Nova viagem</Link>

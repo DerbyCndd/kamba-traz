@@ -3,7 +3,26 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { CATS, FROM, TO } from "@/lib/constants";
 import { cityName, kz, refCode, today } from "@/lib/format";
-import type { FormState } from "@/lib/types";
+import type { FormState, RateState } from "@/lib/types";
+
+/** Avalia a outra parte de uma entrega concluída. Toda a validação decisiva corre na base de dados (rate_deal). */
+export async function rateDeal(_: RateState, fd: FormData): Promise<RateState> {
+  const { supabase } = await requireUser();
+  const deal = String(fd.get("deal") ?? "");
+  const stars = parseInt(String(fd.get("stars") ?? ""), 10);
+  const comment = String(fd.get("comment") ?? "").trim().slice(0, 280);
+  if (!/^[0-9a-f-]{36}$/i.test(deal)) return { error: "Entrega inválida." };
+  if (!(stars >= 1 && stars <= 5)) return { error: "Escolhe de 1 a 5 estrelas." };
+
+  const { error } = await supabase.rpc("rate_deal", { p_deal: deal, p_stars: stars, p_comment: comment });
+  if (error) {
+    // Mensagens escritas por nós na função SQL são seguras de mostrar; o resto fica genérico.
+    const mine = ["P0001", "42501", "22023", "23505"].includes(error.code ?? "");
+    return { error: mine ? error.message : "Não foi possível guardar a avaliação agora. Tenta de novo daqui a pouco." };
+  }
+  revalidatePath("/", "layout");
+  return { done: true };
+}
 
 const MAX_PENDING = 10; // limite de entradas por verificar por pessoa (evita spam)
 

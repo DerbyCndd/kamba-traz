@@ -19,7 +19,7 @@ export function SideNav({ items, variant = "side", label = "Principal" }: { item
           <Link key={it.href} href={it.href} aria-current={current ? "page" : undefined}>
             <span className="ico"><Icon name={it.icon} size={variant === "tabs" ? 22 : 20} />{it.badge ? <i className="dot" aria-hidden="true" /> : null}</span>
             <span className="lbl">{it.label}</span>
-            {variant === "side" && it.badge ? <b className="badge" aria-label={`${it.badge} por verificar`}>{it.badge}</b> : null}
+            {variant === "side" && it.badge ? <b className="badge" aria-label={`${it.badge} pendentes`}>{it.badge}</b> : null}
           </Link>
         );
       })}

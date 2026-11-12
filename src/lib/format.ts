@@ -23,3 +23,10 @@ export function waLink(num: string, text?: string) {
   const d = digits(num);
   return d ? "https://wa.me/" + d + (text ? "?text=" + encodeURIComponent(text) : "") : null;
 }
+
+/** Iniciais para o avatar: primeira e última palavra do nome, ou o início do email. */
+export const initials = (name: string, email = "") => {
+  const parts = name.trim().split(/s+/).filter(Boolean);
+  const s = parts.length > 1 ? parts[0][0] + parts[parts.length - 1][0] : (parts[0] ?? email).slice(0, 2);
+  return s.toUpperCase();
+};

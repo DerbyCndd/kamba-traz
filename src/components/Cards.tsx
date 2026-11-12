@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cityName, fdate, kz, refCode, waLink } from "@/lib/format";
 import type { ReqPub, TripPub } from "@/lib/types";
+import { Stars } from "./Stars";
 import { ExBadge, StatusPill } from "./ui";
 
 export function TripPass({ t, whatsapp }: { t: TripPub; whatsapp: string }) {
@@ -16,7 +17,7 @@ export function TripPass({ t, whatsapp }: { t: TripPub; whatsapp: string }) {
         <div className="facts">
           <div><span className="label">Data</span><b>{fdate(t.travel_date)}</b></div>
           <div><span className="label">Livre</span><b>{t.kg}&nbsp;kg</b></div>
-          <div><span className="label">Viajante</span><b>{t.name || "—"}</b></div>
+          <div><span className="label">Entregador</span><b>{t.name || "—"}</b><Stars avg={t.rating} count={t.rating_count} compact /></div>
         </div>
         <div className="row"><StatusPill status={t.status} /><ExBadge example={t.example} /></div>
       </div>
@@ -45,7 +46,7 @@ export function ReqTag({ r, whatsapp }: { r: ReqPub; whatsapp: string }) {
         <div><span>Peso</span>{r.kg}&nbsp;kg</div>
         <div><span>Oferta</span>{kz(r.offer)}</div>
         {r.deadline ? <div><span>Até</span>{fdate(r.deadline)}</div> : null}
-        <div><span>Pedido por</span>{r.name || "—"}</div>
+        <div><span>Pedido por</span>{r.name || "—"}<br /><Stars avg={r.rating} count={r.rating_count} compact /></div>
       </div>
       <div className="row indent"><span className="hint">{r.category}</span><ExBadge example={r.example} /></div>
       {r.status === "aberto" ? (

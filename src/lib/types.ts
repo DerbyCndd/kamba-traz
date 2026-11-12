@@ -1,13 +1,22 @@
 export type Config = { commission: number; per_kg: number; whatsapp: string };
 
+// rating e rating_count vêm das vistas depois de correr supabase/ratings.sql (antes disso não existem).
 export type TripPub = {
   id: string; origin: string; destination: string; travel_date: string;
   kg: number; per_kg: number; name: string; status: string; example: boolean;
+  rating?: number | null; rating_count?: number;
 };
 export type ReqPub = {
   id: string; origin: string; destination: string; item: string; category: string;
   kg: number; offer: number; deadline: string | null; name: string; status: string; example: boolean;
+  rating?: number | null; rating_count?: number;
 };
+
+export type RatingRole = "traveler" | "requester";
+export type TopEntry = { first_name: string; avg_stars: number; total: number };
+export type PendingRating = { deal_id: string; label: string; counterpart: string; ratee_role: RatingRole };
+export type RatingSummary = { ratee_role: RatingRole; avg_stars: number; total: number };
+export type RateState = { error?: string; done?: boolean };
 
 export type TripPreview = Omit<TripPub, "id" | "name">;
 export type ReqPreview = Omit<ReqPub, "id" | "name" | "item">;

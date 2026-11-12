@@ -3,6 +3,7 @@ import { TripPass } from "@/components/Cards";
 import { Calculator } from "@/components/Calculator";
 import { HowItWorks } from "@/components/HowItWorks";
 import { Landing } from "@/components/Landing";
+import { TopRated } from "@/components/TopRated";
 import { Empty, Faq } from "@/components/ui";
 import { getProfile } from "@/lib/auth";
 import { getConfig, getOpenRequests, getOpenTrips } from "@/lib/data";
@@ -49,6 +50,8 @@ export default async function Home() {
           )}
         </div>
       </section>
+
+      <TopRated />
 
       <section>
         <h2>Como funciona</h2>

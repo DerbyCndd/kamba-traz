@@ -1,6 +1,6 @@
 import { createClient } from "./supabase/server";
 import { today } from "./format";
-import type { Config, ReqPreview, ReqPub, TripPreview, TripPub } from "./types";
+import type { Config, PendingRating, RatingRole, RatingSummary, ReqPreview, ReqPub, TopEntry, TripPreview, TripPub } from "./types";
 
 const DEFAULT_CONFIG: Config = { commission: 12, per_kg: 8000, whatsapp: "" };
 
@@ -35,6 +35,31 @@ export async function getOpenRequests(from?: string): Promise<ReqPub[]> {
   if (from) q = q.eq("origin", from);
   const { data } = await q.limit(200);
   return (data ?? []) as ReqPub[];
+}
+
+/** Os 3 mais bem classificados de cada função. Vazio até haver avaliações (ou antes de correr supabase/ratings.sql). */
+export async function getTopRated(): Promise<{ travelers: TopEntry[]; requesters: TopEntry[] }> {
+  const supabase = await createClient();
+  const [t, r] = await Promise.all([
+    supabase.rpc("top_rated", { p_role: "traveler", p_limit: 3 }),
+    supabase.rpc("top_rated", { p_role: "requester", p_limit: 3 }),
+  ]);
+  return { travelers: (t.data ?? []) as TopEntry[], requesters: (r.data ?? []) as TopEntry[] };
+}
+
+/** Entregas concluídas que esta pessoa ainda não avaliou. */
+export async function getPendingRatings(): Promise<PendingRating[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("my_pending_ratings");
+  return (data ?? []) as PendingRating[];
+}
+
+export async function getMyRatings(): Promise<Partial<Record<RatingRole, { avg: number; total: number }>>> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("my_rating_summary");
+  const out: Partial<Record<RatingRole, { avg: number; total: number }>> = {};
+  for (const x of (data ?? []) as RatingSummary[]) out[x.ratee_role] = { avg: Number(x.avg_stars), total: x.total };
+  return out;
 }
 
 /** O que a página inicial mostra a quem ainda não tem conta: só rota, peso, data e valor (nada de nomes nem contactos). */

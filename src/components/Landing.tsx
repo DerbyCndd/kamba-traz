@@ -5,6 +5,8 @@ import { FAQ } from "@/lib/faq";
 import { getPreview } from "@/lib/data";
 import { cityName, fdate, kz } from "@/lib/format";
 import { Empty } from "@/components/ui";
+import { Stars } from "@/components/Stars";
+import { TopRated } from "@/components/TopRated";
 
 /** Apresentação para quem ainda não tem sessão. Não mostra dados do quadro (esses são só para contas verificadas). */
 export async function Landing() {
@@ -46,6 +48,8 @@ export async function Landing() {
         <HowItWorks />
       </section>
 
+      <TopRated />
+
       <section>
         <h2>Próximas viagens</h2>
         {trips.length ? (
@@ -58,6 +62,7 @@ export async function Landing() {
                   <div className="facts">
                     <div><span className="label">Data</span><b>{fdate(t.travel_date)}</b></div>
                     <div><span className="label">Livre</span><b>{t.kg}&nbsp;kg</b></div>
+                    <div><span className="label">Entregador</span><Stars avg={t.rating} count={t.rating_count} compact /></div>
                   </div>
                   {t.example ? <div className="row"><span className="pill ex">EXEMPLO</span></div> : null}
                 </div>
@@ -87,6 +92,7 @@ export async function Landing() {
                   <div><span>Peso</span>{r.kg}&nbsp;kg</div>
                   <div><span>Oferta</span>{kz(r.offer)}</div>
                   {r.deadline ? <div><span>Até</span>{fdate(r.deadline)}</div> : null}
+                  <div><span>Remetente</span><Stars avg={r.rating} count={r.rating_count} compact /></div>
                 </div>
                 <div className="indent"><Link className="btn small primary" href="/registo?para=viajar">Posso levar</Link></div>
               </article>

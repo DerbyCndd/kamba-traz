@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { logout } from "@/app/(auth)/actions";
-import { initials } from "@/components/ProfileMenu";
 import { Icon } from "@/components/Icons";
+import { Stars } from "@/components/Stars";
 import { getProfile, requireUser } from "@/lib/auth";
+import { getMyRatings } from "@/lib/data";
+import { initials } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Meu perfil" };
 
@@ -20,6 +22,7 @@ export default async function PerfilPage() {
     if (status) q = q.eq("status", status);
     return q.then((r) => r.count ?? 0);
   };
+  const mine = await getMyRatings();
   const [reqs, trips, waiting] = await Promise.all([count("requests"), count("trips"), Promise.all([count("requests", "pendente"), count("trips", "pendente")]).then(([a, b]) => a + b)]);
 
   return (
@@ -52,6 +55,15 @@ export default async function PerfilPage() {
             <div><b>{waiting}</b><span>em verificação</span></div>
           </div>
           <Link className="btn small" href="/meus" style={{ alignSelf: "flex-start" }}>Ver o estado de tudo</Link>
+        </div>
+      </div>
+
+      <div className="panel">
+        <h3>A minha classificação</h3>
+        <p className="muted">Depois de cada entrega concluída, a outra parte avalia-te. Tens uma classificação como entregador e outra como remetente.</p>
+        <div className="two">
+          <div className="mini one"><span>Como entregador</span><Stars avg={mine.traveler?.avg} count={mine.traveler?.total} /></div>
+          <div className="mini one"><span>Como remetente</span><Stars avg={mine.requester?.avg} count={mine.requester?.total} /></div>
         </div>
       </div>
 

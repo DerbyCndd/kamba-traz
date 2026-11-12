@@ -42,6 +42,8 @@ Uma plataforma com revisão humana de cada entrada e o contacto das pessoas esco
 
 ## Brand Commitments
 
+Marca (criada com o dono, a manter): um K em forma de etiqueta de bagagem (canto inferior esquerdo bem arredondado) cujo braço superior é um avião de papel. Amarelo (#FFC52A) com o K em azul-noite (#0D1530). O nome escreve-se "Kamba" na cor do texto e "Traz" a amarelo. Componente em src/components/Logo.tsx; ficheiros em src/app (icon.svg, favicon.ico, apple-icon.png, opengraph-image.png, manifest.ts) e public (icon-*.png).
+
 Só o nome "Kamba Traz" é obrigatório. O dono deu liberdade para redesenhar paleta, tipografia e cartões. Idioma: português de Portugal.
 
 ## Evidence on Hand

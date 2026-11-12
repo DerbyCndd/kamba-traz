@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getPendingCount, getPendingRatings } from "@/lib/data";
+import { Logo } from "./Logo";
 import { MobileMenu } from "./MobileMenu";
 import { ProfileMenu, type Who } from "./ProfileMenu";
 import { SideNav, type NavItem } from "./SideNav";
@@ -31,7 +32,7 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
   return (
     <div className="app">
       <aside className="side">
-        <Link className="brand" href="/" aria-label="Kamba Traz, início"><span className="tag" aria-hidden="true" />Kamba Traz</Link>
+        <Link className="brand" href="/" aria-label="Kamba Traz, início"><Logo /></Link>
         <div className="sidescroll">
           <SideNav items={main} label="Principal" />
           <p className="sidehd">Enviar e viajar</p>
@@ -45,7 +46,7 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
 
       <div className="appmain">
         <header className="mtop">
-          <Link className="brand" href="/" aria-label="Kamba Traz, início"><span className="tag" aria-hidden="true" />Kamba Traz</Link>
+          <Link className="brand" href="/" aria-label="Kamba Traz, início"><Logo /></Link>
           <MobileMenu who={who} pending={pending} />
         </header>
         <main id="main" tabIndex={-1}>{children}</main>

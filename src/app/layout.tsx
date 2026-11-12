@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Bricolage_Grotesque, Geist_Mono, Public_Sans } from "next/font/google";
 import { AppShell } from "@/components/AppShell";
 import { Header } from "@/components/Header";
+import { Logo } from "@/components/Logo";
 import { getProfile } from "@/lib/auth";
 import "./globals.css";
 
@@ -11,7 +12,9 @@ const body = Public_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], va
 const mono = Geist_Mono({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: { default: "Kamba Traz", template: "%s · Kamba Traz" },
+  applicationName: "Kamba Traz",
   description: "Liga quem precisa de enviar encomendas para Angola a quem já tem a viagem marcada. A equipa analisa cada entrada antes de a publicar.",
 };
 export const viewport: Viewport = {
@@ -31,7 +34,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Header />
             <main id="main" tabIndex={-1}>{children}</main>
             <footer className="foot">
-              <span className="brand small"><span className="tag" aria-hidden="true" />Kamba Traz</span>
+              <span className="brand small"><Logo small /></span>
               <span className="hint">Envios de e para Angola. Cada entrada é analisada pela equipa.</span>
               <Link href="/regras">Regras de segurança</Link>
             </footer>

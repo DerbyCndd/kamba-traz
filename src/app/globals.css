@@ -491,3 +491,9 @@ input[type="date"]{color-scheme:dark}
   .podium li{animation:rankin .5s cubic-bezier(.2,.7,.2,1)}
   @keyframes rankin{from{opacity:.2;transform:translateY(6px)}}
 }
+
+/* ===== marca ===== */
+.brand svg{flex:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.35))}
+.wm{letter-spacing:-.03em}
+.wm b{color:var(--sun);font-weight:800;margin-left:.2em}
+.authhead svg{width:42px;height:42px}

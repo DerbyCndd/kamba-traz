@@ -37,12 +37,18 @@ export async function getOpenRequests(from?: string): Promise<ReqPub[]> {
   return (data ?? []) as ReqPub[];
 }
 
-/** Os 3 mais bem classificados de cada função. Vazio até haver avaliações (ou antes de correr supabase/ratings.sql). */
+/** Início do mês corrente em Luanda (UTC+1), como instante ISO. As avaliações do prémio contam a partir daqui. */
+export const monthStart = () => {
+  const [y, m] = today().split("-");
+  return `${y}-${m}-01T00:00:00+01:00`;
+};
+
+/** Os 3 mais bem classificados de cada função, no mês corrente. Vazio até haver avaliações (ou antes de correr supabase/ratings.sql). */
 export async function getTopRated(): Promise<{ travelers: TopEntry[]; requesters: TopEntry[] }> {
   const supabase = await createClient();
   const [t, r] = await Promise.all([
-    supabase.rpc("top_rated", { p_role: "traveler", p_limit: 3 }),
-    supabase.rpc("top_rated", { p_role: "requester", p_limit: 3 }),
+    supabase.rpc("top_rated", { p_role: "traveler", p_limit: 3, p_since: monthStart() }),
+    supabase.rpc("top_rated", { p_role: "requester", p_limit: 3, p_since: monthStart() }),
   ]);
   return { travelers: (t.data ?? []) as TopEntry[], requesters: (r.data ?? []) as TopEntry[] };
 }

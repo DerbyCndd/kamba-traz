@@ -8,6 +8,15 @@ export const digits = (s: string) => String(s || "").replace(/\D/g, "");
 export const refCode = (id: string) => id.replace(/-/g, "").slice(-5).toUpperCase();
 export const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) + "%" : "–");
 
+/** Avaliações mínimas no mês para concorrer ao prémio. Tem de ser igual ao 3 usado em supabase/ratings.sql. */
+export const PRIZE_MIN = 3;
+
+/** Mês corrente por extenso, por exemplo "novembro de 2026". */
+export const monthLabel = () => {
+  const [y, m] = today().split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, 15)).toLocaleDateString("pt-PT", { month: "long", year: "numeric", timeZone: "UTC" });
+};
+
 /** Data de hoje em Luanda (AAAA-MM-DD), igual no servidor e no browser. */
 export function today() {
   return new Date().toLocaleDateString("en-CA", { timeZone: "Africa/Luanda" });

@@ -421,3 +421,10 @@ body.in{padding-left:0;padding-right:0}
 .mini.one>span:first-child{font:600 13px var(--f-body);color:var(--muted)}
 .mini.one .rate{font-size:15px}
 .mini.one .stars svg{width:20px;height:20px}
+.prize-note{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:16px;background:color-mix(in srgb,var(--sun) 12%,var(--card));border:1px solid color-mix(in srgb,var(--sun) 45%,transparent);max-width:none}
+.prize-note p{max-width:70ch;font-size:15px}
+.prize-note b{color:var(--sun)}
+.prize-ico{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:12px;background:var(--sun);color:var(--on-sun)}
+.prize-ico svg{fill:currentColor}
+.pill.prize{align-self:flex-start;background:var(--sun);color:var(--on-sun);font-weight:700;margin-top:2px}
+.who small.hint{font-size:12.5px}

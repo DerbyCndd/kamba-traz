@@ -96,15 +96,23 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 -- ============ Os melhores de cada função (público) ============
--- Ordena por média ponderada (3 avaliações "neutras" puxam para a média geral), para que
--- um 5,0 com uma só avaliação não ultrapasse alguém com muitas avaliações a 4,9.
-create or replace function public.top_rated(p_role text, p_limit int default 3)
+-- Conta só as avaliações desde p_since (a app passa o início do mês, em Luanda); sem p_since conta tudo.
+-- Quem tem 3 ou mais avaliações no período fica à frente de quem tem menos (é quem pode ganhar o prémio
+-- do mês: um mês sem taxas). Dentro de cada grupo ordena por média ponderada (3 avaliações "neutras"
+-- puxam para a média geral), para que um 5,0 com uma só avaliação não ultrapasse 4,9 com muitas.
+drop function if exists public.top_rated(text, int);
+create or replace function public.top_rated(p_role text, p_limit int default 3, p_since timestamptz default null)
 returns table (first_name text, avg_stars numeric, total int)
 language sql stable security definer set search_path = public as $$
-  with g as (select coalesce(avg(stars), 4)::numeric as c from public.ratings where ratee_role = p_role),
+  with g as (
+    select coalesce(avg(stars), 4)::numeric as c from public.ratings
+    where ratee_role = p_role and (p_since is null or created_at >= p_since)
+  ),
   agg as (
     select ratee_id, avg(stars)::numeric as a, count(*)::int as n
-    from public.ratings where ratee_role = p_role group by ratee_id
+    from public.ratings
+    where ratee_role = p_role and (p_since is null or created_at >= p_since)
+    group by ratee_id
   )
   select split_part(coalesce(nullif(p.full_name, ''), 'Utilizador'), ' ', 1),
          round(agg.a, 2), agg.n
@@ -112,14 +120,14 @@ language sql stable security definer set search_path = public as $$
   join g on true
   join public.profiles p on p.id = agg.ratee_id
   where p_role in ('traveler', 'requester')
-  order by (agg.n * agg.a + 3 * g.c) / (agg.n + 3) desc, agg.n desc
+  order by (agg.n >= 3) desc, (agg.n * agg.a + 3 * g.c) / (agg.n + 3) desc, agg.n desc
   limit least(greatest(coalesce(p_limit, 3), 1), 10);
 $$;
 
 revoke execute on function public.rate_deal(uuid, int, text), public.my_pending_ratings(), public.my_rating_summary(),
-                           public.top_rated(text, int) from public;
+                           public.top_rated(text, int, timestamptz) from public;
 grant execute on function public.rate_deal(uuid, int, text), public.my_pending_ratings(), public.my_rating_summary() to authenticated;
-grant execute on function public.top_rated(text, int) to anon, authenticated;
+grant execute on function public.top_rated(text, int, timestamptz) to anon, authenticated;
 
 -- ============ Classificação do autor nos cartões do quadro ============
 -- Colunas novas no fim das vistas (as antigas mantêm a ordem).

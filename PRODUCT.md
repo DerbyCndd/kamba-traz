@@ -37,7 +37,7 @@ Uma plataforma com revisão humana de cada entrada e o contacto das pessoas esco
 - Pedidos de envio, viagens, quadro público filtrável, "Os meus", calculadora de referência, painel da equipa (verificação, entregas, análise, economia, definições).
 - Stack: Next.js 16, React 19, Supabase (Postgres, Auth, RLS).
 - **Não existe ainda**: pagamento em garantia e verificação de identidade/bilhete dos viajantes. A app não tem código de pagamento. O código de entrega não está implementado.
-- Avaliações: depois de uma entrega marcada como entregue, as duas partes avaliam-se (1 a 5 estrelas, comentário opcional privado). Cada pessoa tem duas classificações, como entregador e como remetente. O início mostra os 3 melhores de cada função, ordenados por média ponderada. Sem avaliações reais o quadro fica vazio: nunca se inventam classificações.
+- Avaliações: depois de uma entrega marcada como entregue, as duas partes avaliam-se (1 a 5 estrelas, comentário opcional privado). Cada pessoa tem duas classificações, como entregador e como remetente. O início mostra os 3 melhores de cada função, ordenados por média ponderada. O quadro conta só o mês corrente e recomeça no dia 1. Prémio (política do dono): o 1.º entregador e o 1.º remetente do mês, com pelo menos 3 avaliações recebidas no mês, ficam o mês seguinte sem pagar a taxa da Kamba. Ainda não é aplicado automaticamente: a equipa aplica a isenção à mão. Sem avaliações reais o quadro fica vazio: nunca se inventam classificações.
 - Taxa da Kamba (comissão) e preço de referência por kg são configuráveis no painel.
 
 ## Brand Commitments

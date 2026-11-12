@@ -22,26 +22,39 @@ export function TripForm({ perKg, whatsapp, defaultName, minDate }: { perKg: num
   return (
     <div className="panel">
       <form action={action} noValidate>
-        <div className="fields">
-          <Field id="name" label="O teu nome" hint="No quadro mostramos só o primeiro nome." error={e.name}>
-            <input id="name" name="name" autoComplete="name" maxLength={60} defaultValue={v.name ?? defaultName} />
-          </Field>
-          <Field id="contact" label="WhatsApp ou telefone" hint="Só a equipa vê este número." error={e.contact}>
-            <input id="contact" name="contact" type="tel" autoComplete="tel" inputMode="tel" placeholder="+351 9XX XXX XXX" defaultValue={v.contact} />
-          </Field>
-          <Field id="origin" label="Sais de"><select id="origin" name="origin" defaultValue={v.origin ?? "LIS"}>{cityOpts(FROM)}</select></Field>
-          <Field id="destination" label="Chegas a"><select id="destination" name="destination" defaultValue={v.destination ?? "LAD"}>{cityOpts(TO)}</select></Field>
-          <Field id="date" label="Data da viagem" error={e.date}><input id="date" name="date" type="date" min={minDate} defaultValue={v.date} /></Field>
-          <Field id="flight" label="Companhia e voo (opcional)" error={e.flight}>
+        <fieldset className="fs">
+          <legend><span className="fsn">1</span>Percurso e data</legend>
+          <div className="fields">
+            <Field id="origin" label="Sais de"><select id="origin" name="origin" defaultValue={v.origin ?? "LIS"}>{cityOpts(FROM)}</select></Field>
+            <Field id="destination" label="Chegas a"><select id="destination" name="destination" defaultValue={v.destination ?? "LAD"}>{cityOpts(TO)}</select></Field>
+            <Field id="date" label="Data da viagem" error={e.date}><input id="date" name="date" type="date" min={minDate} defaultValue={v.date} /></Field>
+            <Field id="flight" label="Companhia e voo (opcional)" error={e.flight}>
             <input id="flight" name="flight" maxLength={30} placeholder="Ex.: TAAG DT 701" defaultValue={v.flight} />
           </Field>
-          <Field id="kg" label="Espaço livre na mala (kg)" error={e.kg}>
+          </div>
+        </fieldset>
+        <fieldset className="fs">
+          <legend><span className="fsn">2</span>Espaço e preço</legend>
+          <div className="fields">
+            <Field id="kg" label="Espaço livre na mala (kg)" error={e.kg}>
             <input id="kg" name="kg" type="number" min="1" step="1" inputMode="numeric" defaultValue={v.kg} />
           </Field>
-          <Field id="perKg" label="Preço por kg (Kz)" hint="Podes ajustar a cada pedido." error={e.perKg}>
+            <Field id="perKg" label="Preço por kg (Kz)" hint="Podes ajustar a cada pedido." error={e.perKg}>
             <input id="perKg" name="perKg" type="number" min="0" step="500" inputMode="numeric" defaultValue={v.perKg ?? perKg} />
           </Field>
-        </div>
+          </div>
+        </fieldset>
+        <fieldset className="fs">
+          <legend><span className="fsn">3</span>Os teus dados</legend>
+          <div className="fields">
+            <Field id="name" label="O teu nome" hint="No quadro mostramos só o primeiro nome." error={e.name}>
+            <input id="name" name="name" autoComplete="name" maxLength={60} defaultValue={v.name ?? defaultName} />
+          </Field>
+            <Field id="contact" label="WhatsApp ou telefone" hint="Só a equipa vê este número." error={e.contact}>
+            <input id="contact" name="contact" type="tel" autoComplete="tel" inputMode="tel" placeholder="+351 9XX XXX XXX" defaultValue={v.contact} />
+          </Field>
+          </div>
+        </fieldset>
         <div className="field">
           <label className="check" htmlFor="ok">
             <input id="ok" name="ok" type="checkbox" defaultChecked={v.ok === "on"} aria-invalid={e.ok ? true : undefined} aria-describedby={e.ok ? "ok-e" : undefined} />

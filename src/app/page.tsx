@@ -8,10 +8,12 @@ import { Empty, Faq } from "@/components/ui";
 import { getProfile } from "@/lib/auth";
 import { getConfig, getOpenRequests, getOpenTrips } from "@/lib/data";
 import { FAQ } from "@/lib/faq";
-import { kz } from "@/lib/format";
+import { Icon } from "@/components/Icons";
+import { firstName, kz } from "@/lib/format";
 
 export default async function Home() {
-  if (!(await getProfile())) return <Landing />;
+  const profile = await getProfile();
+  if (!profile) return <Landing />;
   const [config, trips, reqs] = await Promise.all([getConfig(), getOpenTrips(), getOpenRequests()]);
   const first = trips[0];
 
@@ -19,11 +21,11 @@ export default async function Home() {
     <>
       <section className="hero">
         <div className="copy">
-          <h1>Alguém voa para Luanda esta semana. Leva a tua encomenda.</h1>
-          <p className="lead">A Kamba Traz liga quem precisa de enviar encomendas para Angola com quem já tem a viagem marcada. A equipa analisa cada entrada antes de a publicar.</p>
-          <div className="row">
-            <Link className="btn primary" href="/pedir">Preciso de enviar</Link>
-            <Link className="btn" href="/viajar">Vou viajar</Link>
+          <h1>Olá, {firstName(profile.full_name || profile.email)}.</h1>
+          <p className="lead">O que queres fazer hoje?</p>
+          <div className="tiles">
+            <Link className="tile red" href="/pedir"><Icon name="box" size={26} /><b>Preciso de enviar</b><span>Pede o envio de uma encomenda para Angola.</span></Link>
+            <Link className="tile blue" href="/viajar"><Icon name="plane" size={26} /><b>Vou viajar</b><span>Rentabiliza o espaço livre na tua mala.</span></Link>
           </div>
           <div className="counts">
             <div><b>{trips.length}</b><span className="label">viagens abertas</span></div>

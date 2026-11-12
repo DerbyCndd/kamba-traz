@@ -24,32 +24,50 @@ export function RequestForm({ perKg, whatsapp, defaultName, minDate }: { perKg: 
   return (
     <div className="panel">
       <form action={action} noValidate>
-        <div className="fields">
-          <Field id="name" label="O teu nome" error={e.name}><input id="name" name="name" autoComplete="name" maxLength={60} defaultValue={v.name ?? defaultName} /></Field>
-          <Field id="contact" label="WhatsApp ou telefone" hint="Só a equipa vê este número." error={e.contact}>
-            <input id="contact" name="contact" type="tel" autoComplete="tel" inputMode="tel" placeholder="+244 9XX XXX XXX" defaultValue={v.contact} />
-          </Field>
-          <Field id="origin" label="Sai de"><select id="origin" name="origin" defaultValue={v.origin ?? "LIS"}>{cityOpts(FROM)}</select></Field>
-          <Field id="destination" label="Chega a"><select id="destination" name="destination" defaultValue={v.destination ?? "LAD"}>{cityOpts(TO)}</select></Field>
-          <Field id="item" label="O que queres enviar" full error={e.item}>
+        <fieldset className="fs">
+          <legend><span className="fsn">1</span>Percurso</legend>
+          <div className="fields">
+            <Field id="origin" label="Sai de"><select id="origin" name="origin" defaultValue={v.origin ?? "LIS"}>{cityOpts(FROM)}</select></Field>
+            <Field id="destination" label="Chega a"><select id="destination" name="destination" defaultValue={v.destination ?? "LAD"}>{cityOpts(TO)}</select></Field>
+          </div>
+        </fieldset>
+        <fieldset className="fs">
+          <legend><span className="fsn">2</span>A encomenda</legend>
+          <div className="fields">
+            <Field id="item" label="O que queres enviar" full error={e.item}>
             <input id="item" name="item" maxLength={90} placeholder="Ex.: telemóvel novo na caixa" defaultValue={v.item} />
           </Field>
-          <Field id="category" label="Tipo de item" full>
+            <Field id="category" label="Tipo de item" full>
             <select id="category" name="category" defaultValue={v.category ?? CATS[0]}>{CATS.map((c) => <option key={c} value={c}>{c}</option>)}</select>
           </Field>
-          <Field id="kg" label="Peso aproximado (kg)" error={e.kg}>
+            <Field id="kg" label="Peso aproximado (kg)" error={e.kg}>
             <input id="kg" name="kg" type="number" min="0.1" step="0.1" inputMode="decimal" defaultValue={v.kg} onChange={(ev) => setKg(ev.target.value)} />
           </Field>
-          <Field id="value" label="Valor do item (€)" hint="Serve para o seguro e a alfândega." error={e.value}>
+            <Field id="value" label="Valor do item (€)" hint="Serve para o seguro e a alfândega." error={e.value}>
             <input id="value" name="value" type="number" min="0" step="1" inputMode="decimal" defaultValue={v.value} />
           </Field>
-          <Field id="offer" label="Quanto ofereces pelo transporte (Kz)" error={e.offer}>
+          </div>
+        </fieldset>
+        <fieldset className="fs">
+          <legend><span className="fsn">3</span>Pagamento e prazo</legend>
+          <div className="fields">
+            <Field id="offer" label="Quanto ofereces pelo transporte (Kz)" error={e.offer}>
             <input id="offer" name="offer" type="number" min="0" step="500" inputMode="numeric" defaultValue={v.offer} />
           </Field>
-          <Field id="deadline" label="Preciso até (opcional)" error={e.deadline}>
+            <Field id="deadline" label="Preciso até (opcional)" error={e.deadline}>
             <input id="deadline" name="deadline" type="date" min={minDate} defaultValue={v.deadline} />
           </Field>
-        </div>
+          </div>
+        </fieldset>
+        <fieldset className="fs">
+          <legend><span className="fsn">4</span>Os teus dados</legend>
+          <div className="fields">
+            <Field id="name" label="O teu nome" error={e.name}><input id="name" name="name" autoComplete="name" maxLength={60} defaultValue={v.name ?? defaultName} /></Field>
+            <Field id="contact" label="WhatsApp ou telefone" hint="Só a equipa vê este número." error={e.contact}>
+            <input id="contact" name="contact" type="tel" autoComplete="tel" inputMode="tel" placeholder="+244 9XX XXX XXX" defaultValue={v.contact} />
+          </Field>
+          </div>
+        </fieldset>
         {k > 0 ? <span className="hint">Referência: cerca de {kz(k * perKg)} para {k} kg.</span> : null}
         <div className="field">
           <label className="check" htmlFor="ok">

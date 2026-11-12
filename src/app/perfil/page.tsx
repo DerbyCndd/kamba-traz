@@ -1,0 +1,72 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { logout } from "@/app/(auth)/actions";
+import { initials } from "@/components/ProfileMenu";
+import { Icon } from "@/components/Icons";
+import { getProfile, requireUser } from "@/lib/auth";
+
+export const metadata: Metadata = { title: "Meu perfil" };
+
+const since = (iso?: string) => (iso ? new Date(iso).toLocaleDateString("pt-PT", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Luanda" }) : "—");
+
+export default async function PerfilPage() {
+  const { user, supabase } = await requireUser();
+  const profile = await getProfile();
+  const name = profile?.full_name || "";
+  const admin = profile?.role === "admin";
+
+  const count = (table: "trips" | "requests", status?: string) => {
+    let q = supabase.from(table).select("id", { count: "exact", head: true }).eq("user_id", user.id);
+    if (status) q = q.eq("status", status);
+    return q.then((r) => r.count ?? 0);
+  };
+  const [reqs, trips, waiting] = await Promise.all([count("requests"), count("trips"), Promise.all([count("requests", "pendente"), count("trips", "pendente")]).then(([a, b]) => a + b)]);
+
+  return (
+    <section>
+      <div className="phead">
+        <span className="avatar big" aria-hidden="true">{initials(name, user.email ?? "")}</span>
+        <div>
+          <h2>{name || "Meu perfil"}</h2>
+          <p className="muted">{user.email}</p>
+        </div>
+        {admin ? <span className="pill info" title="Tens acesso ao painel da equipa">EQUIPA</span> : null}
+      </div>
+
+      <div className="two">
+        <div className="panel">
+          <h3>Dados da conta</h3>
+          <div className="kv one">
+            <div><span>Nome</span>{name || "Sem nome"}</div>
+            <div><span>Email</span>{user.email}</div>
+            <div><span>Tipo de conta</span>{admin ? "Equipa Kamba Traz" : "Utilizador"}</div>
+            <div><span>Conta criada em</span>{since(user.created_at)}</div>
+          </div>
+        </div>
+
+        <div className="panel">
+          <h3>A minha actividade</h3>
+          <div className="mini">
+            <div><b>{reqs}</b><span>pedidos</span></div>
+            <div><b>{trips}</b><span>viagens</span></div>
+            <div><b>{waiting}</b><span>em verificação</span></div>
+          </div>
+          <Link className="btn small" href="/meus" style={{ alignSelf: "flex-start" }}>Ver o estado de tudo</Link>
+        </div>
+      </div>
+
+      <div className="panel">
+        <h3>Segurança</h3>
+        <p className="muted">Escolhe uma palavra-passe que não uses noutros sítios. Pelo menos 8 caracteres.</p>
+        <div className="row">
+          <Link className="btn" href="/nova-palavra-passe"><Icon name="key" size={18} />Alterar palavra-passe</Link>
+          {admin ? <Link className="btn" href="/admin"><Icon name="team" size={18} />Painel da equipa</Link> : null}
+        </div>
+      </div>
+
+      <form action={logout}>
+        <button type="submit" className="btn danger" style={{ alignSelf: "flex-start" }}><Icon name="logout" size={18} />Sair da conta</button>
+      </form>
+    </section>
+  );
+}

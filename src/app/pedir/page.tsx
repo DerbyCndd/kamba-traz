@@ -21,7 +21,7 @@ export default async function PedirPage() {
             <li>Depois de aprovado, aparece no quadro só com o teu primeiro nome.</li>
             <li>Quando houver um viajante compatível, combinam o valor e a entrega.</li>
           </ol>
-          <p className="hint">Ainda não há pagamento em garantia. Combina sempre o pagamento com a equipa antes de enviar.</p>
+          <p className="hint">O pagamento é combinado com a equipa e fica retido na carteira até a entrega ser confirmada com o código.</p>
         </aside>
       </div>
     </section>

@@ -517,3 +517,6 @@ section.cta .row{margin-top:8px}
   .dealgrid{grid-template-columns:1fr;gap:24px}
   .bigcode{font-size:34px}
 }
+
+.footbrand .tagline{font:600 17px/1.3 var(--f-display);color:var(--ink);letter-spacing:-.01em}
+.footbrand .origin{font-size:13.5px;color:var(--muted)}

@@ -34,7 +34,7 @@ export default function RegrasPage() {
               "Lista do conteúdo escrita e aceite pelas duas partes"].map(li)}
           </ul>
           <ul className="bullets">
-            {["Combina o pagamento com a equipa antes de enviar (a garantia de pagamento está em preparação)", "Quem recebe confirma o estado do volume no momento",
+            {["O pagamento é confirmado pela equipa e fica retido na carteira até a entrega ser confirmada com o código", "Quem recebe confirma o estado do volume no momento",
               "Em caso de problema, a equipa analisa as fotos e o histórico"].map(li)}
           </ul>
         </div>

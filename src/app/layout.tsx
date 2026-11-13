@@ -37,7 +37,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <div className="footgrid">
                 <div className="footbrand">
                   <span className="brand"><Logo /></span>
-                  <p>Kamba, em kimbundu, quer dizer amigo. Ligamos quem envia a quem viaja.</p>
+                  <p className="tagline">O amigo que leva a tua encomenda.</p>
+                  <p className="origin">Kamba quer dizer «amigo» em kimbundu.</p>
                 </div>
                 <div><h4>Produto</h4><Link href="/#como-funciona">Como funciona</Link><Link href="/#seguranca">Segurança</Link><Link href="/#duvidas">Dúvidas</Link></div>
                 <div><h4>Conta</h4><Link href="/login">Entrar</Link><Link href="/registo">Criar conta</Link></div>

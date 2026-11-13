@@ -21,7 +21,7 @@ export default async function ViajarPage() {
             <li>Depois de aprovada, a viagem aparece no quadro só com o teu primeiro nome.</li>
             <li>Escolhes os pedidos que aceitas. Cada volume é aberto e fotografado junto de quem envia.</li>
           </ol>
-          <p className="hint">Ainda não há pagamento em garantia. Combina sempre o pagamento com a equipa antes de aceitar um pedido.</p>
+          <p className="hint">O pagamento fica retido na carteira e chega-te quando a entrega é confirmada com o código. Vês a entrega em Entregas.</p>
         </aside>
       </div>
     </section>

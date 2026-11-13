@@ -9,7 +9,6 @@ import { SiteFooter, type FooterColumn } from "./SiteFooter";
 import { ThemeToggle } from "./ThemeToggle";
 
 const APP_COLUMNS: FooterColumn[] = [
-  { title: "Navegar", links: [["/", "Início"], ["/quadro", "Quadro"], ["/pedir", "Pedir envio"], ["/viajar", "Vou viajar"]] },
   { title: "A minha conta", links: [["/meus", "Os meus"], ["/entregas", "Entregas"], ["/carteira", "Carteira"], ["/perfil", "Meu perfil"]] },
   { title: "Ajuda", links: [["/regras", "Regras"], ["/feedback", "Deixe o seu feedback"]] },
 ];

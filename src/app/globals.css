@@ -299,7 +299,7 @@ form.row select{flex:1 1 200px;max-width:280px}
 .faq details p{padding:0 0 18px;color:var(--muted);max-width:60ch}
 
 /* ===== rodapé (visitantes) ===== */
-.foot{margin-top:80px;padding:32px 0 20px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:22px;font-size:14px;color:var(--muted)}
+.foot{margin-top:56px;padding:24px 0 16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:16px;font-size:14px;color:var(--muted)}
 .foot a{color:var(--muted);text-decoration:none}
 .foot a:hover{color:var(--ink)}
 .foot .brand{color:var(--ink)}
@@ -316,7 +316,10 @@ form.row select{flex:1 1 200px;max-width:280px}
 .ico{position:relative;display:grid;place-items:center;flex:none}
 .dot{position:absolute;top:-2px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--sun)}
 .badge{margin-left:auto;background:var(--sun);color:var(--on-sun);font:600 12px/1 var(--f-body);padding:4px 7px;border-radius:99px}
-.appmain{min-width:0;padding-bottom:64px}
+/* o rodapé fica sempre no fundo do ecrã: sem vazio por baixo dele nas páginas curtas */
+.appmain{min-width:0;display:flex;flex-direction:column;min-height:100dvh}
+.appmain main{flex:1 0 auto;width:100%}
+.appfoot{width:100%}
 .appmain main{padding:48px clamp(20px,4vw,56px) 0;max-width:1000px;margin-inline:auto}
 .mtop,.tabbar{display:none}
 .avatar{position:relative;display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:50%;background:var(--raised);color:var(--ink);font:600 13px/1 var(--f-body);border:1px solid var(--edge);padding:0}
@@ -362,11 +365,12 @@ form.row select{flex:1 1 200px;max-width:280px}
   .pass .stub{border-left:0;border-top:1px solid var(--line);flex-direction:row;align-items:center;flex-wrap:wrap}
   .route{font-size:24px}
   main{gap:56px;padding-top:36px}
-  .foot{margin-top:56px}
+  .foot{margin-top:40px}
   .stats{grid-template-columns:1fr 1fr;gap:10px}
   .stats>div:last-child:nth-child(odd){grid-column:1/-1}
 
   .app{display:block;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+  .appmain{min-height:calc(100dvh - 76px - env(safe-area-inset-bottom,0px))}
   .side{display:none}
   .mtop{display:flex;position:sticky;top:0;z-index:40;align-items:center;justify-content:space-between;padding:10px 20px;padding-top:max(10px,env(safe-area-inset-top,0px));background:var(--paper);border-bottom:1px solid var(--line)}
   .appmain main{padding-top:28px}
@@ -461,12 +465,13 @@ section.cta p{font-size:18px}
 section.cta .row{margin-top:8px}
 
 /* rodapé em colunas */
-.footgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:24px 32px}
+/* as colunas de ligações ocupam só o que o texto pede; a marca fica com o resto */
+.footgrid{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,max-content);gap:20px 64px}
 .footgrid h4{font:600 14px var(--f-body);color:var(--ink);margin:0 0 6px;letter-spacing:0}
-.footgrid a{display:block;padding:3px 0}
+.footgrid a{display:block;padding:2px 0}
 .footbrand{display:flex;flex-direction:column;gap:6px;max-width:34ch}
 .footbrand .brand{font-size:20px}
-.legal{font-size:13px;border-top:1px solid var(--line);padding-top:14px}
+.legal{font-size:13px;border-top:1px solid var(--line);padding-top:12px}
 
 /* área com sessão */
 .hello{gap:12px}
@@ -594,5 +599,5 @@ ol.steps p{max-width:56ch}
 
 /* rodapé da área com sessão: o mesmo componente, alinhado com o conteúdo */
 .appfoot{max-width:1000px;margin-inline:auto;padding:0 clamp(20px,4vw,56px)}
-.appfoot .foot{margin-top:64px;padding-top:28px}
-@media (max-width:900px){.appfoot .foot{margin-top:48px}}
+.appfoot .foot{margin-top:40px;padding-top:24px}
+@media (max-width:900px){.appfoot .foot{margin-top:32px}}

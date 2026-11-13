@@ -38,7 +38,8 @@ export function LocationSharer({ dealId }: { dealId: string }) {
         const now = Date.now();
         if (now - sent.current < 8000) return; // no máximo um ponto a cada 8 segundos
         sent.current = now;
-        await supabase.rpc("push_location", { p_deal: dealId, p_lat: pos.coords.latitude, p_lng: pos.coords.longitude, p_acc: pos.coords.accuracy });
+        const { error } = await supabase.rpc("push_location", { p_deal: dealId, p_lat: pos.coords.latitude, p_lng: pos.coords.longitude, p_acc: pos.coords.accuracy });
+        if (error) { sent.current = 0; setState("error"); return; } // não finge que partilha se o servidor recusou
         setState("on");
         setLast(new Date().toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
       },

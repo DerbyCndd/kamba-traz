@@ -54,7 +54,7 @@ export default async function PerfilPage() {
       <div className="panel">
         <h3>Foto de perfil</h3>
         <p className="muted">Uma foto do teu rosto, nítida e sem óculos escuros, ajuda a equipa a identificar-te e dá confiança a quem entrega ou envia contigo. Só tu, a equipa e a pessoa ligada à tua entrega a veem; no quadro público aparecem só as iniciais.</p>
-        <PhotoForm hasPhoto={!!photoUrl} />
+        <PhotoForm key={photoPath ?? "sem-foto"} hasPhoto={!!photoUrl} />
       </div>
 
       {ident.available ? (

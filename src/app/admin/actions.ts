@@ -67,6 +67,7 @@ export async function createDeal(_: AdminState, fd: FormData): Promise<AdminStat
   ]);
   if (!r || !t) return { error: "Pedido ou viagem não encontrados." };
   if (r.status !== "aberto") return { error: "Esse pedido já não está aberto." };
+  if (t.status === "pendente" || t.status === "recusado" || t.status === "concluida") return { error: "Essa viagem ainda não está aprovada (ou já terminou)." };
 
   // Prémio do mês: se o entregador ou o remetente ganhou o mês passado, a comissão é 0. Quem decide é a base de dados.
   const { data: waived } = await supabase.rpc("deal_fee_waived", { p_request: r.id, p_trip: t.id });
@@ -142,6 +143,7 @@ export async function revealPassport(tripId: string): Promise<{ value?: string; 
   const { supabase, profile } = await requireAdmin();
   const { data } = await supabase.from("traveler_docs").select("passport_enc").eq("trip_id", tripId).maybeSingle();
   if (!data) return { error: "Esta viagem não tem documentos." };
+  if (!data.passport_enc) return { error: "Esta viagem não tem passaporte (a identificação está no cadastro)." };
   const value = decryptPii(data.passport_enc);
   if (!value) return { error: "Não foi possível ler o número (a chave de cifra pode estar em falta)." };
   console.info("[auditoria] passaporte consultado", { equipa: profile.id, viagem: tripId });

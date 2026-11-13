@@ -19,6 +19,7 @@ const ago = (iso: string, now: number) => {
 export function DeliveryMap({ dealId, initial }: { dealId: string; initial: Position[] }) {
   const el = useRef<HTMLDivElement>(null);
   const ref = useRef<Ref | null>(null);
+  const centered = useRef(false);
   const [first] = useState(initial); // só a posição inicial; as seguintes chegam em directo
   const [points, setPoints] = useState<Position[]>(initial);
   const [ready, setReady] = useState(false);
@@ -48,7 +49,10 @@ export function DeliveryMap({ dealId, initial }: { dealId: string; initial: Posi
     const ll = points.map((p) => [p.lat, p.lng] as [number, number]);
     r.line.setLatLngs(ll);
     r.marker.setLatLng(ll[ll.length - 1]);
-    r.map.setView(ll[ll.length - 1], Math.max(r.map.getZoom(), 15));
+    // Só aproxima na 1.ª posição; depois respeita o zoom de quem está a ver e acompanha só se o entregador sair da vista.
+    const here = ll[ll.length - 1];
+    if (!centered.current) { r.map.setView(here, Math.max(r.map.getZoom(), 15)); centered.current = true; }
+    else if (!r.map.getBounds().contains(here)) r.map.panTo(here);
   }, [points, ready]);
 
   // em directo + reserva

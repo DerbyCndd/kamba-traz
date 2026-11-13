@@ -448,8 +448,8 @@ ol.steps h3{font-size:20px}
 .mockwrap>*{width:100%;max-width:400px}
 
 /* segurança: banda de ponta a ponta */
-section.band{position:relative;isolation:isolate;padding-block:72px}
-section.band::before{content:"";position:absolute;z-index:-1;inset:0 -100vmax;background:var(--card);border-block:1px solid var(--line)}
+/* banda de ponta a ponta sem alargar a página: a sombra e o recorte só mudam o desenho, não a largura medida */
+section.band{padding-block:72px;background:var(--card);box-shadow:0 0 0 100vmax var(--card);clip-path:inset(0 -100vmax)}
 .feats{display:grid;grid-template-columns:repeat(4,1fr);gap:32px}
 .feats>div{display:flex;flex-direction:column;gap:10px}
 .feats h3{font-size:18px}
@@ -489,14 +489,12 @@ section.cta .row{margin-top:8px}
   .feats{grid-template-columns:1fr 1fr}
   .footgrid{grid-template-columns:1fr 1fr}
   .footbrand{grid-column:1/-1}
-  .formgrid,.appgrid{grid-template-columns:1fr}
-  .aside{position:static}
 }
 @media (max-width:900px){
   .toplinks{display:none}
   .hero{grid-template-columns:1fr;gap:36px}
   .heroside .bag{width:min(70%,300px)}
-  .heroside{justify-content:stretch}
+  .heroside{justify-content:center}
   .calccard{max-width:none}
   ol.steps{grid-template-columns:1fr;gap:28px}
   .split{grid-template-columns:1fr;gap:28px}
@@ -578,5 +576,19 @@ section.cta .row{margin-top:8px}
   .top .brand svg{width:30px;height:30px}
   .top .authcta{gap:2px}
   .top .btn.small{padding:6px 11px}
-  .top .themebtn{min-width:36px;padding:0 6px}
+  .top .themebtn{min-width:40px;padding:0 6px}
+}
+
+/* ecrãs muito estreitos (320 px): só o símbolo da marca, para o cabeçalho caber */
+@media (max-width:360px){.top .wm{display:none}}
+
+/* o painel lateral já gasta largura: só põe o conteúdo em duas colunas quando há espaço para ambas */
+ol.steps p{max-width:56ch}
+@media (max-width:1359px){
+  .formgrid{grid-template-columns:minmax(0,640px)}
+  .aside{position:static}
+}
+@media (max-width:1199px){
+  .appgrid,.dealgrid{grid-template-columns:minmax(0,1fr)}
+  .appgrid .calccard{max-width:480px}
 }

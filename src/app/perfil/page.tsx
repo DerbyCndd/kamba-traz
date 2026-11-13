@@ -6,6 +6,7 @@ import { Stars } from "@/components/Stars";
 import { getProfile, requireUser } from "@/lib/auth";
 import { getMyRatings, getMyWaivers } from "@/lib/data";
 import { initials } from "@/lib/format";
+import { PhotoForm } from "./PhotoForm";
 
 export const metadata: Metadata = { title: "Meu perfil" };
 
@@ -22,13 +23,21 @@ export default async function PerfilPage() {
     if (status) q = q.eq("status", status);
     return q.then((r) => r.count ?? 0);
   };
+  // Foto privada: link temporário. Se a coluna ainda não existir (SQL por correr), segue sem foto.
+  const photoPath = await supabase.from("profiles").select("photo_path").eq("id", user.id).maybeSingle().then((r) => (r.error ? null : (r.data?.photo_path as string | null)));
+  const photoUrl = photoPath ? (await supabase.storage.from("avatars").createSignedUrl(photoPath, 3600)).data?.signedUrl ?? null : null;
   const [mine, waivers] = await Promise.all([getMyRatings(), getMyWaivers()]);
   const [reqs, trips, waiting] = await Promise.all([count("requests"), count("trips"), Promise.all([count("requests", "pendente"), count("trips", "pendente")]).then(([a, b]) => a + b)]);
 
   return (
     <section>
       <div className="phead">
-        <span className="avatar big" aria-hidden="true">{initials(name, user.email ?? "")}</span>
+        {photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="avatar big photo" src={photoUrl} alt="A tua foto de perfil" />
+        ) : (
+          <span className="avatar big" aria-hidden="true">{initials(name, user.email ?? "")}</span>
+        )}
         <div>
           <h2>{name || "Meu perfil"}</h2>
           <p className="muted">{user.email}</p>
@@ -39,6 +48,12 @@ export default async function PerfilPage() {
       {waivers.length ? (
         <p className="notice good"><b>Este mês estás sem pagar taxas.</b> Foste o melhor {waivers.map((w) => (w === "traveler" ? "entregador" : "remetente")).join(" e o melhor ")} do mês passado.</p>
       ) : null}
+
+      <div className="panel">
+        <h3>Foto de perfil</h3>
+        <p className="muted">Uma foto do teu rosto, nítida e sem óculos escuros, ajuda a equipa a identificar-te e dá confiança a quem entrega ou envia contigo. Só tu, a equipa e a pessoa ligada à tua entrega a veem; no quadro público aparecem só as iniciais.</p>
+        <PhotoForm hasPhoto={!!photoUrl} />
+      </div>
 
       <div className="two">
         <div className="panel">

@@ -601,3 +601,10 @@ ol.steps p{max-width:56ch}
 .appfoot{max-width:1000px;margin-inline:auto;padding:0 clamp(20px,4vw,56px)}
 .appfoot .foot{margin-top:40px;padding-top:24px}
 @media (max-width:900px){.appfoot .foot{margin-top:32px}}
+
+/* foto de perfil */
+.avatar.photo{object-fit:cover;padding:0}
+.photoform{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px}
+.photoform .btn{cursor:pointer}
+.srfile{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip-path:inset(50%)}
+.photoform:focus-within label.btn{outline:2px solid var(--focus);outline-offset:2px}

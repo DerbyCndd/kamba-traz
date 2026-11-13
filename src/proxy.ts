@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // Páginas abertas a quem não tem sessão. A página inicial mostra uma apresentação
 // (sem dados do quadro) a visitantes e a vista completa a quem tem sessão.
-const PUBLIC = ["/login", "/registo", "/recuperar", "/auth", "/regras", "/feedback"];
+const PUBLIC = ["/login", "/registo", "/recuperar", "/auth", "/regras", "/feedback", "/robots.txt"];
 const isPublic = (p: string) => p === "/" || PUBLIC.some((x) => p === x || p.startsWith(x + "/"));
 
 export async function proxy(request: NextRequest) {

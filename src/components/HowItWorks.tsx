@@ -1,16 +1,10 @@
-/** Os passos reais do processo de hoje. A garantia de pagamento e a verificação de identidade ainda não existem. */
+/** Os passos reais, em poucas palavras. */
 export function HowItWorks() {
   return (
-    <>
-      <ol className="steps">
-        <li><span className="n" aria-hidden="true">1</span><h3>Conta-nos o que precisas</h3><p className="muted">Dizes o que queres enviar, o peso e o percurso. Ou, se vais viajar, quando voas e quanto espaço tens na mala.</p></li>
-        <li><span className="n" aria-hidden="true">2</span><h3>Uma pessoa da equipa vê tudo</h3><p className="muted">Antes de aparecer no quadro, analisamos cada entrada e falamos contigo pelo número que deixaste.</p></li>
-        <li><span className="n" aria-hidden="true">3</span><h3>Juntamos-vos</h3><p className="muted">Quando há um pedido e uma viagem que combinam, ajudamos a acertar o valor e os detalhes da entrega.</p></li>
-        <li><span className="n" aria-hidden="true">4</span><h3>Acompanhamos até ao fim</h3><p className="muted">A equipa acompanha a entrega até estar concluída.</p></li>
-      </ol>
-      <p className="notice">
-        <b>Em preparação:</b> pagamento em garantia. Até estar pronto, combina sempre o pagamento com a equipa antes de enviar.
-      </p>
-    </>
+    <ol className="steps">
+      <li><span className="n">1</span><h3>Publicas</h3><p className="muted">O que queres enviar, ou a tua viagem.</p></li>
+      <li><span className="n">2</span><h3>Confirmamos</h3><p className="muted">A equipa vê cada entrada e cada viajante.</p></li>
+      <li><span className="n">3</span><h3>Entregam</h3><p className="muted">Combinam os detalhes e acompanhamos até chegar.</p></li>
+    </ol>
   );
 }

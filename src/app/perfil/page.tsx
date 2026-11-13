@@ -37,10 +37,7 @@ export default async function PerfilPage() {
       </div>
 
       {waivers.length ? (
-        <div className="prize-note">
-          <span className="prize-ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" /></svg></span>
-          <p><b>Este mês estás sem pagar taxas.</b> Foste o mais bem avaliado do mês passado como {waivers.map((w) => (w === "traveler" ? "entregador" : "remetente")).join(" e como ")}. A isenção aplica-se às entregas criadas este mês, automaticamente.</p>
-        </div>
+        <p className="notice good"><b>Este mês estás sem pagar taxas.</b> Foste o melhor {waivers.map((w) => (w === "traveler" ? "entregador" : "remetente")).join(" e o melhor ")} do mês passado.</p>
       ) : null}
 
       <div className="two">
@@ -67,7 +64,6 @@ export default async function PerfilPage() {
 
       <div className="panel">
         <h3>A minha classificação</h3>
-        <p className="muted">Depois de cada entrega concluída, a outra parte avalia-te. Tens uma classificação como entregador e outra como remetente.</p>
         <div className="two">
           <div className="mini one"><span>Como entregador</span><Stars avg={mine.traveler?.avg} count={mine.traveler?.total} /></div>
           <div className="mini one"><span>Como remetente</span><Stars avg={mine.requester?.avg} count={mine.requester?.total} /></div>
@@ -76,10 +72,8 @@ export default async function PerfilPage() {
 
       <div className="panel">
         <h3>Segurança</h3>
-        <p className="muted">Escolhe uma palavra-passe que não uses noutros sítios. Pelo menos 8 caracteres.</p>
         <div className="row">
           <Link className="btn" href="/nova-palavra-passe"><Icon name="key" size={18} />Alterar palavra-passe</Link>
-          {admin ? <Link className="btn" href="/admin"><Icon name="team" size={18} />Painel da equipa</Link> : null}
         </div>
       </div>
 

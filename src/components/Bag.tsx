@@ -18,9 +18,6 @@ export function Bag({ className }: { className?: string }) {
       <path d="M118 134C118 48 262 48 262 134" fill="none" stroke="#5B73D6" strokeWidth="3.5" strokeLinecap="round" strokeDasharray="2 11" />
       {/* corpo */}
       <path d="M38 134h304a16 16 0 0 1 16 16v120a26 26 0 0 1-26 26H48a26 26 0 0 1-26-26V150a16 16 0 0 1 16-16z" fill="url(#kt-chk)" stroke="#33437D" strokeWidth="6" strokeLinejoin="round" />
-      {/* cantos reforçados */}
-      <path d="M22 258v12a26 26 0 0 0 26 26h34v-38z" fill="#243268" />
-      <path d="M358 258v12a26 26 0 0 1-26 26h-34v-38z" fill="#243268" />
       {/* faixa do fecho */}
       <rect x="22" y="134" width="336" height="26" rx="7" fill="#243268" />
       <path d="M36 147h308" stroke="#FFC52A" strokeWidth="4" strokeDasharray="5 6" strokeLinecap="round" />

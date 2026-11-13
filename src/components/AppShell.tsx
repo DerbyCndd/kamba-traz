@@ -34,12 +34,7 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
       <aside className="side">
         <Link className="brand" href="/" aria-label="Kamba Traz, início"><Logo /></Link>
         <div className="sidescroll">
-          <SideNav items={main} label="Principal" />
-          <p className="sidehd">Enviar e viajar</p>
-          <SideNav items={actions} label="Acções" />
-          <p className="sidehd">A minha conta</p>
-          <SideNav items={account} label="Conta" />
-          {team.length ? (<><p className="sidehd">Equipa</p><SideNav items={team} label="Equipa" /></>) : null}
+          <SideNav items={[...main, ...actions, ...account, ...team]} label="Principal" />
         </div>
         <ProfileMenu who={who} />
       </aside>

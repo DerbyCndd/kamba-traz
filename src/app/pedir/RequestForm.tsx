@@ -25,14 +25,14 @@ export function RequestForm({ perKg, whatsapp, defaultName, minDate }: { perKg: 
     <div className="panel">
       <form action={action} noValidate>
         <fieldset className="fs">
-          <legend><span className="fsn">1</span>Percurso</legend>
+          <legend>Percurso</legend>
           <div className="fields">
             <Field id="origin" label="Sai de"><select id="origin" name="origin" defaultValue={v.origin ?? "LIS"}>{cityOpts(FROM)}</select></Field>
             <Field id="destination" label="Chega a"><select id="destination" name="destination" defaultValue={v.destination ?? "LAD"}>{cityOpts(TO)}</select></Field>
           </div>
         </fieldset>
         <fieldset className="fs">
-          <legend><span className="fsn">2</span>A encomenda</legend>
+          <legend>A encomenda</legend>
           <div className="fields">
             <Field id="item" label="O que queres enviar" full error={e.item}>
             <input id="item" name="item" maxLength={90} placeholder="Ex.: telemóvel novo na caixa" defaultValue={v.item} />
@@ -49,7 +49,7 @@ export function RequestForm({ perKg, whatsapp, defaultName, minDate }: { perKg: 
           </div>
         </fieldset>
         <fieldset className="fs">
-          <legend><span className="fsn">3</span>Pagamento e prazo</legend>
+          <legend>Pagamento e prazo</legend>
           <div className="fields">
             <Field id="offer" label="Quanto ofereces pelo transporte (Kz)" error={e.offer}>
             <input id="offer" name="offer" type="number" min="0" step="500" inputMode="numeric" defaultValue={v.offer} />
@@ -60,7 +60,7 @@ export function RequestForm({ perKg, whatsapp, defaultName, minDate }: { perKg: 
           </div>
         </fieldset>
         <fieldset className="fs">
-          <legend><span className="fsn">4</span>Os teus dados</legend>
+          <legend>Os teus dados</legend>
           <div className="fields">
             <Field id="name" label="O teu nome" error={e.name}><input id="name" name="name" autoComplete="name" maxLength={60} defaultValue={v.name ?? defaultName} /></Field>
             <Field id="contact" label="WhatsApp ou telefone" hint="Só a equipa vê este número." error={e.contact}>

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
-import { Bricolage_Grotesque, Geist_Mono, Kalam, Public_Sans } from "next/font/google";
+import { Bricolage_Grotesque, Geist_Mono, Public_Sans } from "next/font/google";
 import { AppShell } from "@/components/AppShell";
 import { Header } from "@/components/Header";
 import { Logo } from "@/components/Logo";
@@ -9,7 +9,6 @@ import "./globals.css";
 
 const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display" });
 const body = Public_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-body" });
-const hand = Kalam({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-hand" });
 const mono = Geist_Mono({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
@@ -25,7 +24,7 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const profile = await getProfile();
   return (
-    <html lang="pt-PT" className={`${display.variable} ${body.variable} ${mono.variable} ${hand.variable}`}>
+    <html lang="pt-PT" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body className={profile ? "in" : undefined}>
         <a className="skip" href="#main">Saltar para o conteúdo</a>
         {profile ? (
@@ -36,8 +35,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <main id="main" tabIndex={-1}>{children}</main>
             <footer className="foot">
               <span className="brand small"><Logo small /></span>
-              <span className="hint">Envios de e para Angola. Cada entrada é analisada pela equipa.</span>
-              <Link href="/regras">Regras de segurança</Link>
+              <span>Kamba, em kimbundu, quer dizer amigo.</span>
+              <Link href="/regras">Regras</Link>
             </footer>
           </div>
         )}

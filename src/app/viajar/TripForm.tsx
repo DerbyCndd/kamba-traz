@@ -63,7 +63,7 @@ export function TripForm({ perKg, whatsapp, defaultName, minDate }: { perKg: num
     <div className="panel">
       <form onSubmit={onSubmit} noValidate>
         <fieldset className="fs">
-          <legend><span className="fsn">1</span>Percurso e datas</legend>
+          <legend>Percurso e datas</legend>
           <div className="fields">
             <Field id="origin" label="Sais de"><select id="origin" name="origin" defaultValue={v.origin ?? "LIS"}>{cityOpts(FROM)}</select></Field>
             <Field id="destination" label="Chegas a"><select id="destination" name="destination" defaultValue={v.destination ?? "LAD"}>{cityOpts(TO)}</select></Field>
@@ -76,7 +76,7 @@ export function TripForm({ perKg, whatsapp, defaultName, minDate }: { perKg: num
         </fieldset>
 
         <fieldset className="fs">
-          <legend><span className="fsn">2</span>Espaço e preço</legend>
+          <legend>Espaço e preço</legend>
           <div className="fields">
             <Field id="kg" label="Espaço livre na mala (kg)" error={e.kg}>
               <input id="kg" name="kg" type="number" min="1" step="1" inputMode="numeric" defaultValue={v.kg} />
@@ -88,8 +88,8 @@ export function TripForm({ perKg, whatsapp, defaultName, minDate }: { perKg: num
         </fieldset>
 
         <fieldset className="fs">
-          <legend><span className="fsn">3</span>Quem és tu</legend>
-          <p className="hint privacy">Precisamos de saber bem quem leva as encomendas. O passaporte e o bilhete só a equipa vê, e nunca aparecem no quadro.</p>
+          <legend>Identificação</legend>
+          <p className="privacy">Só a equipa vê o passaporte e o bilhete.</p>
           <div className="fields">
             <Field id="fullName" label="Nome completo, como no passaporte" error={e.fullName} full>
               <input id="fullName" name="fullName" autoComplete="name" maxLength={80} defaultValue={v.fullName ?? defaultName} />
@@ -97,7 +97,7 @@ export function TripForm({ perKg, whatsapp, defaultName, minDate }: { perKg: num
             <Field id="passport" label="Número do passaporte" hint="Guardamo-lo cifrado." error={e.passport}>
               <input id="passport" name="passport" autoComplete="off" autoCapitalize="characters" spellCheck={false} maxLength={14} placeholder="Ex.: N1234567" />
             </Field>
-            <Field id="ticket" label="Foto do bilhete de avião" hint="Tem de se ver o teu nome, a data de ida e a de regresso." error={e.ticket}>
+            <Field id="ticket" label="Foto do bilhete de avião" hint="Com o teu nome e as datas." error={e.ticket}>
               <input id="ticket" name="ticket" type="file" accept="image/*" ref={input} onChange={pick} />
             </Field>
           </div>
@@ -112,7 +112,7 @@ export function TripForm({ perKg, whatsapp, defaultName, minDate }: { perKg: num
         </fieldset>
 
         <fieldset className="fs">
-          <legend><span className="fsn">4</span>Os teus dados</legend>
+          <legend>Os teus dados</legend>
           <div className="fields">
             <Field id="name" label="O teu nome" hint="No quadro mostramos só o primeiro nome." error={e.name}>
               <input id="name" name="name" autoComplete="name" maxLength={60} defaultValue={v.name ?? defaultName} />
@@ -126,7 +126,7 @@ export function TripForm({ perKg, whatsapp, defaultName, minDate }: { perKg: num
         <div className="field">
           <label className="check" htmlFor="ok">
             <input id="ok" name="ok" type="checkbox" defaultChecked={v.ok === "on"} aria-invalid={e.ok ? true : undefined} aria-describedby={e.ok ? "ok-e" : undefined} />
-            <span>Os dados e os documentos são meus e verdadeiros, e autorizo a equipa a guardá-los só para confirmar a minha identidade. Aceito abrir e fotografar cada volume junto de quem envia, e não levar nada que esteja nas <Link href="/regras">regras de itens proibidos</Link>.</span>
+            <span>Os dados e documentos são meus e verdadeiros, e autorizo a equipa a guardá-los para confirmar a minha identidade. Aceito abrir e fotografar cada volume e não levar o que está nas <Link href="/regras">regras</Link>.</span>
           </label>
           <span className="err" id="ok-e" role="alert">{e.ok || ""}</span>
         </div>

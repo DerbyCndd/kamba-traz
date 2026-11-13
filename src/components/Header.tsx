@@ -7,6 +7,11 @@ export function Header() {
     <header>
       <div className="top">
         <Link className="brand" href="/" aria-label="Kamba Traz, início"><Logo /></Link>
+        <nav className="toplinks" aria-label="Principal">
+          <Link href="/#como-funciona">Como funciona</Link>
+          <Link href="/#seguranca">Segurança</Link>
+          <Link href="/#duvidas">Dúvidas</Link>
+        </nav>
         <div className="authcta">
           <Link className="btn small ghost" href="/login">Entrar</Link>
           <Link className="btn small primary" href="/registo">Criar conta</Link>

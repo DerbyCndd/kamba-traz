@@ -101,3 +101,12 @@ export async function getPreview(): Promise<{ trips: TripPreview[]; reqs: ReqPre
     tripCount: t.count ?? 0, reqCount: r.count ?? 0,
   };
 }
+
+/** Preço de referência e taxa, públicos (calculadora da página inicial). Nulo até correr supabase/public-pricing.sql. */
+export async function getPublicPricing(): Promise<{ per_kg: number; commission: number } | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("public_pricing");
+  const row = Array.isArray(data) ? data[0] : data;
+  if (error || !row) return null;
+  return { per_kg: Number(row.per_kg), commission: Number(row.commission) };
+}

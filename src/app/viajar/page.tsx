@@ -12,8 +12,17 @@ export default async function ViajarPage() {
     <section>
       <h2>Vou viajar</h2>
       <p className="muted">Ganha com o espaço livre na mala.</p>
-      <div className="formwrap">
+      <div className="formgrid">
         <TripForm perKg={config.per_kg} whatsapp={config.whatsapp} defaultName={profile?.full_name ?? ""} minDate={today()} />
+      <aside className="aside" aria-label="O que acontece a seguir">
+          <h3>O que acontece a seguir</h3>
+          <ol className="next">
+            <li>A equipa confirma o teu passaporte e o bilhete e fala contigo pelo número que deixaste.</li>
+            <li>Depois de aprovada, a viagem aparece no quadro só com o teu primeiro nome.</li>
+            <li>Escolhes os pedidos que aceitas. Cada volume é aberto e fotografado junto de quem envia.</li>
+          </ol>
+          <p className="hint">Ainda não há pagamento em garantia. Combina sempre o pagamento com a equipa antes de aceitar um pedido.</p>
+        </aside>
       </div>
     </section>
   );

@@ -34,9 +34,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Header />
             <main id="main" tabIndex={-1}>{children}</main>
             <footer className="foot">
-              <span className="brand small"><Logo small /></span>
-              <span>Kamba, em kimbundu, quer dizer amigo.</span>
-              <Link href="/regras">Regras</Link>
+              <div className="footgrid">
+                <div className="footbrand">
+                  <span className="brand"><Logo /></span>
+                  <p>Kamba, em kimbundu, quer dizer amigo. Ligamos quem envia a quem viaja.</p>
+                </div>
+                <div><h4>Produto</h4><Link href="/#como-funciona">Como funciona</Link><Link href="/#seguranca">Segurança</Link><Link href="/#duvidas">Dúvidas</Link></div>
+                <div><h4>Conta</h4><Link href="/login">Entrar</Link><Link href="/registo">Criar conta</Link></div>
+                <div><h4>Regras</h4><Link href="/regras">O que nunca levamos</Link></div>
+              </div>
+              <p className="legal">© {new Date().getFullYear()} Kamba Traz</p>
             </footer>
           </div>
         )}

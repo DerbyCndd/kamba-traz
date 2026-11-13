@@ -1,9 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import Link from "next/link";
 import { Bricolage_Grotesque, Geist_Mono, Public_Sans } from "next/font/google";
 import { AppShell } from "@/components/AppShell";
 import { Header } from "@/components/Header";
-import { Logo } from "@/components/Logo";
+import { SiteFooter, type FooterColumn } from "@/components/SiteFooter";
 import { getProfile } from "@/lib/auth";
 import "./globals.css";
 
@@ -20,6 +19,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: [{ media: "(prefers-color-scheme: light)", color: "#F6F7FB" }, { media: "(prefers-color-scheme: dark)", color: "#0B0F1A" }],
 };
+
+const PUBLIC_COLUMNS: FooterColumn[] = [
+  { title: "Produto", links: [["/#como-funciona", "Como funciona"], ["/#seguranca", "Segurança"], ["/#duvidas", "Dúvidas"]] },
+  { title: "Conta", links: [["/login", "Entrar"], ["/registo", "Criar conta"]] },
+  { title: "Ajuda", links: [["/regras", "O que nunca levamos"], ["/feedback", "Deixe o seu feedback"]] },
+];
 
 const THEME_SCRIPT = `try{var t=localStorage.getItem("kt-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}`;
 
@@ -39,19 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <div className="wrap">
             <Header />
             <main id="main" tabIndex={-1}>{children}</main>
-            <footer className="foot">
-              <div className="footgrid">
-                <div className="footbrand">
-                  <span className="brand"><Logo /></span>
-                  <p className="tagline">O amigo que leva a tua encomenda.</p>
-                  <p className="origin">Kamba quer dizer «amigo» em kimbundu.</p>
-                </div>
-                <div><h4>Produto</h4><Link href="/#como-funciona">Como funciona</Link><Link href="/#seguranca">Segurança</Link><Link href="/#duvidas">Dúvidas</Link></div>
-                <div><h4>Conta</h4><Link href="/login">Entrar</Link><Link href="/registo">Criar conta</Link></div>
-                <div><h4>Ajuda</h4><Link href="/regras">O que nunca levamos</Link><Link href="/feedback">Deixe o seu feedback</Link></div>
-              </div>
-              <p className="legal">© {new Date().getFullYear()} Kamba Traz</p>
-            </footer>
+            <SiteFooter columns={PUBLIC_COLUMNS} />
           </div>
         )}
       </body>

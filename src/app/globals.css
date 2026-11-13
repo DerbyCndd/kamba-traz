@@ -506,7 +506,6 @@ section.cta .row{margin-top:8px}
 @media (max-width:560px){
   .feats{grid-template-columns:1fr}
   .tiles{grid-template-columns:1fr}
-  .footgrid{grid-template-columns:1fr}
 }
 
 /* ===== entregas, localização e carteira ===== */
@@ -593,12 +592,7 @@ ol.steps p{max-width:56ch}
   .appgrid .calccard{max-width:480px}
 }
 
-/* rodapé da área com sessão */
-.appfoot{max-width:1000px;margin-top:96px;padding:0 clamp(20px,4vw,56px)}
-.appfoot .in{display:flex;flex-wrap:wrap;gap:10px 32px;align-items:center;justify-content:space-between;padding:24px 0 8px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
-.appfoot p{max-width:none}
-.appfoot b{color:var(--ink);font-weight:600}
-.appfoot nav{display:flex;flex-wrap:wrap;gap:6px 22px;margin:0}
-.appfoot a{color:var(--muted);text-decoration:none}
-.appfoot a:hover{color:var(--ink)}
-@media (max-width:900px){.appfoot{margin-top:72px}}
+/* rodapé da área com sessão: o mesmo componente, alinhado com o conteúdo */
+.appfoot{max-width:1000px;padding:0 clamp(20px,4vw,56px)}
+.appfoot .foot{margin-top:96px;padding-top:40px}
+@media (max-width:900px){.appfoot .foot{margin-top:72px}}

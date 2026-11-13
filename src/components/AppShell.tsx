@@ -5,7 +5,14 @@ import { Logo } from "./Logo";
 import { MobileMenu } from "./MobileMenu";
 import { ProfileMenu, type Who } from "./ProfileMenu";
 import { SideNav, type NavItem } from "./SideNav";
+import { SiteFooter, type FooterColumn } from "./SiteFooter";
 import { ThemeToggle } from "./ThemeToggle";
+
+const APP_COLUMNS: FooterColumn[] = [
+  { title: "Navegar", links: [["/", "Início"], ["/quadro", "Quadro"], ["/pedir", "Pedir envio"], ["/viajar", "Vou viajar"]] },
+  { title: "A minha conta", links: [["/meus", "Os meus"], ["/entregas", "Entregas"], ["/carteira", "Carteira"], ["/perfil", "Meu perfil"]] },
+  { title: "Ajuda", links: [["/regras", "Regras"], ["/feedback", "Deixe o seu feedback"]] },
+];
 
 type Profile = { id: string; email: string; full_name: string; role: string };
 
@@ -55,16 +62,7 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
           <div className="mright"><ThemeToggle /><MobileMenu who={who} pending={pending} /></div>
         </header>
         <main id="main" tabIndex={-1}>{children}</main>
-        <footer className="appfoot">
-          <div className="in">
-            <p><b>O amigo que leva a tua encomenda.</b> <span>Kamba quer dizer «amigo» em kimbundu.</span></p>
-            <nav aria-label="Rodapé">
-              <Link href="/regras">Regras</Link>
-              <Link href="/feedback">Deixe o seu feedback</Link>
-              <span>© {new Date().getFullYear()} Kamba Traz</span>
-            </nav>
-          </div>
-        </footer>
+        <div className="appfoot"><SiteFooter columns={APP_COLUMNS} /></div>
       </div>
 
       <SideNav items={tabs} variant="tabs" label="Principal (telemóvel)" />

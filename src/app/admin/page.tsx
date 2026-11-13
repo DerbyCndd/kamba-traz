@@ -30,7 +30,11 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     supabase.from("trips").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Trip[]),
     supabase.from("requests").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Req[]),
     supabase.from("deals").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Deal[]),
-    supabase.from("identities").select("user_id, full_name, phone, bi_last4, passport_last4, status").then((r) => (r.data ?? []) as IdentityView[]),
+    supabase.from("identities").select("user_id, full_name, phone, bi_last4, passport_last4, status, bi_expiry, passport_expiry").then(async (r) => {
+      if (!r.error) return (r.data ?? []) as IdentityView[];
+      const b = await supabase.from("identities").select("user_id, full_name, phone, bi_last4, passport_last4, status"); // antes de correr identity-dates.sql
+      return (b.data ?? []) as IdentityView[];
+    }),
   ]);
 
   const pending = trips.filter((t) => t.status === "pendente").length + reqs.filter((r) => r.status === "pendente").length;

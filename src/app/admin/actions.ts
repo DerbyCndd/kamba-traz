@@ -22,6 +22,10 @@ async function docsOk(supabase: Awaited<ReturnType<typeof requireAdmin>>["supaba
   const { data: trip } = await supabase.from("trips").select("user_id").eq("id", tripId).maybeSingle();
   const ident = trip ? await supabase.from("identities").select("status").eq("user_id", trip.user_id).maybeSingle() : null;
   if (ident?.data && ident.data.status !== "confirmado") return false; // identificação por confirmar
+  // Documentos fora de validade não se aprovam (colunas só existem depois de identity-dates.sql).
+  const dates = trip ? await supabase.from("identities").select("bi_expiry, passport_expiry").eq("user_id", trip.user_id).maybeSingle() : null;
+  const day = new Date().toISOString().slice(0, 10);
+  if (dates?.data && ((dates.data.bi_expiry && dates.data.bi_expiry <= day) || (dates.data.passport_expiry && dates.data.passport_expiry <= day))) return false;
   return d?.status === "confirmado";
 }
 

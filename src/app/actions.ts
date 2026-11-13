@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { myIdentity } from "@/lib/identity";
+import { passportVsTrip } from "@/lib/docchecks";
 import { CATS, FROM, TO } from "@/lib/constants";
 import { cityName, kz, refCode, today } from "@/lib/format";
 import type { FormState, RateState } from "@/lib/types";
@@ -109,6 +110,7 @@ export async function submitTrip(_: FormState, fd: FormData): Promise<FormState>
   if (!v.returnDate) errors.returnDate = "Indica a data de regresso, como está no bilhete.";
   else if (v.date && v.returnDate < v.date) errors.returnDate = "O regresso tem de ser igual ou depois da ida.";
   else if (v.date && v.returnDate > addDays(v.date, 400)) errors.returnDate = "Confirma a data de regresso.";
+  if (v.date && v.date > addDays(today(), 365)) errors.date = "Só aceitamos viagens até um ano à frente.";
   if (!num(v.kg) || num(v.kg)! > 100) errors.kg = "Indica quantos kg tens livres.";
   if (!num(v.perKg)) errors.perKg = "Indica o preço por kg em Kz.";
   if (v.flight && v.flight.length > 30) errors.flight = "Demasiado longo.";
@@ -134,6 +136,10 @@ export async function submitTrip(_: FormState, fd: FormData): Promise<FormState>
   }
   const ident = await myIdentity(supabase, user.id);
   if (!ident.available || !ident.row) return { errors: {}, values: safe(v), formError: "Completa primeiro a tua identificação (BI e telefone) em Meu perfil." };
+  if (ident.row.bi_expiry && ident.row.bi_expiry <= today()) return { errors: {}, values: safe(v), formError: "O teu BI está fora de validade. Atualiza a identificação em Meu perfil." };
+  if (ident.row.passport_expiry && ident.row.passport_expiry <= today()) return { errors: {}, values: safe(v), formError: "O teu passaporte está fora de validade. Atualiza a identificação em Meu perfil." };
+  const pp = passportVsTrip(ident.row.passport_expiry, v.returnDate);
+  if (pp) return { errors: { returnDate: pp }, values: safe(v) };
 
   const path = `${user.id}/${crypto.randomUUID()}.${kind}`;
   const up = await supabase.storage.from("tickets").upload(path, bytes!, { contentType: MIME[kind!], upsert: false });

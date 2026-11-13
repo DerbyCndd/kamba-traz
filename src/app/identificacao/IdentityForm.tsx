@@ -43,7 +43,7 @@ function PhotoPick({ id, label, hint, error, tag }: { id: string; label: string;
   );
 }
 
-export function IdentityForm({ defaultName, defaultPhone, next, hasIdentity }: { defaultName: string; defaultPhone: string; next: string; hasIdentity: boolean }) {
+export function IdentityForm({ defaultName, defaultPhone, next, hasIdentity, dates }: { defaultName: string; defaultPhone: string; next: string; hasIdentity: boolean; dates: boolean }) {
   const [state, action, pending] = useActionState(saveIdentity, empty);
   const [withPassport, setWithPassport] = useState(false);
   useFocusFirstError(state.errors);
@@ -79,6 +79,11 @@ export function IdentityForm({ defaultName, defaultPhone, next, hasIdentity }: {
             <Field id="bi" label="Número do BI" error={e.bi} full>
               <input id="bi" name="bi" autoComplete="off" autoCapitalize="characters" spellCheck={false} maxLength={18} placeholder="Ex.: 000123456LA041" />
             </Field>
+            {dates ? (
+              <Field id="biExpiry" label="Validade do BI" hint="A data que está no cartão." error={e.biExpiry}>
+                <input id="biExpiry" name="biExpiry" type="date" min={new Date().toISOString().slice(0, 10)} defaultValue={v.biExpiry} />
+              </Field>
+            ) : null}
           </div>
           <PhotoPick id="biPhoto" tag="bi" label="Foto do BI" hint="A frente, com o teu rosto e o nome bem legíveis." error={e.biPhoto} />
         </fieldset>
@@ -95,6 +100,11 @@ export function IdentityForm({ defaultName, defaultPhone, next, hasIdentity }: {
                 <Field id="passport" label="Número do passaporte" error={e.passport} full>
                   <input id="passport" name="passport" autoComplete="off" autoCapitalize="characters" spellCheck={false} maxLength={14} placeholder="Ex.: N1234567" />
                 </Field>
+                {dates ? (
+                  <Field id="passportExpiry" label="Validade do passaporte" hint="Para viajar, tem de valer mais 6 meses depois do regresso." error={e.passportExpiry} full>
+                    <input id="passportExpiry" name="passportExpiry" type="date" min={new Date().toISOString().slice(0, 10)} defaultValue={v.passportExpiry} />
+                  </Field>
+                ) : null}
               </div>
               <PhotoPick id="passportPhoto" tag="passaporte" label="Foto do passaporte" hint="A página com a fotografia e os dados." error={e.passportPhoto} />
             </>

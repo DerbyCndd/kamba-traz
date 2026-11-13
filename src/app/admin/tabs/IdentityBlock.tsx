@@ -1,13 +1,15 @@
 "use client";
 import { useState } from "react";
 import { SubmitButton } from "@/components/SubmitButton";
+import { identityAlerts } from "@/lib/docchecks";
+import { fdate, today } from "@/lib/format";
 import type { IdentityView } from "@/lib/types";
 import { idPhotoUrl, revealIdNumber, setIdentityStatus } from "../actions";
 
 const LABEL = { pendente: ["warn", "POR CONFIRMAR"], confirmado: ["ok", "CONFIRMADA"], recusado: ["bad", "RECUSADA"] } as const;
 
 /** Identificação feita no cadastro (BI + telefone; passaporte opcional). Números e fotos só se abrem a pedido, e cada abertura fica registada. */
-export function IdentityBlock({ userId, ident }: { userId: string; ident?: IdentityView }) {
+export function IdentityBlock({ userId, ident, accountName, tripReturn }: { userId: string; ident?: IdentityView; accountName?: string; tripReturn?: string | null }) {
   const [bi, setBi] = useState<string | null>(null);
   const [pp, setPp] = useState<string | null>(null);
   const [msg, setMsg] = useState("");
@@ -17,6 +19,7 @@ export function IdentityBlock({ userId, ident }: { userId: string; ident?: Ident
     return <div className="notice"><b>Sem identificação.</b> Esta pessoa ainda não deixou o BI e o telefone.</div>;
   }
   const [cls, text] = LABEL[ident.status];
+  const alerts = identityAlerts({ biExpiry: ident.bi_expiry, passportExpiry: ident.passport_expiry, tripReturn, today: today(), accountName, fullName: ident.full_name });
 
   async function number(kind: "bi" | "passport") {
     setBusy(true); setMsg("");
@@ -43,7 +46,12 @@ export function IdentityBlock({ userId, ident }: { userId: string; ident?: Ident
         <div><span>Telefone</span>{ident.phone}</div>
         <div><span>BI</span>{bi ?? "•••• " + ident.bi_last4}</div>
         <div><span>Passaporte</span>{ident.passport_last4 ? (pp ?? "•••• " + ident.passport_last4) : "Não indicado"}</div>
+        {ident.bi_expiry ? <div><span>Validade do BI</span>{fdate(ident.bi_expiry)}</div> : null}
+        {ident.passport_expiry ? <div><span>Validade do passaporte</span>{fdate(ident.passport_expiry)}</div> : null}
       </div>
+      {alerts.length ? (
+        <div className="notice bad" role="alert"><b>Atenção:</b> {alerts.join(" ")}</div>
+      ) : ident.bi_expiry ? <p className="hint">Validades em ordem.</p> : <p className="hint">Sem datas de validade (conta anterior às validades). Confere nas fotos.</p>}
       <div className="row">
         <button type="button" className="btn small" onClick={() => photo("bi")} disabled={busy}>Ver foto do BI</button>
         {bi === null ? <button type="button" className="btn small" onClick={() => number("bi")} disabled={busy}>Ver número do BI</button> : null}

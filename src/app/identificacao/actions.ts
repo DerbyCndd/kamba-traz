@@ -2,6 +2,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
+import { expiryError } from "@/lib/docchecks";
+import { today } from "@/lib/format";
+import { myIdentity } from "@/lib/identity";
 import { encryptPii, piiReady } from "@/lib/pii";
 import { isLimited, recordHit, TOO_MANY } from "@/lib/ratelimit";
 
@@ -37,8 +40,9 @@ export async function saveIdentity(_: IdentityState, fd: FormData): Promise<Iden
   const withPassport = clean(fd.get("withPassport")) === "on";
   const values = {
     fullName: clean(fd.get("fullName")).replace(/\s+/g, " "), phone: clean(fd.get("phone")), next: clean(fd.get("next")),
-    withPassport: withPassport ? "on" : "",
+    withPassport: withPassport ? "on" : "", biExpiry: clean(fd.get("biExpiry")), passportExpiry: clean(fd.get("passportExpiry")),
   };
+  const { dates } = await myIdentity(supabase, user.id); // só exige as validades quando a base já as guarda
   const bi = clean(fd.get("bi")).replace(/[\s-]/g, "").toUpperCase();
   const passport = clean(fd.get("passport")).replace(/[\s-]/g, "").toUpperCase();
   const errors: Record<string, string> = {};
@@ -47,6 +51,11 @@ export async function saveIdentity(_: IdentityState, fd: FormData): Promise<Iden
   if (!phoneOk(values.phone)) errors.phone = "Indica um número com indicativo, por exemplo +244 923 000 000.";
   if (!/^[A-Z0-9]{9,16}$/.test(bi)) errors.bi = "Escreve o número do BI (letras e números, sem espaços).";
   if (withPassport && !/^[A-Z0-9]{6,12}$/.test(passport)) errors.passport = "Escreve o número do passaporte (6 a 12 letras e números, sem espaços).";
+  if (dates) {
+    const e1 = expiryError(values.biExpiry, today(), "BI");
+    if (e1) errors.biExpiry = e1;
+    if (withPassport) { const e2 = expiryError(values.passportExpiry, today(), "passaporte"); if (e2) errors.passportExpiry = e2; }
+  }
   if (clean(fd.get("ok")) !== "on") errors.ok = "Tens de confirmar para continuar.";
 
   const biPhoto = await readPhoto(fd, "biPhoto", "do BI", errors, true);
@@ -80,6 +89,7 @@ export async function saveIdentity(_: IdentityState, fd: FormData): Promise<Iden
     passport_enc: withPassport ? encryptPii(passport) : null,
     passport_last4: withPassport ? passport.slice(-4) : null,
     passport_photo_path: ppPath,
+    ...(dates ? { bi_expiry: values.biExpiry, passport_expiry: withPassport ? values.passportExpiry : null } : {}),
   };
   const { error } = await supabase.from("identities").upsert(row, { onConflict: "user_id" });
   if (error) {

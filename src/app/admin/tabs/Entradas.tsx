@@ -76,7 +76,7 @@ export function Entradas({ trips, reqs, deals, config, docs, idents }: { trips: 
                 </>
               )}
             </div>
-            <IdentityBlock userId={it.user_id} ident={identOf.get(it.user_id)} />
+            <IdentityBlock userId={it.user_id} ident={identOf.get(it.user_id)} accountName={it.name} tripReturn={isTrip ? t.return_date : null} />
             {isTrip ? <DocBlock tripId={it.id} doc={docOf.get(it.id)} accountName={it.name} /> : null}
             <div className="row">
               {isTrip && (docOf.get(it.id)?.status !== "confirmado" || (identOf.get(it.user_id) && identOf.get(it.user_id)?.status !== "confirmado")) ? (

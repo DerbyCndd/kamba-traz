@@ -67,6 +67,8 @@ export default async function PerfilPage() {
                 <div><span>Telefone</span>{ident.row.phone}</div>
                 <div><span>BI</span>•••• {ident.row.bi_last4}</div>
                 <div><span>Passaporte</span>{ident.row.passport_last4 ? "•••• " + ident.row.passport_last4 : "Não indicado"}</div>
+                {ident.row.bi_expiry ? <div><span>Validade do BI</span>{since(ident.row.bi_expiry)}</div> : null}
+                {ident.row.passport_expiry ? <div><span>Validade do passaporte</span>{since(ident.row.passport_expiry)}</div> : null}
                 <div><span>Estado</span>{ident.row.status === "confirmado" ? "Confirmada pela equipa" : ident.row.status === "recusado" ? "Recusada: atualiza os documentos" : "A equipa ainda vai confirmar"}</div>
               </div>
               <Link className="btn small" href="/identificacao?next=/perfil" style={{ alignSelf: "flex-start" }}>Atualizar ou juntar o passaporte</Link>

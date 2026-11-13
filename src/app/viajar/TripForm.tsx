@@ -8,28 +8,12 @@ import { emptyForm } from "@/lib/types";
 import { Field } from "@/components/ui";
 import { useFocusFirstError } from "@/components/useFocusFirstError";
 import { SubmitResult } from "@/components/SubmitResult";
+import { shrinkImage } from "@/lib/shrink";
 
 const cityOpts = (codes: string[]) =>
   codes.map((c) => <option key={c} value={c}>{cityName(c)}{c !== "OTH" ? ` (${c})` : ""}</option>);
 
-/** Reduz a foto no telemóvel (lado maior 1800 px, JPEG): envia-se depressa e cabe no limite. Se falhar, segue a original. */
-async function shrink(file: File): Promise<File> {
-  if (!file.type.startsWith("image/")) return file;
-  try {
-    const bmp = await createImageBitmap(file);
-    const s = Math.min(1, 1800 / Math.max(bmp.width, bmp.height));
-    const c = document.createElement("canvas");
-    c.width = Math.round(bmp.width * s);
-    c.height = Math.round(bmp.height * s);
-    c.getContext("2d")!.drawImage(bmp, 0, 0, c.width, c.height);
-    const blob = await new Promise<Blob | null>((r) => c.toBlob(r, "image/jpeg", 0.82));
-    return blob ? new File([blob], "bilhete.jpg", { type: "image/jpeg" }) : file;
-  } catch {
-    return file;
-  }
-}
-
-export function TripForm({ perKg, whatsapp, defaultName, minDate }: { perKg: number; whatsapp: string; defaultName: string; minDate: string }) {
+export function TripForm({ perKg, whatsapp, defaultName, defaultPhone, minDate }: { perKg: number; whatsapp: string; defaultName: string; defaultPhone: string; minDate: string }) {
   const [state, action, pending] = useActionState(submitTrip, emptyForm);
   const [preview, setPreview] = useState<{ url: string; kb: number } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -44,7 +28,7 @@ export function TripForm({ perKg, whatsapp, defaultName, minDate }: { perKg: num
     const f = ev.target.files?.[0];
     if (!f) { setPreview(null); return; }
     setBusy(true);
-    const small = await shrink(f);
+    const small = await shrinkImage(f, "bilhete.jpg");
     const dt = new DataTransfer();
     dt.items.add(small);
     if (input.current) input.current.files = dt.files;
@@ -88,16 +72,10 @@ export function TripForm({ perKg, whatsapp, defaultName, minDate }: { perKg: num
         </fieldset>
 
         <fieldset className="fs">
-          <legend>Identificação</legend>
-          <p className="privacy">Só a equipa vê o passaporte e o bilhete.</p>
+          <legend>Bilhete de avião</legend>
+          <p className="privacy">A tua identificação (BI e telefone) já está guardada: não a pedimos de novo. Só a equipa vê o bilhete.</p>
           <div className="fields">
-            <Field id="fullName" label="Nome completo, como no passaporte" error={e.fullName} full>
-              <input id="fullName" name="fullName" autoComplete="name" maxLength={80} defaultValue={v.fullName ?? defaultName} />
-            </Field>
-            <Field id="passport" label="Número do passaporte" hint="Guardamo-lo cifrado." error={e.passport}>
-              <input id="passport" name="passport" autoComplete="off" autoCapitalize="characters" spellCheck={false} maxLength={14} placeholder="Ex.: N1234567" />
-            </Field>
-            <Field id="ticket" label="Foto do bilhete de avião" hint="Com o teu nome e as datas." error={e.ticket}>
+            <Field id="ticket" label="Foto do bilhete de avião" hint="Com o teu nome e as datas." error={e.ticket} full>
               <input id="ticket" name="ticket" type="file" accept="image/*" ref={input} onChange={pick} />
             </Field>
           </div>
@@ -118,7 +96,7 @@ export function TripForm({ perKg, whatsapp, defaultName, minDate }: { perKg: num
               <input id="name" name="name" autoComplete="name" maxLength={60} defaultValue={v.name ?? defaultName} />
             </Field>
             <Field id="contact" label="WhatsApp ou telefone" hint="Só a equipa vê este número." error={e.contact}>
-              <input id="contact" name="contact" type="tel" autoComplete="tel" inputMode="tel" placeholder="+351 9XX XXX XXX" defaultValue={v.contact} />
+              <input id="contact" name="contact" type="tel" autoComplete="tel" inputMode="tel" placeholder="+351 9XX XXX XXX" defaultValue={v.contact ?? defaultPhone} />
             </Field>
           </div>
         </fieldset>
@@ -126,7 +104,7 @@ export function TripForm({ perKg, whatsapp, defaultName, minDate }: { perKg: num
         <div className="field">
           <label className="check" htmlFor="ok">
             <input id="ok" name="ok" type="checkbox" defaultChecked={v.ok === "on"} aria-invalid={e.ok ? true : undefined} aria-describedby={e.ok ? "ok-e" : undefined} />
-            <span>Os dados e documentos são meus e verdadeiros, e autorizo a equipa a guardá-los para confirmar a minha identidade. Aceito abrir e fotografar cada volume e não levar o que está nas <Link href="/regras">regras</Link>.</span>
+            <span>Os dados são meus e verdadeiros, e autorizo a equipa a confirmar o meu bilhete e a minha identidade. Aceito abrir e fotografar cada volume e não levar o que está nas <Link href="/regras">regras</Link>.</span>
           </label>
           <span className="err" id="ok-e" role="alert">{e.ok || ""}</span>
         </div>

@@ -18,7 +18,7 @@ export function SubmitResult({ done, whatsapp }: { done: NonNullable<FormState["
       </div>
       <p className="muted">
         {trip
-          ? "Recebemos o teu passaporte e o bilhete. A equipa confirma-os antes de publicar a viagem e fala contigo pelo contacto que indicaste."
+          ? "Recebemos o teu bilhete. A equipa confirma-o e a tua identificação antes de publicar a viagem e fala contigo pelo contacto que indicaste."
           : "A equipa confirma os detalhes do item e publica o pedido no quadro. Falamos contigo pelo contacto que indicaste."}
       </p>
       <textarea readOnly rows={7} aria-label="Resumo" defaultValue={done.summary} style={{ fontFamily: "var(--f-mono)", fontSize: 13 }} />

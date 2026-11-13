@@ -26,8 +26,12 @@ export type Trip = TripPub & { user_id: string; contact: string; flight: string;
 
 /** Documentos do viajante, sem o passaporte nem o caminho da foto (esses só passam por acções da equipa). */
 export type TravelerDocView = {
-  trip_id: string; full_name: string; passport_last4: string; outbound_date: string; return_date: string;
+  trip_id: string; full_name: string; passport_last4: string | null; outbound_date: string; return_date: string;
   status: "pendente" | "confirmado" | "recusado"; created_at: string;
+};
+export type IdentityView = {
+  user_id: string; full_name: string; phone: string; bi_last4: string; passport_last4: string | null;
+  status: "pendente" | "confirmado" | "recusado";
 };
 export type Req = ReqPub & { user_id: string; contact: string; item_value: number; created_at: string };
 

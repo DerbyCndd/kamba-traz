@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { myIdentity } from "@/lib/identity";
 import { getProfile, requireUser } from "@/lib/auth";
 import { getConfig } from "@/lib/data";
 import { today } from "@/lib/format";
@@ -10,6 +12,8 @@ export const metadata: Metadata = { title: "Vou viajar" };
 export default async function ViajarPage() {
   const [config, profile] = await Promise.all([getConfig(), getProfile()]);
   const { user, supabase } = await requireUser();
+  const ident = await myIdentity(supabase, user.id);
+  if (ident.available && !ident.row) redirect("/identificacao?next=/viajar");
   const hasPhoto = await supabase.from("profiles").select("photo_path").eq("id", user.id).maybeSingle().then((r) => (r.error ? true : !!r.data?.photo_path));
   return (
     <section>
@@ -19,11 +23,11 @@ export default async function ViajarPage() {
         <p className="notice"><b>Falta a tua foto de perfil.</b> A equipa precisa de te identificar. <Link href="/perfil">Adicionar foto</Link></p>
       )}
       <div className="formgrid">
-        <TripForm perKg={config.per_kg} whatsapp={config.whatsapp} defaultName={profile?.full_name ?? ""} minDate={today()} />
+        <TripForm perKg={config.per_kg} whatsapp={config.whatsapp} defaultName={profile?.full_name ?? ""} defaultPhone={ident.row?.phone ?? ""} minDate={today()} />
       <aside className="aside" aria-label="O que acontece a seguir">
           <h3>O que acontece a seguir</h3>
           <ol className="next">
-            <li>A equipa confirma o teu passaporte e o bilhete e fala contigo pelo número que deixaste.</li>
+            <li>A equipa confirma o teu bilhete e a tua identificação, que já deixaste, e fala contigo pelo número que indicaste.</li>
             <li>Depois de aprovada, a viagem aparece no quadro só com o teu primeiro nome.</li>
             <li>Escolhes os pedidos que aceitas. Cada volume é aberto e fotografado junto de quem envia.</li>
           </ol>

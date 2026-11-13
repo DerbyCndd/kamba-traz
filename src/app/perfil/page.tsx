@@ -6,6 +6,7 @@ import { Stars } from "@/components/Stars";
 import { getProfile, requireUser } from "@/lib/auth";
 import { getMyRatings, getMyWaivers } from "@/lib/data";
 import { initials } from "@/lib/format";
+import { myIdentity } from "@/lib/identity";
 import { PhotoForm } from "./PhotoForm";
 
 export const metadata: Metadata = { title: "Meu perfil" };
@@ -26,6 +27,7 @@ export default async function PerfilPage() {
   // Foto privada: link temporário. Se a coluna ainda não existir (SQL por correr), segue sem foto.
   const photoPath = await supabase.from("profiles").select("photo_path").eq("id", user.id).maybeSingle().then((r) => (r.error ? null : (r.data?.photo_path as string | null)));
   const photoUrl = photoPath ? (await supabase.storage.from("avatars").createSignedUrl(photoPath, 3600)).data?.signedUrl ?? null : null;
+  const ident = await myIdentity(supabase, user.id);
   const [mine, waivers] = await Promise.all([getMyRatings(), getMyWaivers()]);
   const [reqs, trips, waiting] = await Promise.all([count("requests"), count("trips"), Promise.all([count("requests", "pendente"), count("trips", "pendente")]).then(([a, b]) => a + b)]);
 
@@ -54,6 +56,29 @@ export default async function PerfilPage() {
         <p className="muted">Uma foto do teu rosto, nítida e sem óculos escuros, ajuda a equipa a identificar-te e dá confiança a quem entrega ou envia contigo. Só tu, a equipa e a pessoa ligada à tua entrega a veem; no quadro público aparecem só as iniciais.</p>
         <PhotoForm hasPhoto={!!photoUrl} />
       </div>
+
+      {ident.available ? (
+        <div className="panel">
+          <h3>Identificação</h3>
+          {ident.row ? (
+            <>
+              <div className="kv one">
+                <div><span>Nome no BI</span>{ident.row.full_name}</div>
+                <div><span>Telefone</span>{ident.row.phone}</div>
+                <div><span>BI</span>•••• {ident.row.bi_last4}</div>
+                <div><span>Passaporte</span>{ident.row.passport_last4 ? "•••• " + ident.row.passport_last4 : "Não indicado"}</div>
+                <div><span>Estado</span>{ident.row.status === "confirmado" ? "Confirmada pela equipa" : ident.row.status === "recusado" ? "Recusada: atualiza os documentos" : "A equipa ainda vai confirmar"}</div>
+              </div>
+              <Link className="btn small" href="/identificacao?next=/perfil" style={{ alignSelf: "flex-start" }}>Atualizar ou juntar o passaporte</Link>
+            </>
+          ) : (
+            <>
+              <p className="muted">Ainda não deixaste o BI e o telefone. Pedimos uma só vez, e serve para pedir envios e para viajar.</p>
+              <Link className="btn primary small" href="/identificacao?next=/perfil" style={{ alignSelf: "flex-start" }}>Completar identificação</Link>
+            </>
+          )}
+        </div>
+      ) : null}
 
       <div className="two">
         <div className="panel">

@@ -14,7 +14,7 @@ export function DocBlock({ tripId, doc, accountName }: { tripId: string; doc?: T
   const [busy, setBusy] = useState(false);
 
   if (!doc) {
-    return <div className="notice bad" role="alert"><b>Sem documentos.</b> Esta viagem não pode ser aprovada. Pede ao viajante para a registar de novo, com o passaporte e o bilhete.</div>;
+    return <div className="notice bad" role="alert"><b>Sem documentos.</b> Esta viagem não pode ser aprovada. Pede ao viajante para a registar de novo, com a foto do bilhete.</div>;
   }
   const [cls, text] = LABEL[doc.status];
 
@@ -34,22 +34,22 @@ export function DocBlock({ tripId, doc, accountName }: { tripId: string; doc?: T
   return (
     <div className="docblock">
       <div className="head">
-        <h4>Documentos do viajante</h4>
+        <h4>Bilhete do viajante</h4>
         <span className={"pill " + cls}>{text}</span>
       </div>
       <div className="kv">
-        <div><span>Nome no passaporte</span>{doc.full_name}</div>
+        <div><span>Nome da identificação</span>{doc.full_name}</div>
         <div><span>Nome da conta</span>{accountName}</div>
-        <div><span>Passaporte</span>{passport ?? "•••• " + doc.passport_last4}</div>
+        {doc.passport_last4 ? <div><span>Passaporte (antigo)</span>{passport ?? "•••• " + doc.passport_last4}</div> : null}
         <div><span>Ida</span>{fdate(doc.outbound_date)}</div>
         <div><span>Regresso</span>{fdate(doc.return_date)}</div>
       </div>
-      <p className="hint">Confirma que o nome do passaporte, o do bilhete e o da conta são a mesma pessoa, e que as datas do bilhete batem com as de cima.</p>
+      <p className="hint">Confirma que o nome da identificação, o do bilhete e o da conta são a mesma pessoa, e que as datas do bilhete batem com as de cima.</p>
       <div className="row">
         <button type="button" className="btn small" onClick={showTicket} disabled={busy}>Ver foto do bilhete</button>
-        {passport === null ? <button type="button" className="btn small" onClick={showPassport} disabled={busy}>Ver número do passaporte</button> : null}
+        {doc.passport_last4 && passport === null ? <button type="button" className="btn small" onClick={showPassport} disabled={busy}>Ver número do passaporte</button> : null}
         {doc.status !== "confirmado" ? (
-          <form action={setDocStatus.bind(null, tripId, "confirmado")} className="inline"><SubmitButton className="btn small primary" pending="A guardar…">Confirmar documentos</SubmitButton></form>
+          <form action={setDocStatus.bind(null, tripId, "confirmado")} className="inline"><SubmitButton className="btn small primary" pending="A guardar…">Confirmar bilhete</SubmitButton></form>
         ) : null}
         {doc.status !== "recusado" ? (
           <form action={setDocStatus.bind(null, tripId, "recusado")} className="inline"><SubmitButton className="btn small danger" pending="A guardar…">Recusar</SubmitButton></form>

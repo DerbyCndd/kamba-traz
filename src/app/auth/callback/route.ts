@@ -22,5 +22,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (error) return NextResponse.redirect(`${origin}/login?erro=link`);
+  // Conta nova: a identificação (BI + telefone) pede-se logo a seguir, uma só vez.
+  if (next === "/" || next === "/pedir" || next === "/viajar") return NextResponse.redirect(`${origin}/identificacao?next=${encodeURIComponent(next)}`);
   return NextResponse.redirect(`${origin}${next}`);
 }

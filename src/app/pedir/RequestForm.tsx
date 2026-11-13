@@ -13,7 +13,7 @@ import { SubmitResult } from "@/components/SubmitResult";
 const cityOpts = (codes: string[]) =>
   codes.map((c) => <option key={c} value={c}>{cityName(c)}{c !== "OTH" ? ` (${c})` : ""}</option>);
 
-export function RequestForm({ perKg, whatsapp, defaultName, minDate }: { perKg: number; whatsapp: string; defaultName: string; minDate: string }) {
+export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, minDate }: { perKg: number; whatsapp: string; defaultName: string; defaultPhone: string; minDate: string }) {
   const [state, action] = useActionState(submitRequest, emptyForm);
   const [kg, setKg] = useState("");
   useFocusFirstError(state.errors);
@@ -64,7 +64,7 @@ export function RequestForm({ perKg, whatsapp, defaultName, minDate }: { perKg: 
           <div className="fields">
             <Field id="name" label="O teu nome" error={e.name}><input id="name" name="name" autoComplete="name" maxLength={60} defaultValue={v.name ?? defaultName} /></Field>
             <Field id="contact" label="WhatsApp ou telefone" hint="Só a equipa vê este número." error={e.contact}>
-            <input id="contact" name="contact" type="tel" autoComplete="tel" inputMode="tel" placeholder="+244 9XX XXX XXX" defaultValue={v.contact} />
+            <input id="contact" name="contact" type="tel" autoComplete="tel" inputMode="tel" placeholder="+244 9XX XXX XXX" defaultValue={v.contact ?? defaultPhone} />
           </Field>
           </div>
         </fieldset>

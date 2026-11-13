@@ -5,7 +5,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   // A foto do bilhete segue no pedido do formulário (a app reduz-na antes; 4 MB de limite + margem do multipart).
-  experimental: { serverActions: { bodySizeLimit: "5mb" } },
+  experimental: { serverActions: { bodySizeLimit: "10mb" } },
   async headers() {
     return [{
       source: "/:path*",

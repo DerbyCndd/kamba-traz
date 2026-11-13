@@ -3,7 +3,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { getConfig, getWaiverHolders } from "@/lib/data";
 import { kz } from "@/lib/format";
-import type { Deal, FeedbackRow, Req, TravelerDocView, Trip } from "@/lib/types";
+import type { Deal, FeedbackRow, IdentityView, Req, TravelerDocView, Trip } from "@/lib/types";
 import { Entradas } from "./tabs/Entradas";
 import { Entregas } from "./tabs/Entregas";
 import { Quadro } from "./tabs/Quadro";
@@ -22,7 +22,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const { tab: raw } = await searchParams;
   const tab = TABS.some((t) => t[0] === raw) ? raw! : "entradas";
 
-  const [config, holders, docs, feedback, trips, reqs, deals] = await Promise.all([
+  const [config, holders, docs, feedback, trips, reqs, deals, idents] = await Promise.all([
     getConfig(),
     getWaiverHolders(),
     supabase.from("traveler_docs").select("trip_id, full_name, passport_last4, outbound_date, return_date, status, created_at").then((r) => (r.data ?? []) as TravelerDocView[]),
@@ -30,6 +30,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     supabase.from("trips").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Trip[]),
     supabase.from("requests").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Req[]),
     supabase.from("deals").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Deal[]),
+    supabase.from("identities").select("user_id, full_name, phone, bi_last4, passport_last4, status").then((r) => (r.data ?? []) as IdentityView[]),
   ]);
 
   const pending = trips.filter((t) => t.status === "pendente").length + reqs.filter((r) => r.status === "pendente").length;
@@ -56,7 +57,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           </Link>
         ))}
       </div>
-      {tab === "entradas" && <Entradas trips={trips} reqs={reqs} deals={deals} config={config} docs={docs} />}
+      {tab === "entradas" && <Entradas trips={trips} reqs={reqs} deals={deals} config={config} docs={docs} idents={idents} />}
       {tab === "ligacoes" && <Entregas trips={trips} reqs={reqs} deals={deals} commission={config.commission} holders={holders} />}
       {tab === "quadro" && <Quadro trips={trips} reqs={reqs} />}
       {tab === "analise" && <Analise trips={trips} reqs={reqs} deals={deals} />}

@@ -96,7 +96,7 @@ export async function Landing() {
             <Check>Defines tu o preço por kg.</Check>
             <Check>Cada volume é aberto e fotografado junto de quem envia.</Check>
             <Check>O valor fica retido na carteira e chega-te quando a entrega é confirmada.</Check>
-            <Check>A equipa confirma o teu passaporte e o bilhete antes de publicar a viagem.</Check>
+            <Check>A equipa confirma o teu BI e o bilhete antes de publicar a viagem.</Check>
           </ul>
           <div className="row"><Link className="btn primary" href="/registo?para=viajar">Publicar a minha viagem</Link></div>
         </div>
@@ -139,7 +139,7 @@ export async function Landing() {
           <p className="muted">Levar a encomenda de outra pessoa exige confiança. Por isso não publicamos nada sem passar por uma pessoa da equipa.</p>
         </div>
         <div className="feats">
-          <div><span className="stepico"><Icon name="idcard" size={22} /></span><h3>Viajantes identificados</h3><p className="muted">Pedimos o passaporte e a foto do bilhete, com as datas de ida e de regresso, e confirmamos tudo antes de a viagem aparecer.</p></div>
+          <div><span className="stepico"><Icon name="idcard" size={22} /></span><h3>Pessoas identificadas</h3><p className="muted">No cadastro pedimos o BI e o telefone, uma só vez (o passaporte é opcional). Quem viaja junta a foto do bilhete, com as datas, e confirmamos tudo antes de a viagem aparecer.</p></div>
           <div><span className="stepico"><Icon name="lock" size={22} /></span><h3>Contactos privados</h3><p className="muted">O teu telefone só a equipa o vê. No quadro aparece apenas o teu primeiro nome.</p></div>
           <div><span className="stepico"><Icon name="shield" size={22} /></span><h3>Cada entrada analisada</h3><p className="muted">Pedidos e viagens passam por uma pessoa da equipa antes de serem publicados.</p></div>
           <div><span className="stepico"><Icon name="list" size={22} /></span><h3>Regras claras</h3><p className="muted">Há uma lista de itens que nunca transportamos. <Link href="/regras">Ver as regras</Link></p></div>

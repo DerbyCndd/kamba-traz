@@ -1,13 +1,15 @@
 import { SubmitButton } from "@/components/SubmitButton";
 import { TwoStepButton } from "@/components/TwoStepButton";
 import { cityName, fdate, firstName, kz, waLink } from "@/lib/format";
-import type { Config, Deal, Req, TravelerDocView, Trip } from "@/lib/types";
+import type { Config, Deal, IdentityView, Req, TravelerDocView, Trip } from "@/lib/types";
 import { DocBlock } from "./DocBlock";
+import { IdentityBlock } from "./IdentityBlock";
 import { approveItem, rejectItem } from "../actions";
 import Link from "next/link";
 
-export function Entradas({ trips, reqs, deals, config, docs }: { trips: Trip[]; reqs: Req[]; deals: Deal[]; config: Config; docs: TravelerDocView[] }) {
+export function Entradas({ trips, reqs, deals, config, docs, idents }: { trips: Trip[]; reqs: Req[]; deals: Deal[]; config: Config; docs: TravelerDocView[]; idents: IdentityView[] }) {
   const docOf = new Map(docs.map((d) => [d.trip_id, d]));
+  const identOf = new Map(idents.map((i) => [i.user_id, i]));
   const items = [
     ...trips.filter((t) => t.status === "pendente").map((t) => ({ kind: "trip" as const, it: t })),
     ...reqs.filter((r) => r.status === "pendente").map((r) => ({ kind: "request" as const, it: r })),
@@ -74,10 +76,11 @@ export function Entradas({ trips, reqs, deals, config, docs }: { trips: Trip[]; 
                 </>
               )}
             </div>
+            <IdentityBlock userId={it.user_id} ident={identOf.get(it.user_id)} />
             {isTrip ? <DocBlock tripId={it.id} doc={docOf.get(it.id)} accountName={it.name} /> : null}
             <div className="row">
-              {isTrip && docOf.get(it.id)?.status !== "confirmado" ? (
-                <span className="hint">Confirma primeiro os documentos para poderes aprovar.</span>
+              {isTrip && (docOf.get(it.id)?.status !== "confirmado" || (identOf.get(it.user_id) && identOf.get(it.user_id)?.status !== "confirmado")) ? (
+                <span className="hint">Confirma primeiro a identificação e o bilhete para poderes aprovar.</span>
               ) : (
                 <form action={approveItem.bind(null, kind, it.id)} className="inline">
                   <SubmitButton className="btn small primary" pending="A publicar…">Aprovar e publicar</SubmitButton>

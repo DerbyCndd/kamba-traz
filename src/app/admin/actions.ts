@@ -18,7 +18,11 @@ async function docsOk(supabase: Awaited<ReturnType<typeof requireAdmin>>["supaba
     supabase.from("traveler_docs").select("status").eq("trip_id", tripId).maybeSingle(),
     supabase.from("trips").select("example").eq("id", tripId).maybeSingle(),
   ]);
-  return d?.status === "confirmado" || t?.example === true;
+  if (t?.example === true) return true;
+  const { data: trip } = await supabase.from("trips").select("user_id").eq("id", tripId).maybeSingle();
+  const ident = trip ? await supabase.from("identities").select("status").eq("user_id", trip.user_id).maybeSingle() : null;
+  if (ident?.data && ident.data.status !== "confirmado") return false; // identificação por confirmar
+  return d?.status === "confirmado";
 }
 
 export async function approveItem(kind: Kind, id: string) {
@@ -192,5 +196,44 @@ export async function setFeedbackStatus(id: string, status: "novo" | "lido" | "r
 export async function deleteFeedback(id: string) {
   const { supabase } = await requireAdmin();
   await supabase.from("feedback").delete().eq("id", id);
+  done();
+}
+
+// ---------- identificação (BI + telefone, passaporte opcional), feita uma só vez no cadastro ----------
+type IdKind = "bi" | "passport";
+
+/** Mostra o número do BI ou do passaporte (decifrado só aqui, no servidor, e só à equipa). Cada consulta fica no registo. */
+export async function revealIdNumber(userId: string, kind: IdKind): Promise<{ value?: string; error?: string }> {
+  const { supabase, profile } = await requireAdmin();
+  if (!/^[0-9a-f-]{36}$/i.test(userId)) return { error: "Pessoa inválida." };
+  const col = kind === "bi" ? "bi_enc" : "passport_enc";
+  const { data } = await supabase.from("identities").select(col).eq("user_id", userId).maybeSingle();
+  const enc = (data as Record<string, string | null> | null)?.[col];
+  if (!enc) return { error: "Este documento não foi indicado." };
+  const value = decryptPii(enc);
+  if (!value) return { error: "Não foi possível ler o número (a chave de cifra pode estar em falta)." };
+  console.info("[auditoria] número de identificação consultado", { equipa: profile.id, pessoa: userId, tipo: kind });
+  return { value };
+}
+
+/** Ligação à foto do BI ou do passaporte, válida só 2 minutos. A foto nunca é pública. */
+export async function idPhotoUrl(userId: string, kind: IdKind): Promise<{ url?: string; error?: string }> {
+  const { supabase, profile } = await requireAdmin();
+  if (!/^[0-9a-f-]{36}$/i.test(userId)) return { error: "Pessoa inválida." };
+  const col = kind === "bi" ? "bi_photo_path" : "passport_photo_path";
+  const { data } = await supabase.from("identities").select(col).eq("user_id", userId).maybeSingle();
+  const path = (data as Record<string, string | null> | null)?.[col];
+  if (!path) return { error: "Este documento não foi indicado." };
+  const { data: signed, error } = await supabase.storage.from("ids").createSignedUrl(path, 120);
+  if (error || !signed) return { error: "Não foi possível abrir a foto." };
+  console.info("[auditoria] foto de identificação consultada", { equipa: profile.id, pessoa: userId, tipo: kind });
+  return { url: signed.signedUrl };
+}
+
+export async function setIdentityStatus(userId: string, status: "confirmado" | "recusado" | "pendente") {
+  const { supabase, profile } = await requireAdmin();
+  if (!/^[0-9a-f-]{36}$/i.test(userId) || !["confirmado", "recusado", "pendente"].includes(status)) return;
+  await supabase.from("identities").update({ status }).eq("user_id", userId);
+  console.info("[auditoria] identificação", { equipa: profile.id, pessoa: userId, estado: status });
   done();
 }

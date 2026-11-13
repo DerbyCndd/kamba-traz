@@ -12,7 +12,7 @@ export function HowItWorks() {
       <li>
         <span className="stepico"><Icon name="shield" size={22} /></span>
         <h3>Confirmamos</h3>
-        <p className="muted">A equipa confirma cada entrada e identifica cada viajante, com passaporte e bilhete, antes de a publicar no quadro.</p>
+        <p className="muted">A equipa confirma cada entrada e identifica cada pessoa, com BI e telefone (e o bilhete, no caso de quem viaja), antes de a publicar no quadro.</p>
       </li>
       <li>
         <span className="stepico"><Icon name="plane" size={22} /></span>

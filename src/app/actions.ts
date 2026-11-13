@@ -1,7 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
-import { encryptPii, piiReady } from "@/lib/pii";
+import { myIdentity } from "@/lib/identity";
 import { CATS, FROM, TO } from "@/lib/constants";
 import { cityName, kz, refCode, today } from "@/lib/format";
 import type { FormState, RateState } from "@/lib/types";
@@ -60,6 +60,8 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
   if (v.deadline && v.deadline < today()) errors.deadline = "A data já passou.";
   if (Object.keys(errors).length) return { errors, values: v };
 
+  const ident = await myIdentity(supabase, user.id);
+  if (ident.available && !ident.row) return { errors: {}, values: v, formError: "Completa primeiro a tua identificação (BI e telefone) em Meu perfil." };
   if (await tooManyPending(supabase, user.id)) {
     return { errors: {}, values: v, formError: "Já tens muitas entradas por verificar. Espera que a equipa as analise." };
   }
@@ -97,12 +99,9 @@ const addDays = (iso: string, n: number) => { const d = new Date(iso + "T12:00:0
 export async function submitTrip(_: FormState, fd: FormData): Promise<FormState> {
   const { user, supabase } = await requireUser();
   const v = read(fd);
-  // O passaporte nunca volta ao browser: nem num erro de validação.
-  const safe = (x: Record<string, string>) => ({ ...x, passport: "" });
+  const safe = (x: Record<string, string>) => x;
   const errors: Record<string, string> = {};
 
-  const fullName = (v.fullName ?? "").replace(/\s+/g, " ");
-  const passport = (v.passport ?? "").replace(/[\s-]/g, "").toUpperCase();
 
   if (v.name.length < 2 || v.name.length > 60) errors.name = "Escreve o teu nome.";
   if (!phoneOk(v.contact)) errors.contact = "Indica um número com indicativo, por exemplo +351 912 000 000.";
@@ -113,8 +112,6 @@ export async function submitTrip(_: FormState, fd: FormData): Promise<FormState>
   if (!num(v.kg) || num(v.kg)! > 100) errors.kg = "Indica quantos kg tens livres.";
   if (!num(v.perKg)) errors.perKg = "Indica o preço por kg em Kz.";
   if (v.flight && v.flight.length > 30) errors.flight = "Demasiado longo.";
-  if (fullName.length < 3 || fullName.length > 80) errors.fullName = "Escreve o nome completo, igual ao do passaporte e do bilhete.";
-  if (!/^[A-Z0-9]{6,12}$/.test(passport)) errors.passport = "Escreve o número do passaporte (6 a 12 letras e números, sem espaços).";
   if (v.ok !== "on") errors.ok = "Tens de confirmar para continuar.";
   if (!FROM.includes(v.origin) || !TO.includes(v.destination)) errors.date = "Escolhe valores válidos da lista.";
   else if (v.origin === v.destination && v.origin !== "OTH") errors.date = "A origem e o destino não podem ser iguais.";
@@ -135,9 +132,8 @@ export async function submitTrip(_: FormState, fd: FormData): Promise<FormState>
   if (await tooManyPending(supabase, user.id)) {
     return { errors: {}, values: safe(v), formError: "Já tens muitas entradas por verificar. Espera que a equipa as analise." };
   }
-  if (!piiReady()) {
-    return { errors: {}, values: safe(v), formError: "De momento não conseguimos receber documentos em segurança. Fala com a equipa." };
-  }
+  const ident = await myIdentity(supabase, user.id);
+  if (!ident.available || !ident.row) return { errors: {}, values: safe(v), formError: "Completa primeiro a tua identificação (BI e telefone) em Meu perfil." };
 
   const path = `${user.id}/${crypto.randomUUID()}.${kind}`;
   const up = await supabase.storage.from("tickets").upload(path, bytes!, { contentType: MIME[kind!], upsert: false });
@@ -147,7 +143,7 @@ export async function submitTrip(_: FormState, fd: FormData): Promise<FormState>
   const { data: tripId, error } = await supabase.rpc("submit_trip", {
     p_name: v.name, p_contact: v.contact, p_origin: v.origin, p_destination: v.destination,
     p_travel_date: v.date, p_return_date: v.returnDate, p_flight: v.flight || "", p_kg: num(v.kg)!, p_per_kg: Math.round(num(v.perKg)!),
-    p_full_name: fullName, p_passport_enc: encryptPii(passport), p_passport_last4: passport.slice(-4), p_ticket_path: path,
+    p_ticket_path: path,
   });
   if (error || !tripId) {
     await supabase.storage.from("tickets").remove([path]); // não deixa a foto órfã
@@ -160,7 +156,7 @@ export async function submitTrip(_: FormState, fd: FormData): Promise<FormState>
     "VIAGEM · Kamba Traz", "Nome: " + v.name, "Contacto: " + v.contact,
     `Rota: ${cityName(v.origin)} → ${cityName(v.destination)}`, `Ida: ${v.date} · Regresso: ${v.returnDate}`,
     v.flight ? "Voo: " + v.flight : null, `Espaço livre: ${num(v.kg)} kg`, "Preço por kg: " + kz(Math.round(num(v.perKg)!)),
-    "Documentos: passaporte e bilhete enviados",
+    "Identificação: já guardada · bilhete enviado",
   ].filter(Boolean).join("\n");
   return { errors: {}, values: {}, done: { ref: "KT-" + refCode(tripId as string), summary, kind: "trip" } };
 }

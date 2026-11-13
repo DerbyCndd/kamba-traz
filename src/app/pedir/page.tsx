@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { getProfile } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { myIdentity } from "@/lib/identity";
+import { getProfile, requireUser } from "@/lib/auth";
 import { getConfig } from "@/lib/data";
 import { today } from "@/lib/format";
 import { RequestForm } from "./RequestForm";
@@ -8,12 +10,15 @@ export const metadata: Metadata = { title: "Pedir envio" };
 
 export default async function PedirPage() {
   const [config, profile] = await Promise.all([getConfig(), getProfile()]);
+  const { user, supabase } = await requireUser();
+  const ident = await myIdentity(supabase, user.id);
+  if (ident.available && !ident.row) redirect("/identificacao?next=/pedir");
   return (
     <section>
       <h2>Quero enviar uma encomenda</h2>
       <p className="muted">Demora dois minutos. A equipa verifica e publica.</p>
       <div className="formgrid">
-        <RequestForm perKg={config.per_kg} whatsapp={config.whatsapp} defaultName={profile?.full_name ?? ""} minDate={today()} />
+        <RequestForm perKg={config.per_kg} whatsapp={config.whatsapp} defaultName={profile?.full_name ?? ""} defaultPhone={ident.row?.phone ?? ""} minDate={today()} />
       <aside className="aside" aria-label="O que acontece a seguir">
           <h3>O que acontece a seguir</h3>
           <ol className="next">

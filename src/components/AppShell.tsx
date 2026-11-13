@@ -55,6 +55,16 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
           <div className="mright"><ThemeToggle /><MobileMenu who={who} pending={pending} /></div>
         </header>
         <main id="main" tabIndex={-1}>{children}</main>
+        <footer className="appfoot">
+          <div className="in">
+            <p><b>O amigo que leva a tua encomenda.</b> <span>Kamba quer dizer «amigo» em kimbundu.</span></p>
+            <nav aria-label="Rodapé">
+              <Link href="/regras">Regras</Link>
+              <Link href="/feedback">Deixe o seu feedback</Link>
+              <span>© {new Date().getFullYear()} Kamba Traz</span>
+            </nav>
+          </div>
+        </footer>
       </div>
 
       <SideNav items={tabs} variant="tabs" label="Principal (telemóvel)" />

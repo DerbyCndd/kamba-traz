@@ -1,6 +1,7 @@
 import { createClient } from "./supabase/server";
+import { decryptPii } from "./pii";
 import { today } from "./format";
-import type { Config, PendingRating, RatingRole, RatingSummary, ReqPreview, ReqPub, TopEntry, TripPreview, TripPub, WaiverHolder, Winner } from "./types";
+import type { Deal, LedgerRow, Position, Wallet, Config, PendingRating, RatingRole, RatingSummary, ReqPreview, ReqPub, TopEntry, TripPreview, TripPub, WaiverHolder, Winner } from "./types";
 
 const DEFAULT_CONFIG: Config = { commission: 12, per_kg: 8000, whatsapp: "" };
 
@@ -109,4 +110,45 @@ export async function getPublicPricing(): Promise<{ per_kg: number; commission: 
   const row = Array.isArray(data) ? data[0] : data;
   if (error || !row) return null;
   return { per_kg: Number(row.per_kg), commission: Number(row.commission) };
+}
+
+/** As entregas em que a pessoa participa (a equipa vê todas). Só chega o que as regras de acesso permitem. */
+export async function getMyDeals(): Promise<Deal[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("deals").select("*").order("created_at", { ascending: false });
+  return (data ?? []) as Deal[];
+}
+
+export async function getDeal(id: string): Promise<Deal | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("deals").select("*").eq("id", id).maybeSingle();
+  return (data as Deal) ?? null;
+}
+
+/** Os últimos pontos da posição do entregador, do mais antigo ao mais recente. */
+export async function getPositions(dealId: string): Promise<Position[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("delivery_positions").select("id, lat, lng, accuracy, at").eq("deal_id", dealId).order("id", { ascending: false }).limit(200);
+  return ((data ?? []) as Position[]).reverse();
+}
+
+export async function getWallet(): Promise<Wallet> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("my_wallet");
+  const r = (Array.isArray(data) ? data[0] : data) ?? {};
+  const n = (x: unknown) => Number(x ?? 0);
+  return { held: n(r.held), to_receive: n(r.to_receive), received: n(r.received), refunded: n(r.refunded), paid: n(r.paid) };
+}
+
+export async function getLedger(): Promise<LedgerRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("wallet_ledger").select("id, kind, amount, note, created_at, deal_id").order("id", { ascending: false }).limit(60);
+  return (data ?? []) as LedgerRow[];
+}
+
+/** Código de entrega, só para quem enviou (decifrado aqui, no servidor). */
+export async function getDeliveryCode(dealId: string): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("deal_secrets").select("code_enc").eq("deal_id", dealId).maybeSingle();
+  return data?.code_enc ? decryptPii(data.code_enc) : null;
 }

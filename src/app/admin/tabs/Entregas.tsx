@@ -4,6 +4,8 @@ import { DEAL_STEPS } from "@/lib/constants";
 import { kz } from "@/lib/format";
 import type { Deal, Req, Trip, WaiverHolder } from "@/lib/types";
 import { deleteDeal, setDealStatus } from "../actions";
+import Link from "next/link";
+import { ConfirmPayment } from "./ConfirmPayment";
 import { DealForm } from "./DealForm";
 
 export function Entregas({ trips, reqs, deals, commission, holders }: { trips: Trip[]; reqs: Req[]; deals: Deal[]; commission: number; holders: WaiverHolder[] }) {
@@ -33,11 +35,15 @@ export function Entregas({ trips, reqs, deals, commission, holders }: { trips: T
               <div><span>Viajante recebe</span>{kz(d.price - d.commission)}</div>
             </div>
             <div className="row">
-              {next ? (
+              {d.status === "negociacao" ? <ConfirmPayment dealId={d.id} /> : null}
+              {d.status === "garantia" ? <span className="hint">Pagamento retido. À espera de o entregador pegar a encomenda na app.</span> : null}
+              {d.status === "transito" ? <span className="hint">A caminho. A entrega fecha quando o entregador introduzir o código.</span> : null}
+              {d.status === "entregue" && next ? (
                 <form action={setDealStatus.bind(null, d.id, next[0])} className="inline">
-                  <SubmitButton className="btn small primary" pending="A guardar…">Marcar: {next[1]}</SubmitButton>
+                  <SubmitButton className="btn small primary" pending="A guardar…">Marcar: {next[1]} (depois de pagares ao viajante)</SubmitButton>
                 </form>
               ) : null}
+              <Link className="btn small" href={`/entregas/${d.id}`}>Ver entrega</Link>
               {!cancelled && d.status !== "liberado" ? <TwoStepButton label="Cancelar" action={setDealStatus.bind(null, d.id, "cancelado")} /> : null}
               <TwoStepButton label="Apagar" action={deleteDeal.bind(null, d.id)} />
             </div>

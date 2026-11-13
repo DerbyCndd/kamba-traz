@@ -16,7 +16,7 @@ export const CATS = [
 ];
 export const DEAL_STEPS: [string, string][] = [
   ["negociacao", "Em negociação"],
-  ["garantia", "Pago · em garantia"],
+  ["garantia", "Pagamento retido"],
   ["transito", "Em trânsito"],
   ["entregue", "Entregue"],
   ["liberado", "Pago ao viajante"],

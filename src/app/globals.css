@@ -483,3 +483,37 @@ section.cta .row{margin-top:8px}
   .tiles{grid-template-columns:1fr}
   .footgrid{grid-template-columns:1fr}
 }
+
+/* ===== entregas, localização e carteira ===== */
+.dealrow{text-decoration:none;color:var(--ink);transition:border-color .15s,background .15s}
+.dealrow:hover{border-color:var(--muted);background:var(--raised)}
+.tl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.tl li{position:relative;padding-top:14px;font-size:13.5px;color:var(--muted);border-top:3px solid var(--line)}
+.tl li.done{color:var(--ink);border-top-color:var(--muted)}
+.tl li.now{color:var(--ink);font-weight:600;border-top-color:var(--sun)}
+.statetext{font-size:17px;max-width:62ch}
+.dealgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,300px);gap:40px;align-items:start}
+.dealgrid .stack{gap:20px}
+.bigcode{font:700 40px/1 var(--f-mono);letter-spacing:.12em;padding:14px 0 4px}
+.codeinput{font:600 28px var(--f-mono);letter-spacing:.35em;text-align:center;max-width:260px}
+.sharer{display:flex;flex-direction:column;gap:10px;padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.sharer.on{border-color:color-mix(in srgb,var(--ok) 55%,transparent)}
+.sharer p{max-width:none}
+.payform{display:flex;flex-direction:column;gap:12px;width:100%;padding:14px;border-radius:12px;background:var(--paper);border:1px solid var(--line)}
+.mapbox{display:flex;flex-direction:column;gap:8px}
+.map{height:min(420px,60vh);border-radius:14px;border:1px solid var(--line);overflow:hidden;background:var(--card);z-index:0}
+.mapnote{font-size:14px}
+.pindot span{display:block;width:18px;height:18px;border-radius:50%;background:var(--sun);border:3px solid #0B0F1A;box-shadow:0 0 0 5px rgba(255,197,42,.3)}
+.leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.92) contrast(.9) saturate(.7)}
+.leaflet-container{font-family:var(--f-body)}
+.leaflet-control-attribution{background:rgba(11,15,26,.75)!important;color:var(--muted)!important}
+.leaflet-control-attribution a{color:var(--muted)!important}
+.ledger .r{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) auto}
+@media (max-width:900px){
+  .tl{grid-template-columns:1fr;gap:0}
+  .tl li{border-top:0;border-left:3px solid var(--line);padding:6px 0 6px 14px}
+  .tl li.done{border-left-color:var(--muted)}
+  .tl li.now{border-left-color:var(--sun)}
+  .dealgrid{grid-template-columns:1fr;gap:24px}
+  .bigcode{font-size:34px}
+}

@@ -95,6 +95,7 @@ export async function Landing() {
           <ul className="ticks">
             <Check>Defines tu o preço por kg.</Check>
             <Check>Cada volume é aberto e fotografado junto de quem envia.</Check>
+            <Check>O valor fica retido na carteira e chega-te quando a entrega é confirmada.</Check>
             <Check>A equipa confirma o teu passaporte e o bilhete antes de publicar a viagem.</Check>
           </ul>
           <div className="row"><Link className="btn primary" href="/registo?para=viajar">Publicar a minha viagem</Link></div>
@@ -143,7 +144,7 @@ export async function Landing() {
           <div><span className="stepico"><Icon name="shield" size={22} /></span><h3>Cada entrada analisada</h3><p className="muted">Pedidos e viagens passam por uma pessoa da equipa antes de serem publicados.</p></div>
           <div><span className="stepico"><Icon name="list" size={22} /></span><h3>Regras claras</h3><p className="muted">Há uma lista de itens que nunca transportamos. <Link href="/regras">Ver as regras</Link></p></div>
         </div>
-        <p className="hint">O pagamento em garantia está em preparação. Até estar pronto, combina sempre o pagamento com a equipa antes de enviar.</p>
+        <p className="hint">O pagamento fica retido na carteira até a entrega ser confirmada com um código, e vês onde está a encomenda quando o entregador a pega.</p>
       </section>
 
       <TopRated />

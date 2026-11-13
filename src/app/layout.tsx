@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const profile = await getProfile();
   return (
-    <html lang="pt-PT" className={`${display.variable} ${body.variable} ${mono.variable}`}>
+    <html lang="pt-PT" data-scroll-behavior="smooth" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body className={profile ? "in" : undefined}>
         <a className="skip" href="#main">Saltar para o conteúdo</a>
         {profile ? (

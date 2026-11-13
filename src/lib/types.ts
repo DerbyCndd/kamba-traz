@@ -35,7 +35,13 @@ export type Deal = {
   id: string; request_id: string | null; trip_id: string | null; label: string; traveler: string; requester: string;
   price: number; commission_pct: number; commission: number; status: string; created_at: string;
   fee_waived?: boolean;
+  sender_id?: string | null; traveler_id?: string | null;
+  funded_at?: string | null; picked_up_at?: string | null; delivered_at?: string | null;
 };
+
+export type Position = { id: number; lat: number; lng: number; accuracy: number | null; at: string };
+export type Wallet = { held: number; to_receive: number; received: number; refunded: number; paid: number };
+export type LedgerRow = { id: number; kind: "retido" | "a_receber" | "libertado" | "recebido" | "reembolso" | "comissao"; amount: number; note: string; created_at: string; deal_id: string | null };
 
 export type Winner = { role: RatingRole; first_name: string };
 export type WaiverHolder = { user_id: string; role: RatingRole; first_name: string };

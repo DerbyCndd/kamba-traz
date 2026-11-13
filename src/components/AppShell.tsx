@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getPendingCount, getPendingRatings } from "@/lib/data";
+import { getMyDeals, getPendingCount, getPendingRatings } from "@/lib/data";
 import { Logo } from "./Logo";
 import { MobileMenu } from "./MobileMenu";
 import { ProfileMenu, type Who } from "./ProfileMenu";
@@ -10,7 +10,9 @@ type Profile = { id: string; email: string; full_name: string; role: string };
 /** Estrutura de quem tem sessão: barra lateral no PC, barra de baixo e menu de perfil no telemóvel. */
 export async function AppShell({ profile, children }: { profile: Profile; children: React.ReactNode }) {
   const admin = profile.role === "admin";
-  const [pending, toRate] = await Promise.all([admin ? getPendingCount() : 0, getPendingRatings().then((l) => l.length)]);
+  const [pending, toRate, mine] = await Promise.all([admin ? getPendingCount() : 0, getPendingRatings().then((l) => l.length), getMyDeals()]);
+  // Entregas à espera de uma acção do entregador: pegar a encomenda ou confirmar a entrega.
+  const toDo = mine.filter((d) => d.traveler_id === profile.id && (d.status === "garantia" || d.status === "transito")).length;
   const who: Who = { name: profile.full_name, email: profile.email, admin };
 
   const main: NavItem[] = [
@@ -23,6 +25,8 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
   ];
   const account: NavItem[] = [
     { href: "/meus", label: "Os meus", icon: "list", badge: toRate },
+    { href: "/entregas", label: "Entregas", icon: "pin", badge: toDo },
+    { href: "/carteira", label: "Carteira", icon: "wallet" },
     { href: "/regras", label: "Regras", icon: "shield" },
   ];
   // Só quem é da equipa vê a ligação. A protecção verdadeira está no servidor (requireAdmin + RLS).

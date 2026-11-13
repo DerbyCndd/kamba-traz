@@ -3,7 +3,8 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { CATS, DEAL_STEPS, REQ_STATES, TRIP_STATES } from "@/lib/constants";
 import { firstName } from "@/lib/format";
-import { decryptPii } from "@/lib/pii";
+import { randomInt } from "node:crypto";
+import { decryptPii, encryptPii, piiReady } from "@/lib/pii";
 
 export type AdminState = { error?: string; message?: string };
 
@@ -56,8 +57,8 @@ export async function createDeal(_: AdminState, fd: FormData): Promise<AdminStat
   if (!requestId || !tripId || !(price > 0)) return { error: "Escolhe um pedido, uma viagem e o valor acordado." };
 
   const [{ data: r }, { data: t }, { data: c }] = await Promise.all([
-    supabase.from("requests").select("id, item, origin, destination, name, status").eq("id", requestId).maybeSingle(),
-    supabase.from("trips").select("id, name, status").eq("id", tripId).maybeSingle(),
+    supabase.from("requests").select("id, user_id, item, origin, destination, name, status").eq("id", requestId).maybeSingle(),
+    supabase.from("trips").select("id, user_id, name, status").eq("id", tripId).maybeSingle(),
     supabase.from("config").select("commission").eq("id", 1).maybeSingle(),
   ]);
   if (!r || !t) return { error: "Pedido ou viagem não encontrados." };
@@ -68,7 +69,7 @@ export async function createDeal(_: AdminState, fd: FormData): Promise<AdminStat
   const fee_waived = waived === true;
   const pct = fee_waived ? 0 : Number(c?.commission ?? 12);
   const { error } = await supabase.from("deals").insert({
-    request_id: r.id, trip_id: t.id, label: `${r.item} · ${r.origin} → ${r.destination}`,
+    request_id: r.id, trip_id: t.id, sender_id: r.user_id, traveler_id: t.user_id, label: `${r.item} · ${r.origin} → ${r.destination}`,
     traveler: firstName(t.name), requester: firstName(r.name), price,
     commission_pct: pct, commission: Math.round((price * pct) / 100), status: "negociacao",
     ...(fee_waived ? { fee_waived: true } : {}),
@@ -82,6 +83,7 @@ export async function createDeal(_: AdminState, fd: FormData): Promise<AdminStat
 export async function setDealStatus(id: string, status: string) {
   const { supabase } = await requireAdmin();
   if (![...DEAL_STEPS.map((s) => s[0]), "cancelado"].includes(status)) return;
+  if (status === "garantia") return; // o pagamento só se confirma pela acção própria (gera o código de entrega)
   await supabase.from("deals").update({ status }).eq("id", id);
   done();
 }
@@ -159,4 +161,22 @@ export async function setDocStatus(tripId: string, status: "confirmado" | "recus
   await supabase.from("traveler_docs").update({ status }).eq("trip_id", tripId);
   console.info("[auditoria] documentos", { equipa: profile.id, viagem: tripId, estado: status });
   done();
+}
+
+// ---------- carteira: confirmar o pagamento e reter o valor ----------
+const METHODS = ["Transferência bancária", "Multicaixa Express", "Numerário"];
+
+/** A equipa confirma que recebeu o pagamento: o valor fica retido e nasce o código de entrega (que só quem enviou vê). */
+export async function fundDeal(dealId: string, _: AdminState, fd: FormData): Promise<AdminState> {
+  const { supabase, profile } = await requireAdmin();
+  const method = String(fd.get("method") ?? "");
+  const reference = String(fd.get("reference") ?? "").trim().slice(0, 120);
+  if (!METHODS.includes(method)) return { error: "Escolhe como o pagamento foi feito." };
+  if (!piiReady()) return { error: "Falta a chave de cifra (PII_KEY): não é possível criar o código de entrega." };
+  const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
+  const { error } = await supabase.rpc("fund_deal", { p_deal: dealId, p_method: method, p_reference: reference, p_code: code, p_code_enc: encryptPii(code) });
+  if (error) return { error: ["P0001", "42501", "22023"].includes(error.code ?? "") ? error.message : "Não foi possível confirmar o pagamento." };
+  console.info("[auditoria] pagamento confirmado", { equipa: profile.id, entrega: dealId, metodo: method });
+  done();
+  return { message: "Pagamento confirmado. O valor ficou retido." };
 }

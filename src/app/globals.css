@@ -583,6 +583,13 @@ section.cta .row{margin-top:8px}
   .top .themebtn{min-width:40px;padding:0 6px}
 }
 
+/* telefone: o ícone e o título ficam na mesma linha, com o texto por baixo */
+@media (max-width:560px){
+  ol.steps li,.feats>div{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:14px;row-gap:10px}
+  ol.steps li p,.feats>div p{grid-column:1/-1;margin:0}
+  ol.steps h3,.feats h3{margin:0}
+}
+
 /* ecrãs muito estreitos (320 px): só o símbolo da marca, para o cabeçalho caber */
 @media (max-width:360px){.top .wm{display:none}}
 

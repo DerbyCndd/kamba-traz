@@ -19,8 +19,12 @@ export function MobileMenu({ who, pending }: { who: Who; pending: number }) {
     if (!open) return;
     const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setOpenAt(null); };
     document.addEventListener("keydown", esc);
+    // Se a janela passar a larga, o menu já não existe: fecha-o para libertar o scroll.
+    const wide = window.matchMedia("(min-width: 901px)");
+    const onWide = () => { if (wide.matches) setOpenAt(null); };
+    wide.addEventListener("change", onWide);
     document.body.style.overflow = "hidden";
-    return () => { document.removeEventListener("keydown", esc); document.body.style.overflow = ""; };
+    return () => { document.removeEventListener("keydown", esc); wide.removeEventListener("change", onWide); document.body.style.overflow = ""; };
   }, [open]);
 
   return (

@@ -43,7 +43,7 @@ function PhotoPick({ id, label, hint, error, tag }: { id: string; label: string;
   );
 }
 
-export function IdentityForm({ defaultName, defaultPhone, next, hasIdentity, dates }: { defaultName: string; defaultPhone: string; next: string; hasIdentity: boolean; dates: boolean }) {
+export function IdentityForm({ defaultName, defaultPhone, next, hasIdentity, dates, sides }: { defaultName: string; defaultPhone: string; next: string; hasIdentity: boolean; dates: boolean; sides: boolean }) {
   const [state, action, pending] = useActionState(saveIdentity, empty);
   const [withPassport, setWithPassport] = useState(false);
   useFocusFirstError(state.errors);
@@ -85,7 +85,8 @@ export function IdentityForm({ defaultName, defaultPhone, next, hasIdentity, dat
               </Field>
             ) : null}
           </div>
-          <PhotoPick id="biPhoto" tag="bi" label="Foto do BI" hint="A frente, com o teu rosto e o nome bem legíveis." error={e.biPhoto} />
+          <PhotoPick id="biPhoto" tag="bi" label={sides ? "Foto do BI: frente" : "Foto do BI"} hint="A frente, com o teu rosto e o nome bem legíveis." error={e.biPhoto} />
+          {sides ? <PhotoPick id="biBack" tag="bi-verso" label="Foto do BI: verso" hint="O verso do cartão, com os dados bem legíveis." error={e.biBack} /> : null}
         </fieldset>
 
         <fieldset className="fs">
@@ -106,7 +107,8 @@ export function IdentityForm({ defaultName, defaultPhone, next, hasIdentity, dat
                   </Field>
                 ) : null}
               </div>
-              <PhotoPick id="passportPhoto" tag="passaporte" label="Foto do passaporte" hint="A página com a fotografia e os dados." error={e.passportPhoto} />
+              <PhotoPick id="passportPhoto" tag="passaporte" label={sides ? "Foto do passaporte: 2.ª página" : "Foto do passaporte"} hint={sides ? "A 2.ª página, com a fotografia e os dados." : "A página com a fotografia e os dados."} error={e.passportPhoto} />
+              {sides ? <PhotoPick id="passportLast" tag="passaporte-ultima" label="Foto do passaporte: última página" hint="A última página do passaporte." error={e.passportLast} /> : null}
             </>
           ) : null}
         </fieldset>

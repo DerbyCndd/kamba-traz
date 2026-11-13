@@ -32,6 +32,7 @@ export type TravelerDocView = {
 export type IdentityView = {
   user_id: string; full_name: string; phone: string; bi_last4: string; passport_last4: string | null;
   bi_expiry?: string | null; passport_expiry?: string | null;
+  has_bi_back?: boolean; has_passport_last?: boolean;
   status: "pendente" | "confirmado" | "recusado";
 };
 export type Req = ReqPub & { user_id: string; contact: string; item_value: number; created_at: string };

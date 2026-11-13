@@ -17,6 +17,21 @@ export const metadata: Metadata = { title: "Equipa" };
 
 const TABS = [["entradas", "Por verificar"], ["ligacoes", "Entregas"], ["quadro", "Quadro"], ["analise", "Análise"], ["economia", "Economia"], ["pitch", "Pitch"], ["feedback", "Feedback"], ["definicoes", "Definições"]] as const;
 
+type Supa = Awaited<ReturnType<typeof requireAdmin>>["supabase"];
+
+/** Identificações para a equipa. Tenta com as colunas mais recentes e recua se a base ainda não as tem. */
+async function loadIdentities(supabase: Supa): Promise<IdentityView[]> {
+  const base = "user_id, full_name, phone, bi_last4, passport_last4, status";
+  const a = await supabase.from("identities").select(base + ", bi_expiry, passport_expiry, bi_back_path, passport_last_path");
+  if (!a.error) {
+    return ((a.data ?? []) as unknown as Record<string, unknown>[]).map((r) => { const { bi_back_path, passport_last_path, ...rest } = r; return { ...rest, has_bi_back: !!bi_back_path, has_passport_last: !!passport_last_path } as unknown as IdentityView; });
+  }
+  const b = await supabase.from("identities").select(base + ", bi_expiry, passport_expiry");
+  if (!b.error) return (b.data ?? []) as unknown as IdentityView[];
+  const c = await supabase.from("identities").select(base);
+  return (c.data ?? []) as unknown as IdentityView[];
+}
+
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { supabase } = await requireAdmin();
   const { tab: raw } = await searchParams;
@@ -30,11 +45,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     supabase.from("trips").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Trip[]),
     supabase.from("requests").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Req[]),
     supabase.from("deals").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Deal[]),
-    supabase.from("identities").select("user_id, full_name, phone, bi_last4, passport_last4, status, bi_expiry, passport_expiry").then(async (r) => {
-      if (!r.error) return (r.data ?? []) as IdentityView[];
-      const b = await supabase.from("identities").select("user_id, full_name, phone, bi_last4, passport_last4, status"); // antes de correr identity-dates.sql
-      return (b.data ?? []) as IdentityView[];
-    }),
+    loadIdentities(supabase),
   ]);
 
   const pending = trips.filter((t) => t.status === "pendente").length + reqs.filter((r) => r.status === "pendente").length;

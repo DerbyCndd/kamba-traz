@@ -42,7 +42,7 @@ export async function saveIdentity(_: IdentityState, fd: FormData): Promise<Iden
     fullName: clean(fd.get("fullName")).replace(/\s+/g, " "), phone: clean(fd.get("phone")), next: clean(fd.get("next")),
     withPassport: withPassport ? "on" : "", biExpiry: clean(fd.get("biExpiry")), passportExpiry: clean(fd.get("passportExpiry")),
   };
-  const { dates } = await myIdentity(supabase, user.id); // só exige as validades quando a base já as guarda
+  const { dates, sides } = await myIdentity(supabase, user.id); // só exige validades e segundos lados quando a base já os guarda
   const bi = clean(fd.get("bi")).replace(/[\s-]/g, "").toUpperCase();
   const passport = clean(fd.get("passport")).replace(/[\s-]/g, "").toUpperCase();
   const errors: Record<string, string> = {};
@@ -58,15 +58,17 @@ export async function saveIdentity(_: IdentityState, fd: FormData): Promise<Iden
   }
   if (clean(fd.get("ok")) !== "on") errors.ok = "Tens de confirmar para continuar.";
 
-  const biPhoto = await readPhoto(fd, "biPhoto", "do BI", errors, true);
-  const ppPhoto = withPassport ? await readPhoto(fd, "passportPhoto", "do passaporte", errors, true) : null;
+  const biPhoto = await readPhoto(fd, "biPhoto", sides ? "da frente do BI" : "do BI", errors, true);
+  const biBack = sides ? await readPhoto(fd, "biBack", "do verso do BI", errors, true) : null;
+  const ppPhoto = withPassport ? await readPhoto(fd, "passportPhoto", sides ? "da 2.ª página do passaporte" : "do passaporte", errors, true) : null;
+  const ppLast = withPassport && sides ? await readPhoto(fd, "passportLast", "da última página do passaporte", errors, true) : null;
   if (Object.keys(errors).length) return { errors, values };
 
   if (!piiReady()) return { errors: {}, values, formError: "De momento não conseguimos receber documentos em segurança. Fala com a equipa." };
   if (await isLimited("ident-user", user.id, 6, 15 * 60)) return { errors: {}, values, formError: TOO_MANY };
   await recordHit("ident-user", user.id);
 
-  const { data: old } = await supabase.from("identities").select("bi_photo_path, passport_photo_path").eq("user_id", user.id).maybeSingle();
+  const { data: old } = await supabase.from("identities").select("bi_photo_path, passport_photo_path" + (sides ? ", bi_back_path, passport_last_path" : "")).eq("user_id", user.id).maybeSingle();
 
   const uploaded: string[] = [];
   const put = async (p: { bytes: Uint8Array; kind: keyof typeof MIME }, tag: string) => {
@@ -77,8 +79,10 @@ export async function saveIdentity(_: IdentityState, fd: FormData): Promise<Iden
     return path;
   };
   const biPath = await put(biPhoto!, "bi");
+  const biBackPath = biBack ? await put(biBack, "bi-verso") : null;
   const ppPath = ppPhoto ? await put(ppPhoto, "passaporte") : null;
-  if (!biPath || (ppPhoto && !ppPath)) {
+  const ppLastPath = ppLast ? await put(ppLast, "passaporte-ultima") : null;
+  if (!biPath || (biBack && !biBackPath) || (ppPhoto && !ppPath) || (ppLast && !ppLastPath)) {
     if (uploaded.length) await supabase.storage.from("ids").remove(uploaded);
     return { errors: {}, values, formError: "Não foi possível enviar as fotos agora. Tenta de novo daqui a pouco." };
   }
@@ -89,6 +93,7 @@ export async function saveIdentity(_: IdentityState, fd: FormData): Promise<Iden
     passport_enc: withPassport ? encryptPii(passport) : null,
     passport_last4: withPassport ? passport.slice(-4) : null,
     passport_photo_path: ppPath,
+    ...(sides ? { bi_back_path: biBackPath, passport_last_path: ppLastPath } : {}),
     ...(dates ? { bi_expiry: values.biExpiry, passport_expiry: withPassport ? values.passportExpiry : null } : {}),
   };
   const { error } = await supabase.from("identities").upsert(row, { onConflict: "user_id" });
@@ -97,7 +102,8 @@ export async function saveIdentity(_: IdentityState, fd: FormData): Promise<Iden
     return { errors: {}, values, formError: "Não foi possível guardar a identificação agora. Tenta de novo daqui a pouco." };
   }
   // Troca feita: as fotos antigas já não servem.
-  const stale = [old?.bi_photo_path, old?.passport_photo_path].filter((p): p is string => !!p && !uploaded.includes(p));
+  const o = old as Record<string, string | null> | null;
+  const stale = [o?.bi_photo_path, o?.passport_photo_path, o?.bi_back_path, o?.passport_last_path].filter((p): p is string => !!p && !uploaded.includes(p));
   if (stale.length) await supabase.storage.from("ids").remove(stale);
 
   revalidatePath("/", "layout");

@@ -28,7 +28,7 @@ export function IdentityBlock({ userId, ident, accountName, tripReturn }: { user
     if (r.error) setMsg(r.error);
     setBusy(false);
   }
-  async function photo(kind: "bi" | "passport") {
+  async function photo(kind: "bi" | "bi_back" | "passport" | "passport_last") {
     setBusy(true); setMsg("");
     const r = await idPhotoUrl(userId, kind);
     if (r.url) window.open(r.url, "_blank", "noopener"); else setMsg(r.error ?? "Não foi possível abrir a foto.");
@@ -53,9 +53,11 @@ export function IdentityBlock({ userId, ident, accountName, tripReturn }: { user
         <div className="notice bad" role="alert"><b>Atenção:</b> {alerts.join(" ")}</div>
       ) : ident.bi_expiry ? <p className="hint">Validades em ordem.</p> : <p className="hint">Sem datas de validade (conta anterior às validades). Confere nas fotos.</p>}
       <div className="row">
-        <button type="button" className="btn small" onClick={() => photo("bi")} disabled={busy}>Ver foto do BI</button>
+        <button type="button" className="btn small" onClick={() => photo("bi")} disabled={busy}>Ver BI: frente</button>
+        {ident.has_bi_back ? <button type="button" className="btn small" onClick={() => photo("bi_back")} disabled={busy}>Ver BI: verso</button> : null}
         {bi === null ? <button type="button" className="btn small" onClick={() => number("bi")} disabled={busy}>Ver número do BI</button> : null}
-        {ident.passport_last4 ? <button type="button" className="btn small" onClick={() => photo("passport")} disabled={busy}>Ver foto do passaporte</button> : null}
+        {ident.passport_last4 ? <button type="button" className="btn small" onClick={() => photo("passport")} disabled={busy}>Ver passaporte: 2.ª página</button> : null}
+        {ident.passport_last4 && ident.has_passport_last ? <button type="button" className="btn small" onClick={() => photo("passport_last")} disabled={busy}>Ver passaporte: última página</button> : null}
         {ident.passport_last4 && pp === null ? <button type="button" className="btn small" onClick={() => number("passport")} disabled={busy}>Ver passaporte</button> : null}
         {ident.status !== "confirmado" ? (
           <form action={setIdentityStatus.bind(null, userId, "confirmado")} className="inline"><SubmitButton className="btn small primary" pending="A guardar…">Confirmar identificação</SubmitButton></form>

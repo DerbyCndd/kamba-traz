@@ -43,6 +43,11 @@ export type Position = { id: number; lat: number; lng: number; accuracy: number 
 export type Wallet = { held: number; to_receive: number; received: number; refunded: number; paid: number };
 export type LedgerRow = { id: number; kind: "retido" | "a_receber" | "libertado" | "recebido" | "reembolso" | "comissao"; amount: number; note: string; created_at: string; deal_id: string | null };
 
+export type FeedbackRow = {
+  id: string; user_id: string | null; kind: "elogio" | "ideia" | "problema" | "outro"; rating: number | null;
+  message: string; email: string | null; page: string; status: "novo" | "lido" | "resolvido"; created_at: string;
+};
+
 export type Winner = { role: RatingRole; first_name: string };
 export type WaiverHolder = { user_id: string; role: RatingRole; first_name: string };
 

@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { getMyDeals, getPendingCount, getPendingRatings } from "@/lib/data";
+import { Icon } from "./Icons";
 import { Logo } from "./Logo";
 import { MobileMenu } from "./MobileMenu";
 import { ProfileMenu, type Who } from "./ProfileMenu";
 import { SideNav, type NavItem } from "./SideNav";
+import { ThemeToggle } from "./ThemeToggle";
 
 type Profile = { id: string; email: string; full_name: string; role: string };
 
@@ -36,17 +38,21 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
   return (
     <div className="app">
       <aside className="side">
-        <Link className="brand" href="/" aria-label="Kamba Traz, início"><Logo /></Link>
+        <div className="sidehead">
+          <Link className="brand" href="/" aria-label="Kamba Traz, início"><Logo /></Link>
+          <ThemeToggle />
+        </div>
         <div className="sidescroll">
           <SideNav items={[...main, ...actions, ...account, ...team]} label="Principal" />
         </div>
+        <Link className="feedlink" href="/feedback"><Icon name="chat" size={18} />Deixe o seu feedback</Link>
         <ProfileMenu who={who} />
       </aside>
 
       <div className="appmain">
         <header className="mtop">
           <Link className="brand" href="/" aria-label="Kamba Traz, início"><Logo /></Link>
-          <MobileMenu who={who} pending={pending} />
+          <div className="mright"><ThemeToggle /><MobileMenu who={who} pending={pending} /></div>
         </header>
         <main id="main" tabIndex={-1}>{children}</main>
       </div>

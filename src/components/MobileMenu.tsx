@@ -42,6 +42,7 @@ export function MobileMenu({ who, pending }: { who: Who; pending: number }) {
               <Link href="/meus"><Icon name="list" />Os meus pedidos e viagens</Link>
               <Link href="/entregas"><Icon name="pin" />Entregas</Link>
               <Link href="/carteira"><Icon name="wallet" />Carteira</Link>
+              <Link href="/feedback"><Icon name="chat" />Deixe o seu feedback</Link>
               <Link href="/regras"><Icon name="shield" />Regras de segurança</Link>
               {who.admin ? <Link href="/admin"><Icon name="team" />Painel da equipa{pending ? <b className="badge">{pending}</b> : null}</Link> : null}
             </nav>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
+import { ThemeToggle } from "./ThemeToggle";
 
 /** Cabeçalho de quem ainda não tem sessão. Quem tem sessão usa o AppShell (barra lateral). */
 export function Header() {
@@ -13,6 +14,7 @@ export function Header() {
           <Link href="/#duvidas">Dúvidas</Link>
         </nav>
         <div className="authcta">
+          <ThemeToggle />
           <Link className="btn small ghost" href="/login">Entrar</Link>
           <Link className="btn small primary" href="/registo">Criar conta</Link>
         </div>

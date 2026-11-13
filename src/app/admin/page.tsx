@@ -3,28 +3,30 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { getConfig, getWaiverHolders } from "@/lib/data";
 import { kz } from "@/lib/format";
-import type { Deal, Req, TravelerDocView, Trip } from "@/lib/types";
+import type { Deal, FeedbackRow, Req, TravelerDocView, Trip } from "@/lib/types";
 import { Entradas } from "./tabs/Entradas";
 import { Entregas } from "./tabs/Entregas";
 import { Quadro } from "./tabs/Quadro";
 import { Analise } from "./tabs/Analise";
 import { Economia } from "./tabs/Economia";
 import { Pitch } from "./tabs/Pitch";
+import { FeedbackTab } from "./tabs/FeedbackTab";
 import { Definicoes } from "./tabs/Definicoes";
 
 export const metadata: Metadata = { title: "Equipa" };
 
-const TABS = [["entradas", "Por verificar"], ["ligacoes", "Entregas"], ["quadro", "Quadro"], ["analise", "Análise"], ["economia", "Economia"], ["pitch", "Pitch"], ["definicoes", "Definições"]] as const;
+const TABS = [["entradas", "Por verificar"], ["ligacoes", "Entregas"], ["quadro", "Quadro"], ["analise", "Análise"], ["economia", "Economia"], ["pitch", "Pitch"], ["feedback", "Feedback"], ["definicoes", "Definições"]] as const;
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { supabase } = await requireAdmin();
   const { tab: raw } = await searchParams;
   const tab = TABS.some((t) => t[0] === raw) ? raw! : "entradas";
 
-  const [config, holders, docs, trips, reqs, deals] = await Promise.all([
+  const [config, holders, docs, feedback, trips, reqs, deals] = await Promise.all([
     getConfig(),
     getWaiverHolders(),
     supabase.from("traveler_docs").select("trip_id, full_name, passport_last4, outbound_date, return_date, status, created_at").then((r) => (r.data ?? []) as TravelerDocView[]),
+    supabase.from("feedback").select("*").order("created_at", { ascending: false }).limit(100).then((r) => (r.data ?? []) as FeedbackRow[]),
     supabase.from("trips").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Trip[]),
     supabase.from("requests").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Req[]),
     supabase.from("deals").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Deal[]),
@@ -35,7 +37,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const held = deals.filter((d) => ["garantia", "transito", "entregue"].includes(d.status)).reduce((a, d) => a + d.price, 0);
   const earned = deals.filter((d) => d.status === "liberado").reduce((a, d) => a + d.commission, 0);
   const pipeline = active.reduce((a, d) => a + d.commission, 0);
-  const counts: Record<string, number> = { entradas: pending, ligacoes: deals.length, quadro: trips.length + reqs.length - pending };
+  const counts: Record<string, number> = { entradas: pending, ligacoes: deals.length, quadro: trips.length + reqs.length - pending, feedback: feedback.filter((f) => f.status === "novo").length };
 
   return (
     <section>
@@ -60,6 +62,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       {tab === "analise" && <Analise trips={trips} reqs={reqs} deals={deals} />}
       {tab === "economia" && <Economia perKg={config.per_kg} commission={config.commission} />}
       {tab === "pitch" && <Pitch />}
+      {tab === "feedback" && <FeedbackTab rows={feedback} />}
       {tab === "definicoes" && <Definicoes config={config} />}
     </section>
   );

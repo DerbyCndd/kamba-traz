@@ -180,3 +180,17 @@ export async function fundDeal(dealId: string, _: AdminState, fd: FormData): Pro
   done();
   return { message: "Pagamento confirmado. O valor ficou retido." };
 }
+
+// ---------- feedback ----------
+export async function setFeedbackStatus(id: string, status: "novo" | "lido" | "resolvido") {
+  const { supabase } = await requireAdmin();
+  if (!["novo", "lido", "resolvido"].includes(status)) return;
+  await supabase.from("feedback").update({ status }).eq("id", id);
+  done();
+}
+
+export async function deleteFeedback(id: string) {
+  const { supabase } = await requireAdmin();
+  await supabase.from("feedback").delete().eq("id", id);
+  done();
+}

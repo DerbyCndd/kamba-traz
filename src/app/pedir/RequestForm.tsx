@@ -27,8 +27,8 @@ export function RequestForm({ perKg, whatsapp, defaultName, minDate }: { perKg: 
         <fieldset className="fs">
           <legend>Percurso</legend>
           <div className="fields">
-            <Field id="origin" label="Sai de"><select id="origin" name="origin" defaultValue={v.origin ?? "LIS"}>{cityOpts(FROM)}</select></Field>
-            <Field id="destination" label="Chega a"><select id="destination" name="destination" defaultValue={v.destination ?? "LAD"}>{cityOpts(TO)}</select></Field>
+            <Field id="origin" label="Sai de" hint="Não está a tua cidade? Escolhe «Outra cidade»: a equipa pergunta-te qual é."><select id="origin" name="origin" defaultValue={v.origin ?? "LIS"}>{cityOpts(FROM)}</select></Field>
+            <Field id="destination" label="Chega a" hint="Entregamos em Angola. Não está a tua cidade? Escolhe «Outra cidade»."><select id="destination" name="destination" defaultValue={v.destination ?? "LAD"}>{cityOpts(TO)}</select></Field>
           </div>
         </fieldset>
         <fieldset className="fs">

@@ -65,8 +65,8 @@ export function TripForm({ perKg, whatsapp, defaultName, minDate }: { perKg: num
         <fieldset className="fs">
           <legend>Percurso e datas</legend>
           <div className="fields">
-            <Field id="origin" label="Sais de"><select id="origin" name="origin" defaultValue={v.origin ?? "LIS"}>{cityOpts(FROM)}</select></Field>
-            <Field id="destination" label="Chegas a"><select id="destination" name="destination" defaultValue={v.destination ?? "LAD"}>{cityOpts(TO)}</select></Field>
+            <Field id="origin" label="Sais de" hint="Não está a tua cidade? Escolhe «Outra cidade»: a equipa pergunta-te qual é."><select id="origin" name="origin" defaultValue={v.origin ?? "LIS"}>{cityOpts(FROM)}</select></Field>
+            <Field id="destination" label="Chegas a" hint="Entregamos em Angola. Não está a tua cidade? Escolhe «Outra cidade»."><select id="destination" name="destination" defaultValue={v.destination ?? "LAD"}>{cityOpts(TO)}</select></Field>
             <Field id="date" label="Data de ida" error={e.date}><input id="date" name="date" type="date" min={minDate} defaultValue={v.date} /></Field>
             <Field id="returnDate" label="Data de regresso" hint="Como está no bilhete." error={e.returnDate}><input id="returnDate" name="returnDate" type="date" min={minDate} defaultValue={v.returnDate} /></Field>
             <Field id="flight" label="Companhia e voo (opcional)" error={e.flight} full>

@@ -1,6 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
+import { isLimited, recordHit, TOO_MANY } from "@/lib/ratelimit";
 
 export type DeliveryState = { error?: string; done?: boolean };
 
@@ -39,4 +40,57 @@ export async function confirmDelivery(_: DeliveryState, fd: FormData): Promise<D
   if (data === "bloqueado") return { error: "Demasiadas tentativas erradas. Fala com a equipa." };
   const left = /^errado:(\d+)/.exec(String(data))?.[1];
   return { error: left ? `Código errado. Restam ${left} tentativas.` : "Código errado." };
+}
+
+const MAX_PHOTO = 3 * 1024 * 1024;
+const MAX_PER_DEAL = 10;
+const MIME = { jpg: "image/jpeg", png: "image/png", webp: "image/webp" } as const;
+function imageKind(b: Uint8Array): keyof typeof MIME | null {
+  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "jpg";
+  if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) return "png";
+  if (b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 && b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50) return "webp";
+  return null;
+}
+
+/** O entregador envia fotos do estado do volume, antes de pegar a encomenda. As regras de acesso garantem que só ele o faz, e só neste momento. */
+export async function uploadDealPhotos(fd: FormData): Promise<DeliveryState & { count?: number }> {
+  const { user, supabase } = await requireUser();
+  const dealId = String(fd.get("deal") ?? "");
+  if (!UUID.test(dealId)) return { error: "Entrega inválida." };
+  const files = fd.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
+  if (!files.length) return { error: "Escolhe pelo menos uma foto." };
+  if (files.length > 6) return { error: "Envia no máximo 6 fotos de cada vez." };
+
+  const { data: deal } = await supabase.from("deals").select("id, traveler_id, status").eq("id", dealId).maybeSingle();
+  if (!deal || deal.traveler_id !== user.id) return { error: "Só o entregador desta entrega pode enviar estas fotos." };
+  if (deal.status !== "garantia") return { error: "As fotos enviam-se antes de pegar a encomenda, com o pagamento retido." };
+
+  const { count: have } = await supabase.from("deal_photos").select("id", { count: "exact", head: true }).eq("deal_id", dealId);
+  if ((have ?? 0) + files.length > MAX_PER_DEAL) return { error: `Cada entrega aceita no máximo ${MAX_PER_DEAL} fotos.` };
+  if (await isLimited("deal-photo-user", user.id, 10, 3600)) return { error: TOO_MANY };
+  await recordHit("deal-photo-user", user.id);
+
+  const prepared: { bytes: Uint8Array; kind: keyof typeof MIME }[] = [];
+  for (const f of files) {
+    if (f.size > MAX_PHOTO) return { error: "Uma das fotos é demasiado grande (máximo 3 MB)." };
+    const bytes = new Uint8Array(await f.arrayBuffer());
+    const kind = imageKind(bytes);
+    if (!kind) return { error: "Usa fotos em JPG, PNG ou WebP." };
+    prepared.push({ bytes, kind });
+  }
+
+  const paths: string[] = [];
+  for (const p of prepared) {
+    const path = `${dealId}/${crypto.randomUUID()}.${p.kind}`;
+    const up = await supabase.storage.from("deal-photos").upload(path, p.bytes, { contentType: MIME[p.kind], upsert: false });
+    if (up.error) { if (paths.length) await supabase.storage.from("deal-photos").remove(paths); return { error: "Não foi possível enviar as fotos agora. Tenta de novo daqui a pouco." }; }
+    paths.push(path);
+  }
+  const { error } = await supabase.from("deal_photos").insert(paths.map((path) => ({ deal_id: dealId, user_id: user.id, kind: "recolha", path })));
+  if (error) {
+    await supabase.storage.from("deal-photos").remove(paths); // não deixa fotos órfãs
+    return { error: "Não foi possível guardar as fotos agora. Tenta de novo daqui a pouco." };
+  }
+  revalidatePath(`/entregas/${dealId}`);
+  return { done: true, count: (have ?? 0) + paths.length };
 }

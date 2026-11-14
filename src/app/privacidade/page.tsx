@@ -35,6 +35,7 @@ const ROWS: [string, string, string][] = [
   ["Foto do bilhete de avião e datas", "Obrigatório para quem viaja", "Confirmar que a viagem existe."],
   ["Rota, peso, valor e descrição do item; fatura", "Obrigatório para quem envia", "Juntar pedidos a viagens e cumprir a alfândega."],
   ["Localização do telemóvel", "Só quem leva a encomenda, e só em trânsito", "Quem enviou acompanha a entrega no mapa."],
+  ["Fotos do estado do volume", "Obrigatório para quem leva a encomenda", "Provar em que estado o volume foi recebido, se houver um problema."],
   ["Pagamentos e movimentos da carteira", "Obrigatório nas entregas", "Reter e pagar os valores, e guardar o registo."],
   ["Avaliações e feedback", "Opcional", "Melhorar o serviço e dar confiança às duas partes."],
 ];

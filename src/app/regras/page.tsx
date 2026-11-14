@@ -32,7 +32,7 @@ export default function RegrasPage() {
         <h3>Como cuidamos de cada entrega</h3>
         <div className="two">
           <ul className="bullets">
-            {["Cada viagem e cada pedido é analisado pela equipa antes de aparecer no quadro", "Volume aberto, fotografado e selado na presença de quem envia",
+            {["Cada viagem e cada pedido é analisado pela equipa antes de aparecer no quadro", "Volume aberto, fotografado e selado na presença de quem envia: o entregador envia as fotos pela app antes de pegar a encomenda",
               "Lista do conteúdo escrita e aceite pelas duas partes"].map(li)}
           </ul>
           <ul className="bullets">

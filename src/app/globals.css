@@ -729,3 +729,10 @@ ol.steps p{max-width:56ch}
 @media (max-width:900px){body.in .totop{bottom:calc(88px + env(safe-area-inset-bottom,0px))}}
 @media (prefers-reduced-motion:reduce){.totop{transition:none}}
 @media print{.totop{display:none!important}}
+
+/* fotos do volume na entrega */
+.pickphotos{display:grid;gap:8px;margin:12px 0 4px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--raised)}
+.pickphotos p{margin:0}
+.thumbs{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0}
+.thumbs img{width:92px;height:92px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.thumbs.big img{width:132px;height:132px}

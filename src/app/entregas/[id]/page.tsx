@@ -7,7 +7,7 @@ import { LocationSharer } from "@/components/LocationSharer";
 import { PickupPanel } from "@/components/PickupPanel";
 import { getProfile, requireUser } from "@/lib/auth";
 import { DEAL_STEPS } from "@/lib/constants";
-import { getDeal, getDeliveryCode, getPositions } from "@/lib/data";
+import { getDeal, getDealPhotos, getDeliveryCode, getPositions } from "@/lib/data";
 import { fdate, kz } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Entrega" };
@@ -42,9 +42,10 @@ export default async function EntregaPage({ params }: { params: Promise<{ id: st
   const idx = DEAL_STEPS.findIndex((s) => s[0] === deal.status);
   const cancelled = deal.status === "cancelado";
 
-  const [positions, code] = await Promise.all([
+  const [positions, code, shots] = await Promise.all([
     deal.status === "transito" && (isSender || admin) ? getPositions(id) : Promise.resolve([]),
     isSender && (deal.status === "garantia" || deal.status === "transito") ? getDeliveryCode(id) : Promise.resolve(null),
+    getDealPhotos(id),
   ]);
 
   return (
@@ -74,12 +75,25 @@ export default async function EntregaPage({ params }: { params: Promise<{ id: st
             </div>
           ) : null}
 
-          {isTraveler && deal.status === "garantia" ? <PickupPanel dealId={id} /> : null}
+          {isTraveler && deal.status === "garantia" ? <PickupPanel dealId={id} photos={shots.available ? shots.photos.length : null} /> : null}
           {isTraveler && deal.status === "transito" ? (
             <>
               <LocationSharer dealId={id} />
               <ConfirmDelivery dealId={id} />
             </>
+          ) : null}
+
+          {shots.photos.length ? (
+            <div className="panel">
+              <h3>Fotos do volume na recolha</h3>
+              <p className="muted">Tiradas pelo entregador antes de pegar a encomenda.</p>
+              <div className="thumbs big">
+                {shots.photos.map((p) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer"><img src={p.url} alt="Foto do volume na recolha" loading="lazy" /></a>
+                ))}
+              </div>
+            </div>
           ) : null}
 
           {(isSender || admin) && deal.status === "transito" ? <DeliveryMap dealId={id} initial={positions} /> : null}

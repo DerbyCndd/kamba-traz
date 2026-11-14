@@ -85,7 +85,7 @@ export default function TermosPage() {
       <DocSection id="viajante" n={6} title="Se viajas">
         <p>Quem viaja promete que:</p>
         <ul>
-          <li><b>confere</b> o conteúdo com o remetente, abre o volume, fotografa e sela, e <b>recusa o que for suspeito</b> ou não estiver na lista;</li>
+          <li><b>confere</b> o conteúdo com o remetente, abre o volume, fotografa e sela, e <b>recusa o que for suspeito</b> ou não estiver na lista. As fotos (pelo menos 2) são enviadas pela app antes de pegar a encomenda e ficam guardadas para o caso de haver um problema;</li>
           <li><b>declara</b> a mercadoria na alfândega e cumpre a lei e as condições da companhia aérea. O viajante assume o risco do que decide levar;</li>
           <li>guarda o volume em segurança, não o abre depois de selado e só o entrega a quem der o código;</li>
           <li>aceita partilhar a localização enquanto leva a encomenda.</li>

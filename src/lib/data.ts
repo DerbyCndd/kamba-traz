@@ -119,6 +119,20 @@ export async function getMyDeals(): Promise<Deal[]> {
   return (data ?? []) as Deal[];
 }
 
+export type DealPhoto = { id: string; url: string; created_at: string };
+
+/** Fotos do estado do volume na recolha. `available` é falso enquanto o SQL das fotos não foi corrido (a app não as pede). */
+export async function getDealPhotos(dealId: string): Promise<{ available: boolean; photos: DealPhoto[] }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("deal_photos").select("id, path, created_at").eq("deal_id", dealId).eq("kind", "recolha").order("created_at");
+  if (error) return { available: false, photos: [] };
+  const rows = (data ?? []) as { id: string; path: string; created_at: string }[];
+  if (!rows.length) return { available: true, photos: [] };
+  const { data: signed } = await supabase.storage.from("deal-photos").createSignedUrls(rows.map((r) => r.path), 3600);
+  const photos = rows.flatMap((r, i) => (signed?.[i]?.signedUrl ? [{ id: r.id, url: signed[i].signedUrl as string, created_at: r.created_at }] : []));
+  return { available: true, photos };
+}
+
 export async function getDeal(id: string): Promise<Deal | null> {
   const supabase = await createClient();
   const { data } = await supabase.from("deals").select("*").eq("id", id).maybeSingle();

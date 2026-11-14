@@ -49,7 +49,7 @@ export default function RegrasPage() {
           </ul>
           <ul className="bullets">
             {["Cada viagem leva no máximo Kz 1 500 000 em mercadoria, somando todos os pedidos", "Cada volume leva fatura ou valor declarado e lista do conteúdo",
-              "Bebidas, tabaco e perfumes têm limites muito pequenos: não os levamos", "Quem viaja em nome de uma empresa, ou leva muitas encomendas muitas vezes, passa a ser importador e deve falar com um despachante"].map(li)}
+              "Bebidas e tabaco têm limites muito pequenos na alfândega: não os levamos", "Perfumes levam-se, sempre declarados no canal vermelho e com fatura. Os 100 ml de perfume e 100 ml de água de toilette isentos são só para uso pessoal; acima disso paga-se imposto. Na bagagem despachada, as companhias costumam limitar cada frasco a 500 ml e o total a 2 litros por passageiro: confirma na tua", "Quem viaja em nome de uma empresa, ou leva muitas encomendas muitas vezes, passa a ser importador e deve falar com um despachante"].map(li)}
           </ul>
         </div>
         <p className="hint">Valores da pauta aduaneira de 2024 e do guia da AGT. Confirma sempre no <a href="https://agt.minfin.gov.ao" target="_blank" rel="noopener">portal da AGT</a> antes de viajar: as regras mudam e a Kamba não substitui o conselho de um despachante.</p>

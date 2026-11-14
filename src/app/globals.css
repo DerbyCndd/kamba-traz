@@ -68,7 +68,7 @@ a{color:inherit;text-underline-offset:3px}
 input,textarea,select{caret-color:var(--sun)}
 button,a,summary,select,label{touch-action:manipulation}
 .skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:var(--paper);padding:10px 14px;z-index:60;border-radius:8px;font-weight:600}
-.skip:focus{left:max(16px,env(safe-area-inset-left,0px))}
+.skip:focus-visible{left:max(16px,env(safe-area-inset-left,0px))}
 main:focus{outline:none}
 main{display:flex;flex-direction:column;gap:104px}
 section{display:flex;flex-direction:column;gap:20px;min-width:0}

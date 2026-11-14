@@ -12,11 +12,12 @@ export function BackToTop() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  function up() {
+  function up(e: React.MouseEvent<HTMLButtonElement>) {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
-    // Leva também o foco ao início, para quem navega com o teclado ou com leitor de ecrã.
-    document.querySelector<HTMLElement>(".skip")?.focus({ preventScroll: true });
+    // Só com o teclado (detail 0) leva o foco ao início; com o toque, o link «Saltar» ficaria à vista no topo.
+    if (e.detail === 0) document.querySelector<HTMLElement>(".skip")?.focus({ preventScroll: true });
+    else (e.currentTarget as HTMLElement).blur();
   }
 
   return (

@@ -10,7 +10,7 @@ import { ThemeToggle } from "./ThemeToggle";
 
 const APP_COLUMNS: FooterColumn[] = [
   { title: "A minha conta", links: [["/meus", "Os meus"], ["/entregas", "Entregas"], ["/carteira", "Carteira"], ["/perfil", "Meu perfil"]] },
-  { title: "Ajuda", links: [["/regras", "Regras"], ["/termos", "Termos de uso"], ["/privacidade", "Privacidade"], ["/declaracao", "Declaração de conteúdo"], ["/feedback", "Deixe o seu feedback"]] },
+  { title: "Ajuda", links: [["/regras", "Regras"], ["/termos", "Termos de uso"], ["/privacidade", "Privacidade"], ["/declaracao", "Declaração de conteúdo"], ["/fontes", "Fontes"], ["/feedback", "Deixe o seu feedback"]] },
 ];
 
 type Profile = { id: string; email: string; full_name: string; role: string };

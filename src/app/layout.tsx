@@ -23,7 +23,7 @@ export const viewport: Viewport = {
 const PUBLIC_COLUMNS: FooterColumn[] = [
   { title: "Produto", links: [["/#como-funciona", "Como funciona"], ["/#seguranca", "Segurança"], ["/#duvidas", "Dúvidas"]] },
   { title: "Conta", links: [["/login", "Entrar"], ["/registo", "Criar conta"]] },
-  { title: "Ajuda", links: [["/regras", "O que nunca levamos"], ["/termos", "Termos de uso"], ["/privacidade", "Privacidade"], ["/declaracao", "Declaração de conteúdo"], ["/feedback", "Deixe o seu feedback"]] },
+  { title: "Ajuda", links: [["/regras", "O que nunca levamos"], ["/termos", "Termos de uso"], ["/privacidade", "Privacidade"], ["/declaracao", "Declaração de conteúdo"], ["/fontes", "Fontes"], ["/feedback", "Deixe o seu feedback"]] },
 ];
 
 const THEME_SCRIPT = `try{var t=localStorage.getItem("kt-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}`;

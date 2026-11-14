@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Src } from "@/components/Src";
 import { PrintButton } from "./PrintButton";
 
 export const metadata: Metadata = { title: "Declaração de conteúdo", description: "Folha para listar o conteúdo de cada volume e assinar entre remetente, viajante e destinatário." };
@@ -32,7 +33,7 @@ export default function DeclaracaoPage() {
           <tr><th colSpan={3}>Valor total declarado</th><td>&nbsp;</td><td>&nbsp;</td></tr>
         </tbody>
       </table></div>
-      <p className="hint">Cada viagem leva no máximo Kz 1 500 000 em mercadoria. Os eletrónicos, cosméticos (perfumes), peças e itens acima de 300 € levam a fatura da compra, anexada.</p>
+      <p className="hint">Cada viagem leva no máximo Kz 1 500 000 em mercadoria. Os eletrónicos, cosméticos (perfumes), peças e itens acima de 300 € levam a fatura da compra, anexada. <Src refs={[["dlp", "art. 12.º, n.º 6"]]} /></p>
 
       <h3>Declarações</h3>
       <p><b>O remetente declara que:</b></p>

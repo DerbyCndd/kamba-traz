@@ -9,6 +9,7 @@ import { Field } from "@/components/ui";
 import { useFocusFirstError } from "@/components/useFocusFirstError";
 import { SubmitResult } from "@/components/SubmitResult";
 import { shrinkImage } from "@/lib/shrink";
+import { Src } from "@/components/Src";
 
 const cityOpts = (codes: string[]) =>
   codes.map((c) => <option key={c} value={c}>{cityName(c)}{c !== "OTH" ? ` (${c})` : ""}</option>);
@@ -74,7 +75,7 @@ export function TripForm({ perKg, whatsapp, defaultName, defaultPhone, minDate }
         <fieldset className="fs">
           <legend>Bilhete de avião</legend>
           <p className="privacy">A tua identificação (BI e telefone) já está guardada: não a pedimos de novo. Só a equipa vê o bilhete.</p>
-          <p className="notice customs-note"><b>Alfândega em Angola.</b> Encomendas de outras pessoas não são «uso pessoal»: à chegada usa o <b>canal vermelho</b> e declara. Cada viagem leva no máximo Kz 1 500 000 em mercadoria, e a taxa estimada é de 16% do valor. <Link href="/regras#alfandega">Ver as regras</Link></p>
+          <p className="notice customs-note"><b>Alfândega em Angola.</b> A lei só isenta bens «destinados ao consumo pessoal» do viajante, por isso tratamos as encomendas de outras pessoas como não isentas: à chegada usa o <b>canal vermelho</b> e declara. Entre Kz 1 000 001 e Kz 1 500 000 aplica-se uma taxa fixa de 16%, e acima disso o regime geral, que a Kamba não aceita. Por isso cada viagem leva no máximo Kz 1 500 000 em mercadoria. <Src refs={[["dlp", "art. 1.º, k) e art. 12.º"], ["guia", "pontos 2.1.1.2 e 2.3"]]} /> <Link href="/regras#alfandega">Ver as regras</Link></p>
           <div className="fields">
             <Field id="ticket" label="Foto do bilhete de avião" hint="Com o teu nome e as datas." error={e.ticket} full>
               <input id="ticket" name="ticket" type="file" accept="image/*" ref={input} onChange={pick} />

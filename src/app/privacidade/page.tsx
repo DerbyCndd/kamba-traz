@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DocSection, Important, LegalLayout, type SummaryPoint, type TocItem } from "@/components/LegalLayout";
+import { Src } from "@/components/Src";
 
 export const metadata: Metadata = { title: "Política de privacidade", description: "Que dados guardamos, porquê, quem os vê e como os apagar." };
 
@@ -108,11 +109,12 @@ export default function PrivacidadePage() {
           <li><b>Apagar</b> os teus dados.</li>
           <li><b>Opor-te</b> a um tratamento, e retirar o consentimento que deste.</li>
         </ul>
-        <p><b>Como exercer:</b> pelo formulário de <Link href="/feedback">feedback</Link>. Se achares que não cumprimos a lei, podes queixar-te à Agência de Proteção de Dados (APD). Para quem vive na União Europeia aplica-se também o Regulamento Geral sobre a Proteção de Dados.</p>
+        <p>Corrigimos, atualizamos ou apagamos no prazo que a lei fixa: até 60 dias úteis. <Src refs={[["lei2211", "arts. 25.º a 28.º"], ["apd", "direitos do cidadão"]]} /></p>
+        <p><b>Como exercer:</b> pelo formulário de <Link href="/feedback">feedback</Link>. Se achares que não cumprimos a lei, podes queixar-te à Agência de Proteção de Dados (APD), pelo seu <a href="https://apd.ao" target="_blank" rel="noopener noreferrer">Balcão Online</a>.</p>
       </DocSection>
 
       <DocSection id="automaticas" n={8} title="Decisões automáticas">
-        <p>O prémio do mês (um mês sem comissão) é calculado <b>automaticamente</b> a partir das avaliações. Se achares que o resultado está errado, pede à equipa que o reveja.</p>
+        <p>O prémio do mês (um mês sem comissão) é calculado <b>automaticamente</b> a partir das avaliações. Se achares que o resultado está errado, pede à equipa que o reveja. A lei dá-te o direito de não ficares sujeito a uma decisão automatizada que produza efeitos na tua esfera jurídica. <Src refs={[["lei2211", "art. 29.º"]]} /></p>
       </DocSection>
 
       <DocSection id="cookies" n={9} title="Cookies">

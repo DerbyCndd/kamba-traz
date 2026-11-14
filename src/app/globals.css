@@ -707,3 +707,17 @@ ol.steps p{max-width:56ch}
   .doctable.stack td:first-child::before{content:""}
 }
 @media print{.doctablewrap{overflow:visible}.doctablewrap .doctable{min-width:0}}
+
+/* fontes citadas */
+.src{display:inline;font-size:12.5px;color:var(--muted)}
+.src a{color:var(--muted);text-decoration:underline;text-underline-offset:2px}
+.src a:hover{color:var(--ink)}
+.srclabel{font-weight:600}
+.lawtitle{margin:0 0 6px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.lawlist li{line-height:1.5}
+.lawlist .src{display:block;margin-top:2px}
+.srclist{list-style:none;padding:0;display:grid;gap:14px}
+.srclist>li{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.srctitle{margin:0 0 2px;font-weight:600}
+.srclist ul{margin:8px 0 0}
+@media print{.src a{color:#333!important}}

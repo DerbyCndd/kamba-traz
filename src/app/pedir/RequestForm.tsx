@@ -7,6 +7,7 @@ import { cityName, kz } from "@/lib/format";
 import { CUSTOMS, INVOICE_MIN_EUR, MAX_TRIP_EUR, customsEstimate, needsInvoice } from "@/lib/customs";
 import { emptyForm } from "@/lib/types";
 import { Field } from "@/components/ui";
+import { Src } from "@/components/Src";
 import { useFocusFirstError } from "@/components/useFocusFirstError";
 import { SubmitResult } from "@/components/SubmitResult";
 
@@ -62,6 +63,7 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoic
               {est.kind === "geral"
                 ? `Acima de ${kz(CUSTOMS.flatMaxKz)} (cerca de ${MAX_TRIP_EUR} €) a alfândega aplica o regime geral e a Kamba não aceita o pedido. Divide em vários envios mais pequenos, ou usa um serviço de courier.`
                 : `Imposto estimado na alfândega, se não for tratado como uso pessoal: cerca de ${kz(est.taxKz)} (${CUSTOMS.flatPct}% do valor). É uma estimativa e o câmbio muda.`}
+              {" "}<Src refs={est.kind === "geral" ? [["dlp", "art. 12.º, n.º 6"]] : [["dlp", "art. 12.º, n.º 2"], ["guia", "ponto 2.3"]]} />
             </p>
           ) : null}
           </div>

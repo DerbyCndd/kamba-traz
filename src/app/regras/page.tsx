@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Src } from "@/components/Src";
 
 export const metadata: Metadata = { title: "Regras" };
 
@@ -13,7 +15,7 @@ export default function RegrasPage() {
         <div className="panel forbid">
           <h3>Nunca transportamos</h3>
           <ul className="bullets">
-            {["Drogas e substâncias controladas", "Armas, munições e réplicas", "Dinheiro em numerário e documentos de valor", "Medicamentos (em Angola a importação precisa de autorização prévia)",
+            {["Drogas e substâncias controladas", "Armas, munições e réplicas", "Dinheiro em numerário e documentos de valor", "Medicamentos",
               "Baterias soltas, gás, líquidos inflamáveis e químicos", "Produtos falsificados", "Animais, plantas e alimentos perecíveis",
               "Qualquer volume fechado que o viajante não possa abrir"].map(li)}
           </ul>
@@ -41,18 +43,33 @@ export default function RegrasPage() {
       </div>
       <div className="panel" id="alfandega">
         <h3>Alfândega em Angola</h3>
-        <p className="muted">Quem viaja é quem passa na alfândega, por isso estas regras protegem-no. Uma encomenda para outra pessoa não conta como «uso pessoal».</p>
+        <p className="muted">Quem viaja é quem passa na alfândega, por isso estas regras protegem-no. Cada ponto da lei traz a fonte; o que é decisão nossa está à parte.</p>
         <div className="two">
-          <ul className="bullets">
-            {["À chegada a Luanda, quem leva encomendas de outras pessoas usa o canal vermelho e declara", "Até Kz 1 000 000 por viajante só há isenção para bens de uso pessoal, em quantidades reduzidas e sem carácter comercial",
-              "Entre Kz 1 000 001 e Kz 1 500 000, a alfândega aplica 16% sobre o valor dos bens", "Acima de Kz 1 500 000 aplica o regime geral, com despachante: a Kamba não aceita"].map(li)}
-          </ul>
-          <ul className="bullets">
-            {["Cada viagem leva no máximo Kz 1 500 000 em mercadoria, somando todos os pedidos", "Cada volume leva fatura ou valor declarado e lista do conteúdo",
-              "Bebidas e tabaco têm limites muito pequenos na alfândega: não os levamos", "Perfumes levam-se, sempre declarados no canal vermelho e com fatura. Os 100 ml de perfume e 100 ml de água de toilette isentos são só para uso pessoal; acima disso paga-se imposto. Na bagagem despachada, as companhias costumam limitar cada frasco a 500 ml e o total a 2 litros por passageiro: confirma na tua", "Quem viaja em nome de uma empresa, ou leva muitas encomendas muitas vezes, passa a ser importador e deve falar com um despachante"].map(li)}
-          </ul>
+          <div>
+            <h4 className="lawtitle">O que diz a lei</h4>
+            <ul className="bullets lawlist">
+              <li>Só há isenção para bens «destinados ao consumo pessoal» do viajante, em quantidades reduzidas, sem características comerciais e até Kz 1 000 000. <Src refs={[["dlp", "art. 1.º, k) e art. 12.º, n.º 1"], ["guia", "ponto 2.2"]]} /></li>
+              <li>Entre Kz 1 000 001 e Kz 1 500 000 aplica-se uma taxa fixa de 16% sobre o valor. <Src refs={[["dlp", "art. 12.º, n.º 2"], ["guia", "ponto 2.3"]]} /></li>
+              <li>Acima de Kz 1 500 000, e nos bens de pessoas coletivas, aplica-se o regime geral. <Src refs={[["dlp", "art. 12.º, n.os 6 e 7"], ["guia", "ponto 2.3"]]} /></li>
+              <li>Quem leva bens que não são de uso pessoal, ou tem dúvidas, usa o canal vermelho. <Src refs={[["guia", "ponto 2.1.1.2"]]} /></li>
+              <li>Há limites pequenos para bebidas, tabaco e perfumes (por exemplo, 100 ml de perfume). <Src refs={[["guia", "ponto 2.3"]]} /></li>
+              <li>Medicamentos são mercadoria de importação restrita: só com autorização prévia. <Src refs={[["dlp", "Quadro II, art. 60.º"]]} /></li>
+              <li>Quem representa terceiros na declaração aduaneira são os despachantes. <Src refs={[["guia", "ponto 2.7"]]} /></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="lawtitle">O que fazemos por isso</h4>
+            <ul className="bullets lawlist">
+              <li>A lei não fala de bens trazidos para outras pessoas. Por prudência, tratamos essas encomendas como não isentas: o viajante declara no canal vermelho.</li>
+              <li>Cada viagem leva no máximo Kz 1 500 000 em mercadoria, somando todos os pedidos. Ficamos sempre abaixo do regime geral.</li>
+              <li>Cada volume leva lista do conteúdo. Eletrónicos, cosméticos e perfumes, peças e itens acima de 300 € levam a fatura da compra.</li>
+              <li>Bebidas e tabaco não se levam. Medicamentos são proibidos.</li>
+              <li>Perfumes levam-se, declarados e com fatura. As companhias aéreas têm regras próprias para líquidos: confirma na tua.</li>
+              <li>Se levas encomendas com muita frequência, fala com um despachante antes de viajar: pode ser tratado como atividade comercial.</li>
+            </ul>
+          </div>
         </div>
-        <p className="hint">Valores da pauta aduaneira de 2024 e do guia da AGT. Confirma sempre no <a href="https://agt.minfin.gov.ao" target="_blank" rel="noopener">portal da AGT</a> antes de viajar: as regras mudam e a Kamba não substitui o conselho de um despachante.</p>
+        <p className="hint">Confirma sempre no <a href="https://agt.minfin.gov.ao" target="_blank" rel="noopener noreferrer">portal da AGT</a> antes de viajar: as regras mudam e a Kamba não substitui um despachante. Todas as fontes, e o que é leitura nossa, estão em <Link href="/fontes">Fontes</Link>.</p>
       </div>
       <p className="hint">As regras da alfândega e das companhias aéreas mudam. Cada viajante é responsável por conhecer os limites da sua viagem antes de aceitar um pedido.</p>
     </section>

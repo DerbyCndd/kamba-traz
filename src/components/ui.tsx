@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Src } from "./Src";
+import type { SourceRef } from "@/lib/sources";
 import { cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
 
 const PILLS: Record<string, [string, string]> = {
@@ -48,11 +50,11 @@ export function Field({ id, label, hint, error, full, children }: {
   );
 }
 
-export function Faq({ items }: { items: [string, string][] }) {
+export function Faq({ items }: { items: [string, string, SourceRef[]?][] }) {
   return (
     <div className="faq">
-      {items.map(([q, a]) => (
-        <details key={q}><summary>{q}</summary><p>{a}</p></details>
+      {items.map(([q, a, refs]) => (
+        <details key={q}><summary>{q}</summary><p>{a}{refs ? <> <Src refs={refs} /></> : null}</p></details>
       ))}
     </div>
   );

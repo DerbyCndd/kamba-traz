@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DocSection, Important, LegalLayout, type SummaryPoint, type TocItem } from "@/components/LegalLayout";
+import { Src } from "@/components/Src";
 
 export const metadata: Metadata = { title: "Termos de uso", description: "As regras entre a Kamba Traz, quem envia e quem viaja, em linguagem simples." };
 
@@ -62,10 +63,11 @@ export default function TermosPage() {
       <DocSection id="alfandega" n={4} title="Alfândega e impostos">
         <Important title="Quem passa na alfândega é o viajante">
           <p>Ao chegar a Angola, o viajante declara as encomendas de outras pessoas no <b>canal vermelho</b> e cumpre as regras da AGT. A Kamba Traz não declara mercadorias nem garante isenções.</p>
+          <p><Src refs={[["guia", "ponto 2.1.1.2"]]} /></p>
         </Important>
         <ul>
           <li><b>Quem paga as taxas.</b> As taxas e impostos que a alfândega cobrar sobre a encomenda são do <b>remetente</b>, que as reembolsa ao viajante, salvo acordo escrito diferente. A estimativa que a app mostra é só uma indicação.</li>
-          <li><b>Teto por viagem.</b> Cada viagem leva no máximo Kz 1 500 000 em mercadoria, somando todos os pedidos. Acima disso a alfândega aplica o regime geral e não aceitamos.</li>
+          <li><b>Teto por viagem.</b> Cada viagem leva no máximo Kz 1 500 000 em mercadoria, somando todos os pedidos. Acima disso a alfândega aplica o regime geral e não aceitamos. <Src refs={[["dlp", "art. 12.º, n.º 6"], ["guia", "ponto 2.3"]]} /></li>
           <li><b>Fatura.</b> Eletrónicos, cosméticos e perfumes, peças e qualquer item acima de 300 € exigem a fatura da compra.</li>
         </ul>
       </DocSection>

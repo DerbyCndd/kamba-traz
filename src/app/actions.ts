@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { myIdentity } from "@/lib/identity";
+import { customsEstimate } from "@/lib/customs";
 import { passportVsTrip } from "@/lib/docchecks";
 import { CATS, FROM, TO } from "@/lib/constants";
 import { cityName, kz, refCode, today } from "@/lib/format";
@@ -54,6 +55,7 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
   if (v.item.length < 3 || v.item.length > 90) errors.item = "Descreve o que queres enviar.";
   if (!num(v.kg) || num(v.kg)! > 100) errors.kg = "Indica o peso aproximado em kg.";
   if (v.value === "" || !(Number(v.value) >= 0)) errors.value = "Indica o valor do item em euros.";
+  if (v.value !== "" && Number(v.value) >= 0 && customsEstimate(Number(v.value)).kind === "geral") errors.value = "O valor passa o limite da alfândega para uma encomenda de viajante (Kz 1 500 000). Divide em envios mais pequenos.";
   if (!num(v.offer)) errors.offer = "Indica quanto ofereces pelo transporte, em Kz.";
   if (v.ok !== "on") errors.ok = "Tens de confirmar para continuar.";
   if (!FROM.includes(v.origin) || !TO.includes(v.destination) || !CATS.includes(v.category)) errors.item = "Escolhe valores válidos da lista.";

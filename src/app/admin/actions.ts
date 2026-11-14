@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { CATS, DEAL_STEPS, REQ_STATES, TRIP_STATES } from "@/lib/constants";
 import { firstName } from "@/lib/format";
+import { CUSTOMS } from "@/lib/customs";
 import { randomInt } from "node:crypto";
 import { decryptPii, encryptPii, piiReady } from "@/lib/pii";
 
@@ -65,13 +66,20 @@ export async function createDeal(_: AdminState, fd: FormData): Promise<AdminStat
   if (!requestId || !tripId || !(price > 0)) return { error: "Escolhe um pedido, uma viagem e o valor acordado." };
 
   const [{ data: r }, { data: t }, { data: c }] = await Promise.all([
-    supabase.from("requests").select("id, user_id, item, origin, destination, name, status").eq("id", requestId).maybeSingle(),
+    supabase.from("requests").select("id, user_id, item, origin, destination, name, status, item_value").eq("id", requestId).maybeSingle(),
     supabase.from("trips").select("id, user_id, name, status").eq("id", tripId).maybeSingle(),
     supabase.from("config").select("commission").eq("id", 1).maybeSingle(),
   ]);
   if (!r || !t) return { error: "Pedido ou viagem não encontrados." };
   if (r.status !== "aberto") return { error: "Esse pedido já não está aberto." };
   if (t.status === "pendente" || t.status === "recusado" || t.status === "concluida") return { error: "Essa viagem ainda não está aprovada (ou já terminou)." };
+
+  // Alfândega: o valor total das mercadorias de uma viagem não passa Kz 1 500 000 (acima é regime geral, com despachante).
+  const { data: others } = await supabase.from("deals").select("request_id").eq("trip_id", t.id).neq("status", "cancelado");
+  const ids = (others ?? []).map((o: { request_id: string | null }) => o.request_id).filter((x): x is string => !!x);
+  const { data: sibl } = ids.length ? await supabase.from("requests").select("item_value").in("id", ids) : { data: [] as { item_value: number }[] };
+  const totalEur = (sibl ?? []).reduce((a: number, x: { item_value: number }) => a + Number(x.item_value ?? 0), 0) + Number(r.item_value ?? 0);
+  if (Math.round(totalEur * CUSTOMS.eurKz) > CUSTOMS.flatMaxKz) return { error: `O valor total das mercadorias desta viagem (cerca de ${Math.round(totalEur)} €) passa o limite da alfândega de Kz 1 500 000. Escolhe outra viagem.` };
 
   // Prémio do mês: se o entregador ou o remetente ganhou o mês passado, a comissão é 0. Quem decide é a base de dados.
   const { data: waived } = await supabase.rpc("deal_fee_waived", { p_request: r.id, p_trip: t.id });

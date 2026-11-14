@@ -39,6 +39,21 @@ export default function RegrasPage() {
           </ul>
         </div>
       </div>
+      <div className="panel" id="alfandega">
+        <h3>Alfândega em Angola</h3>
+        <p className="muted">Quem viaja é quem passa na alfândega, por isso estas regras protegem-no. Uma encomenda para outra pessoa não conta como «uso pessoal».</p>
+        <div className="two">
+          <ul className="bullets">
+            {["À chegada a Luanda, quem leva encomendas de outras pessoas usa o canal vermelho e declara", "Até Kz 1 000 000 por viajante só há isenção para bens de uso pessoal, em quantidades reduzidas e sem carácter comercial",
+              "Entre Kz 1 000 001 e Kz 1 500 000, a alfândega aplica 16% sobre o valor dos bens", "Acima de Kz 1 500 000 aplica o regime geral, com despachante: a Kamba não aceita"].map(li)}
+          </ul>
+          <ul className="bullets">
+            {["Cada viagem leva no máximo Kz 1 500 000 em mercadoria, somando todos os pedidos", "Cada volume leva fatura ou valor declarado e lista do conteúdo",
+              "Bebidas, tabaco e perfumes têm limites muito pequenos: não os levamos", "Quem viaja em nome de uma empresa, ou leva muitas encomendas muitas vezes, passa a ser importador e deve falar com um despachante"].map(li)}
+          </ul>
+        </div>
+        <p className="hint">Valores da pauta aduaneira de 2024 e do guia da AGT. Confirma sempre no <a href="https://agt.minfin.gov.ao" target="_blank" rel="noopener">portal da AGT</a> antes de viajar: as regras mudam e a Kamba não substitui o conselho de um despachante.</p>
+      </div>
       <p className="hint">As regras da alfândega e das companhias aéreas mudam. Cada viajante é responsável por conhecer os limites da sua viagem antes de aceitar um pedido.</p>
     </section>
   );

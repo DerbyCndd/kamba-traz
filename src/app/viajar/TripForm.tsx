@@ -74,6 +74,7 @@ export function TripForm({ perKg, whatsapp, defaultName, defaultPhone, minDate }
         <fieldset className="fs">
           <legend>Bilhete de avião</legend>
           <p className="privacy">A tua identificação (BI e telefone) já está guardada: não a pedimos de novo. Só a equipa vê o bilhete.</p>
+          <p className="notice customs-note"><b>Alfândega em Angola.</b> Encomendas de outras pessoas não são «uso pessoal»: à chegada usa o <b>canal vermelho</b> e declara. Cada viagem leva no máximo Kz 1 500 000 em mercadoria, e a taxa estimada é de 16% do valor. <Link href="/regras#alfandega">Ver as regras</Link></p>
           <div className="fields">
             <Field id="ticket" label="Foto do bilhete de avião" hint="Com o teu nome e as datas." error={e.ticket} full>
               <input id="ticket" name="ticket" type="file" accept="image/*" ref={input} onChange={pick} />
@@ -104,7 +105,7 @@ export function TripForm({ perKg, whatsapp, defaultName, defaultPhone, minDate }
         <div className="field">
           <label className="check" htmlFor="ok">
             <input id="ok" name="ok" type="checkbox" defaultChecked={v.ok === "on"} aria-invalid={e.ok ? true : undefined} aria-describedby={e.ok ? "ok-e" : undefined} />
-            <span>Os dados são meus e verdadeiros, e autorizo a equipa a confirmar o meu bilhete e a minha identidade. Aceito abrir e fotografar cada volume e não levar o que está nas <Link href="/regras">regras</Link>.</span>
+            <span>Os dados são meus e verdadeiros, e autorizo a equipa a confirmar o meu bilhete e a minha identidade. Aceito abrir e fotografar cada volume e não levar o que está nas <Link href="/regras">regras</Link>. Vou declarar na alfândega, pelo canal vermelho, o que levar para outras pessoas.</span>
           </label>
           <span className="err" id="ok-e" role="alert">{e.ok || ""}</span>
         </div>

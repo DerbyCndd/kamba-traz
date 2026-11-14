@@ -615,3 +615,8 @@ ol.steps p{max-width:56ch}
 .photoform .btn{cursor:pointer}
 .srfile{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip-path:inset(50%)}
 .photoform:focus-within label.btn{outline:2px solid var(--focus);outline-offset:2px}
+
+/* alfândega */
+.hint.customs{margin-top:-4px;grid-column:1/-1}
+.hint.customs.over{color:var(--bad);font-weight:500}
+.customs-note{margin:0 0 14px}

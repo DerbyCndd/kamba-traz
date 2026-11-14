@@ -23,7 +23,7 @@ export function Calculator({ perKg, commission, cta }: { perKg: number; commissi
         <div><dt>O viajante recebe</dt><dd>{kz(total - fee)}</dd></div>
         <div><dt>Taxa Kamba ({commission}%)</dt><dd>{kz(fee)}</dd></div>
       </dl>
-      <p className="hint">Valor de referência de {kz(perKg)} por kg. O valor final é combinado entre as duas partes.</p>
+      <p className="hint">Valor de referência de {kz(perKg)} por kg. O valor final é combinado entre as duas partes. As taxas da alfândega, se houver, são à parte.</p>
       {cta}
     </div>
   );

@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { submitRequest } from "../actions";
 import { CATS, FROM, TO } from "@/lib/constants";
 import { cityName, kz } from "@/lib/format";
+import { CUSTOMS, MAX_TRIP_EUR, customsEstimate } from "@/lib/customs";
 import { emptyForm } from "@/lib/types";
 import { Field } from "@/components/ui";
 import { useFocusFirstError } from "@/components/useFocusFirstError";
@@ -16,11 +17,13 @@ const cityOpts = (codes: string[]) =>
 export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, minDate }: { perKg: number; whatsapp: string; defaultName: string; defaultPhone: string; minDate: string }) {
   const [state, action] = useActionState(submitRequest, emptyForm);
   const [kg, setKg] = useState("");
+  const [val, setVal] = useState("");
   useFocusFirstError(state.errors);
   if (state.done) return <SubmitResult done={state.done} whatsapp={whatsapp} />;
 
   const v = state.values, e = state.errors;
   const k = parseFloat(kg);
+  const est = parseFloat(val) > 0 ? customsEstimate(parseFloat(val)) : null;
   return (
     <div className="panel">
       <form action={action} noValidate>
@@ -44,8 +47,15 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, minDat
             <input id="kg" name="kg" type="number" min="0.1" step="0.1" inputMode="decimal" defaultValue={v.kg} onChange={(ev) => setKg(ev.target.value)} />
           </Field>
             <Field id="value" label="Valor do item (€)" hint="Serve para o seguro e a alfândega." error={e.value}>
-            <input id="value" name="value" type="number" min="0" step="1" inputMode="decimal" defaultValue={v.value} />
+            <input id="value" name="value" type="number" min="0" step="1" inputMode="decimal" defaultValue={v.value} onChange={(ev) => setVal(ev.target.value)} />
           </Field>
+          {est ? (
+            <p className={"hint customs" + (est.kind === "geral" ? " over" : "")} role="status">
+              {est.kind === "geral"
+                ? `Acima de ${kz(CUSTOMS.flatMaxKz)} (cerca de ${MAX_TRIP_EUR} €) a alfândega aplica o regime geral e a Kamba não aceita o pedido. Divide em vários envios mais pequenos, ou usa um serviço de courier.`
+                : `Imposto estimado na alfândega, se não for tratado como uso pessoal: cerca de ${kz(est.taxKz)} (${CUSTOMS.flatPct}% do valor). É uma estimativa e o câmbio muda.`}
+            </p>
+          ) : null}
           </div>
         </fieldset>
         <fieldset className="fs">
@@ -72,7 +82,7 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, minDat
         <div className="field">
           <label className="check" htmlFor="ok">
             <input id="ok" name="ok" type="checkbox" defaultChecked={v.ok === "on"} aria-invalid={e.ok ? true : undefined} aria-describedby={e.ok ? "ok-e" : undefined} />
-            <span>Confirmo que o item é legal, que posso mostrá-lo ao viajante para inspecção e que li as <Link href="/regras">regras de itens proibidos</Link>.</span>
+            <span>Confirmo que o item é legal, que posso mostrá-lo ao viajante para inspecção e que li as <Link href="/regras">regras de itens proibidos e da alfândega</Link>. Sei que a alfândega pode cobrar taxas sobre o item.</span>
           </label>
           <span className="err" id="ok-e" role="alert">{e.ok || ""}</span>
         </div>

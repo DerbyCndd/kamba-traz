@@ -10,7 +10,6 @@ export const CATS = [
   "Cosméticos e higiene",
   "Peças e ferramentas",
   "Documentos e papelada",
-  "Medicamentos com receita",
   "Brinquedos e artigos de bebé",
   "Outro item legal",
 ];

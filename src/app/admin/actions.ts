@@ -126,7 +126,7 @@ export async function seedExamples() {
     { ...common, origin: "LIS", destination: "LAD", item: "Telemóvel novo na caixa", category: CATS[1], kg: 1, offer: 45000, name: "Carla" },
     { ...common, origin: "LIS", destination: "LAD", item: "Peças de carro (filtros e pastilhas)", category: CATS[3], kg: 6, offer: 70000, name: "Joaquim" },
     { ...common, origin: "OPO", destination: "LAD", item: "Roupa e calçado de criança", category: CATS[0], kg: 4, offer: 35000, name: "Ana" },
-    { ...common, origin: "FAO", destination: "SDD", item: "Medicamentos com receita", category: CATS[5], kg: 0.8, offer: 25000, name: "Domingos" },
+    { ...common, origin: "FAO", destination: "SDD", item: "Brinquedos para os sobrinhos", category: CATS[5], kg: 0.8, offer: 25000, name: "Domingos" },
   ]);
   done();
 }
@@ -211,6 +211,18 @@ export async function deleteFeedback(id: string) {
   const { supabase } = await requireAdmin();
   await supabase.from("feedback").delete().eq("id", id);
   done();
+}
+
+/** Ligação à fatura de um pedido, válida só 2 minutos. A fatura nunca é pública. */
+export async function invoiceUrl(requestId: string): Promise<{ url?: string; error?: string }> {
+  const { supabase, profile } = await requireAdmin();
+  if (!/^[0-9a-f-]{36}$/i.test(requestId)) return { error: "Pedido inválido." };
+  const { data } = await supabase.from("requests").select("invoice_path").eq("id", requestId).maybeSingle();
+  if (!data?.invoice_path) return { error: "Este pedido não tem fatura." };
+  const { data: signed, error } = await supabase.storage.from("invoices").createSignedUrl(data.invoice_path, 120);
+  if (error || !signed) return { error: "Não foi possível abrir a fatura." };
+  console.info("[auditoria] fatura consultada", { equipa: profile.id, pedido: requestId });
+  return { url: signed.signedUrl };
 }
 
 // ---------- identificação (BI + telefone, passaporte opcional), feita uma só vez no cadastro ----------

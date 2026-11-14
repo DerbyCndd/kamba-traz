@@ -13,7 +13,7 @@ export default function RegrasPage() {
         <div className="panel forbid">
           <h3>Nunca transportamos</h3>
           <ul className="bullets">
-            {["Drogas e substâncias controladas", "Armas, munições e réplicas", "Dinheiro em numerário e documentos de valor",
+            {["Drogas e substâncias controladas", "Armas, munições e réplicas", "Dinheiro em numerário e documentos de valor", "Medicamentos (em Angola a importação precisa de autorização prévia)",
               "Baterias soltas, gás, líquidos inflamáveis e químicos", "Produtos falsificados", "Animais, plantas e alimentos perecíveis",
               "Qualquer volume fechado que o viajante não possa abrir"].map(li)}
           </ul>
@@ -21,7 +21,7 @@ export default function RegrasPage() {
         <div className="panel warm">
           <h3>Só com confirmação da equipa</h3>
           <ul className="bullets">
-            {["Electrónicos novos: telemóveis, portáteis, consolas", "Medicamentos: só com receita e para uso pessoal", "Itens de valor elevado",
+            {["Electrónicos novos: telemóveis, portáteis, consolas", "Itens de valor elevado",
               "Peças e ferramentas", "Tudo o que tenha limites de peso, quantidade ou valor na alfândega angolana ou na companhia aérea"].map(li)}
           </ul>
         </div>

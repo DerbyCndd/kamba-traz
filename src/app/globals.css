@@ -620,3 +620,24 @@ ol.steps p{max-width:56ch}
 .hint.customs{margin-top:-4px;grid-column:1/-1}
 .hint.customs.over{color:var(--bad);font-weight:500}
 .customs-note{margin:0 0 14px}
+
+/* documentos legais (termos, privacidade, declaração de conteúdo) */
+.doc{max-width:760px}
+.doc h3{margin:26px 0 8px;font-size:18px}
+.doc p,.doc li{max-width:none;line-height:1.65}
+.doc ul,.doc ol{padding-left:22px;display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.doctable{width:100%;border-collapse:collapse;font-size:14px;margin:10px 0 14px}
+.doctable th,.doctable td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+.doctable th{background:var(--raised);font-weight:600}
+.doc.form .doctable td{height:34px}
+.doctable.sign td{height:110px}
+@media print{
+  .top,.foot,.skip,.side,.mtop,.tabbar,.appfoot,.noprint,.nextdev{display:none!important}
+  body,.app,.appmain{background:#fff!important;color:#111!important;display:block!important;padding:0!important}
+  .doc,.doc *{color:#111!important}
+  .doc{max-width:none}
+  .doctable th{background:#eee!important}
+  .doctable th,.doctable td{border-color:#999!important}
+  .appmain main,.wrap main{padding:0!important;max-width:none!important}
+  .doc h3,.doctable{break-inside:avoid}
+}

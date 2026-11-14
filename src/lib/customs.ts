@@ -24,5 +24,12 @@ export function customsEstimate(valueEur: number): CustomsEstimate {
   return { kind: "forfetario", valueKz, taxKz: Math.round((valueKz * CUSTOMS.flatPct) / 100) };
 }
 
+import { CATS } from "./constants";
+
+/** Bens de risco: exigem a fatura da compra. Eletrónicos, cosméticos (perfumes) e peças, ou qualquer item de valor elevado. */
+export const RISK_CATS: string[] = [CATS[1], CATS[2], CATS[3]];
+export const INVOICE_MIN_EUR = 300;
+export const needsInvoice = (category: string, valueEur: number) => RISK_CATS.includes(category) || valueEur >= INVOICE_MIN_EUR;
+
 /** Valor máximo aceite por viagem, em euros (arredondado para baixo). */
 export const MAX_TRIP_EUR = Math.floor(CUSTOMS.flatMaxKz / CUSTOMS.eurKz);

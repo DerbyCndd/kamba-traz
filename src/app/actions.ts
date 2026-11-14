@@ -2,7 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { myIdentity } from "@/lib/identity";
-import { customsEstimate } from "@/lib/customs";
+import { customsEstimate, needsInvoice } from "@/lib/customs";
 import { passportVsTrip } from "@/lib/docchecks";
 import { CATS, FROM, TO } from "@/lib/constants";
 import { cityName, kz, refCode, today } from "@/lib/format";
@@ -45,6 +45,13 @@ async function tooManyPending(supabase: Awaited<ReturnType<typeof requireUser>>[
   return (a.count ?? 0) + (b.count ?? 0) >= MAX_PENDING;
 }
 
+const MAX_INVOICE = 3 * 1024 * 1024;
+const INVOICE_MIME = { jpg: "image/jpeg", png: "image/png", webp: "image/webp", pdf: "application/pdf" } as const;
+function invoiceKind(b: Uint8Array): keyof typeof INVOICE_MIME | null {
+  if (b[0] === 0x25 && b[1] === 0x50 && b[2] === 0x44 && b[3] === 0x46) return "pdf";
+  return imageKind(b);
+}
+
 export async function submitRequest(_: FormState, fd: FormData): Promise<FormState> {
   const { user, supabase } = await requireUser();
   const v = read(fd);
@@ -61,6 +68,17 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
   if (!FROM.includes(v.origin) || !TO.includes(v.destination) || !CATS.includes(v.category)) errors.item = "Escolhe valores válidos da lista.";
   else if (v.origin === v.destination && v.origin !== "OTH") errors.item = "A origem e o destino não podem ser iguais.";
   if (v.deadline && v.deadline < today()) errors.deadline = "A data já passou.";
+  // Bens de risco levam a fatura da compra (só se a base já guarda faturas: invoices.sql).
+  const invoicesOn = (await supabase.from("requests").select("invoice_path").limit(1)).error === null;
+  const mustInvoice = invoicesOn && needsInvoice(v.category, Number(v.value) || 0);
+  const invFile = fd.get("invoice");
+  let invBytes: Uint8Array | null = null;
+  let invKind: keyof typeof INVOICE_MIME | null = null;
+  if (mustInvoice) {
+    if (!(invFile instanceof File) || invFile.size === 0) errors.invoice = "Junta a fatura da compra: é obrigatória para eletrónicos, cosméticos e peças, ou itens de valor elevado.";
+    else if (invFile.size > MAX_INVOICE) errors.invoice = "O ficheiro é demasiado grande (máximo 3 MB).";
+    else { invBytes = new Uint8Array(await invFile.arrayBuffer()); invKind = invoiceKind(invBytes); if (!invKind) errors.invoice = "Usa uma foto (JPG, PNG, WebP) ou um PDF."; }
+  }
   if (Object.keys(errors).length) return { errors, values: v };
 
   const ident = await myIdentity(supabase, user.id);
@@ -69,12 +87,22 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
     return { errors: {}, values: v, formError: "Já tens muitas entradas por verificar. Espera que a equipa as analise." };
   }
 
+  let invoicePath: string | null = null;
+  if (mustInvoice && invBytes && invKind) {
+    const path = `${user.id}/${crypto.randomUUID()}.${invKind}`;
+    const up = await supabase.storage.from("invoices").upload(path, invBytes, { contentType: INVOICE_MIME[invKind], upsert: false });
+    if (up.error) return { errors: {}, values: v, formError: "Não foi possível enviar a fatura agora. Tenta de novo daqui a pouco." };
+    invoicePath = path;
+  }
+
   const row = {
+    ...(invoicePath ? { invoice_path: invoicePath } : {}),
     user_id: user.id, name: v.name, contact: v.contact, origin: v.origin, destination: v.destination,
     item: v.item, category: v.category, kg: num(v.kg)!, item_value: Number(v.value), offer: Math.round(num(v.offer)!),
     deadline: v.deadline || null,
   };
   const { data, error } = await supabase.from("requests").insert(row).select("id").single();
+  if ((error || !data) && invoicePath) await supabase.storage.from("invoices").remove([invoicePath]); // não deixa a fatura órfã
   if (error || !data) return { errors: {}, values: v, formError: "Não foi possível registar o pedido agora. Tenta de novo daqui a pouco." };
 
   revalidatePath("/meus");

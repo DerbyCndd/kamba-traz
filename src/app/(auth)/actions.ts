@@ -48,6 +48,7 @@ export async function signup(_: AuthState, fd: FormData): Promise<AuthState> {
   if (!validEmail(email)) return { error: "Indica um email válido.", email };
   if (password.length < 8) return { error: "A palavra-passe precisa de pelo menos 8 caracteres.", email };
   if (password !== again) return { error: "As palavras-passe não coincidem.", email };
+  if (str(fd, "accept") !== "on") return { error: "Aceita os termos de uso e a política de privacidade para criar conta.", email };
 
   const ip = await clientIp();
   if (await isLimited("signup-ip", ip, 5, 15 * MIN)) return { error: TOO_MANY, email };

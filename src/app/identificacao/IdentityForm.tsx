@@ -116,7 +116,7 @@ export function IdentityForm({ defaultName, defaultPhone, next, hasIdentity, dat
         <div className="field">
           <label className="check" htmlFor="ok">
             <input id="ok" name="ok" type="checkbox" defaultChecked={v.ok === "on"} aria-invalid={e.ok ? true : undefined} aria-describedby={e.ok ? "ok-e" : undefined} />
-            <span>Os dados e documentos são meus e verdadeiros, e autorizo a equipa a guardá-los para confirmar a minha identidade. Ficam guardados para não os pedirmos de novo.</span>
+            <span>Os dados e documentos são meus e verdadeiros, e autorizo a equipa a guardá-los para confirmar a minha identidade. Ficam guardados para não os pedirmos de novo, como explica a <Link href="/privacidade" target="_blank">política de privacidade</Link>.</span>
           </label>
           <span className="err" id="ok-e" role="alert">{e.ok || ""}</span>
         </div>

@@ -23,6 +23,12 @@ export function SignupForm({ para }: { para?: string }) {
         <Field id="again" label="Repete a palavra-passe">
           <input id="again" name="again" type="password" autoComplete="new-password" minLength={8} required />
         </Field>
+        <div className="field">
+          <label className="check" htmlFor="accept">
+            <input id="accept" name="accept" type="checkbox" required />
+            <span>Li e aceito os <Link href="/termos" target="_blank">termos de uso</Link> e a <Link href="/privacidade" target="_blank">política de privacidade</Link>.</span>
+          </label>
+        </div>
         {state.error ? <div className="notice bad" role="alert">{state.error}</div> : null}
         <div className="row"><SubmitButton pending="A criar…">Criar conta</SubmitButton></div>
       </form>

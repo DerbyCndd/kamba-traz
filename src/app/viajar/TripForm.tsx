@@ -105,7 +105,7 @@ export function TripForm({ perKg, whatsapp, defaultName, defaultPhone, minDate }
         <div className="field">
           <label className="check" htmlFor="ok">
             <input id="ok" name="ok" type="checkbox" defaultChecked={v.ok === "on"} aria-invalid={e.ok ? true : undefined} aria-describedby={e.ok ? "ok-e" : undefined} />
-            <span>Os dados são meus e verdadeiros, e autorizo a equipa a confirmar o meu bilhete e a minha identidade. Aceito abrir e fotografar cada volume e não levar o que está nas <Link href="/regras">regras</Link>. Vou declarar na alfândega, pelo canal vermelho, o que levar para outras pessoas.</span>
+            <span>Os dados são meus e verdadeiros, e autorizo a equipa a confirmar o meu bilhete e a minha identidade. Aceito abrir e fotografar cada volume e não levar o que está nas <Link href="/regras">regras</Link>. Vou declarar na alfândega, pelo canal vermelho, o que levar para outras pessoas, e aceito os <Link href="/termos" target="_blank">termos de uso</Link>.</span>
           </label>
           <span className="err" id="ok-e" role="alert">{e.ok || ""}</span>
         </div>

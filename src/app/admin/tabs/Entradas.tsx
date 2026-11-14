@@ -4,6 +4,8 @@ import { cityName, fdate, firstName, kz, waLink } from "@/lib/format";
 import type { Config, Deal, IdentityView, Req, TravelerDocView, Trip } from "@/lib/types";
 import { DocBlock } from "./DocBlock";
 import { IdentityBlock } from "./IdentityBlock";
+import { InvoiceButton } from "./InvoiceButton";
+import { needsInvoice } from "@/lib/customs";
 import { approveItem, rejectItem } from "../actions";
 import Link from "next/link";
 
@@ -76,6 +78,7 @@ export function Entradas({ trips, reqs, deals, config, docs, idents }: { trips: 
                 </>
               )}
             </div>
+            {!isTrip && "invoice_path" in r && !r.invoice_path && needsInvoice(r.category, r.item_value) ? <div className="notice bad" role="alert"><b>Falta a fatura.</b> Este pedido é de um bem de risco e não trouxe fatura.</div> : null}
             <IdentityBlock userId={it.user_id} ident={identOf.get(it.user_id)} accountName={it.name} tripReturn={isTrip ? t.return_date : null} />
             {isTrip ? <DocBlock tripId={it.id} doc={docOf.get(it.id)} accountName={it.name} /> : null}
             <div className="row">
@@ -86,6 +89,7 @@ export function Entradas({ trips, reqs, deals, config, docs, idents }: { trips: 
                   <SubmitButton className="btn small primary" pending="A publicar…">Aprovar e publicar</SubmitButton>
                 </form>
               )}
+              {!isTrip && r.invoice_path ? <InvoiceButton requestId={it.id} /> : null}
               {wa ? <a className="btn small" href={wa} target="_blank" rel="noopener">Contactar por WhatsApp</a> : null}
               <TwoStepButton label="Recusar" action={rejectItem.bind(null, kind, it.id)} />
             </div>

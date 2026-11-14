@@ -1,21 +1,21 @@
 "use client";
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { startTransition, useActionState, useState } from "react";
 import { submitRequest } from "../actions";
 import { CATS, FROM, TO } from "@/lib/constants";
 import { cityName, kz } from "@/lib/format";
-import { CUSTOMS, MAX_TRIP_EUR, customsEstimate } from "@/lib/customs";
+import { CUSTOMS, INVOICE_MIN_EUR, MAX_TRIP_EUR, customsEstimate, needsInvoice } from "@/lib/customs";
 import { emptyForm } from "@/lib/types";
 import { Field } from "@/components/ui";
 import { useFocusFirstError } from "@/components/useFocusFirstError";
-import { SubmitButton } from "@/components/SubmitButton";
 import { SubmitResult } from "@/components/SubmitResult";
 
 const cityOpts = (codes: string[]) =>
   codes.map((c) => <option key={c} value={c}>{cityName(c)}{c !== "OTH" ? ` (${c})` : ""}</option>);
 
-export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, minDate }: { perKg: number; whatsapp: string; defaultName: string; defaultPhone: string; minDate: string }) {
-  const [state, action] = useActionState(submitRequest, emptyForm);
+export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoices, minDate }: { perKg: number; whatsapp: string; defaultName: string; defaultPhone: string; invoices: boolean; minDate: string }) {
+  const [state, action, pending] = useActionState(submitRequest, emptyForm);
+  const [cat, setCat] = useState<string | null>(null);
   const [kg, setKg] = useState("");
   const [val, setVal] = useState("");
   useFocusFirstError(state.errors);
@@ -23,10 +23,18 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, minDat
 
   const v = state.values, e = state.errors;
   const k = parseFloat(kg);
+  const wantsInvoice = invoices && needsInvoice(cat ?? v.category ?? CATS[0], parseFloat(val) || Number(v.value) || 0);
+
+  // Envio manual: assim o formulário não se apaga quando há um erro (a pessoa não tem de escolher a fatura outra vez).
+  function onSubmit(ev: React.FormEvent<HTMLFormElement>) {
+    ev.preventDefault();
+    const fd = new FormData(ev.currentTarget);
+    startTransition(() => action(fd));
+  }
   const est = parseFloat(val) > 0 ? customsEstimate(parseFloat(val)) : null;
   return (
     <div className="panel">
-      <form action={action} noValidate>
+      <form onSubmit={onSubmit} noValidate>
         <fieldset className="fs">
           <legend>Percurso</legend>
           <div className="fields">
@@ -41,7 +49,7 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, minDat
             <input id="item" name="item" maxLength={90} placeholder="Ex.: telemóvel novo na caixa" defaultValue={v.item} />
           </Field>
             <Field id="category" label="Tipo de item" full>
-            <select id="category" name="category" defaultValue={v.category ?? CATS[0]}>{CATS.map((c) => <option key={c} value={c}>{c}</option>)}</select>
+            <select id="category" name="category" defaultValue={v.category ?? CATS[0]} onChange={(ev) => setCat(ev.target.value)}>{CATS.map((c) => <option key={c} value={c}>{c}</option>)}</select>
           </Field>
             <Field id="kg" label="Peso aproximado (kg)" error={e.kg}>
             <input id="kg" name="kg" type="number" min="0.1" step="0.1" inputMode="decimal" defaultValue={v.kg} onChange={(ev) => setKg(ev.target.value)} />
@@ -78,16 +86,27 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, minDat
           </Field>
           </div>
         </fieldset>
+        {wantsInvoice ? (
+          <fieldset className="fs">
+            <legend>Fatura da compra</legend>
+            <p className="privacy">Pedimos a fatura de eletrónicos, cosméticos (perfumes) e peças, e de qualquer item acima de {INVOICE_MIN_EUR} €. Serve para a alfândega e para te proteger. Só a equipa a vê.</p>
+            <div className="fields">
+              <Field id="invoice" label="Foto ou PDF da fatura" hint="JPG, PNG, WebP ou PDF, até 3 MB." error={e.invoice} full>
+                <input id="invoice" name="invoice" type="file" accept="image/*,application/pdf" />
+              </Field>
+            </div>
+          </fieldset>
+        ) : null}
         {k > 0 ? <span className="hint">Referência: cerca de {kz(k * perKg)} para {k} kg.</span> : null}
         <div className="field">
           <label className="check" htmlFor="ok">
             <input id="ok" name="ok" type="checkbox" defaultChecked={v.ok === "on"} aria-invalid={e.ok ? true : undefined} aria-describedby={e.ok ? "ok-e" : undefined} />
-            <span>Confirmo que o item é legal, que posso mostrá-lo ao viajante para inspecção e que li as <Link href="/regras">regras de itens proibidos e da alfândega</Link>. Sei que a alfândega pode cobrar taxas sobre o item.</span>
+            <span>Confirmo que o item é legal, que posso mostrá-lo ao viajante para inspecção e que li as <Link href="/regras">regras de itens proibidos e da alfândega</Link>. Sei que a alfândega pode cobrar taxas sobre o item e aceito os <Link href="/termos" target="_blank">termos de uso</Link>.</span>
           </label>
           <span className="err" id="ok-e" role="alert">{e.ok || ""}</span>
         </div>
         {state.formError ? <div className="notice bad" role="alert">{state.formError}</div> : null}
-        <div className="row"><SubmitButton>Enviar pedido</SubmitButton></div>
+        <div className="row"><button type="submit" className="btn primary" disabled={pending}>{pending ? "A enviar…" : "Enviar pedido"}</button></div>
       </form>
     </div>
   );

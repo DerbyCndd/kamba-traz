@@ -35,7 +35,7 @@ export type IdentityView = {
   has_bi_back?: boolean; has_passport_last?: boolean;
   status: "pendente" | "confirmado" | "recusado";
 };
-export type Req = ReqPub & { user_id: string; contact: string; item_value: number; created_at: string };
+export type Req = ReqPub & { invoice_path?: string | null; user_id: string; contact: string; item_value: number; created_at: string };
 
 export type Deal = {
   id: string; request_id: string | null; trip_id: string | null; label: string; traveler: string; requester: string;

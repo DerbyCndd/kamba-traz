@@ -1,74 +1,131 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { DocSection, Important, LegalLayout, type SummaryPoint, type TocItem } from "@/components/LegalLayout";
 
-export const metadata: Metadata = { title: "Política de privacidade", description: "Que dados guardamos, porquê e quem os vê." };
+export const metadata: Metadata = { title: "Política de privacidade", description: "Que dados guardamos, porquê, quem os vê e como os apagar." };
+
+const TOC: TocItem[] = [
+  { id: "quem", title: "Quem trata os teus dados" },
+  { id: "dados", title: "O que recolhemos e porquê" },
+  { id: "vistos", title: "Quem vê os teus dados" },
+  { id: "localizacao", title: "Localização" },
+  { id: "protecao", title: "Como os protegemos" },
+  { id: "tempo", title: "Quanto tempo guardamos" },
+  { id: "direitos", title: "Os teus direitos" },
+  { id: "automaticas", title: "Decisões automáticas" },
+  { id: "cookies", title: "Cookies" },
+  { id: "mudancas", title: "Alterações e contacto" },
+];
+
+const SUMMARY: SummaryPoint[] = [
+  { icon: "shield", title: "Não vendemos os teus dados.", text: "Não há publicidade nem seguimento." },
+  { icon: "lock", title: "Só a equipa vê os teus documentos.", text: "Os números ficam cifrados e as fotos num espaço privado." },
+  { icon: "idcard", title: "Pedimos o mínimo.", text: "Telefone e BI são obrigatórios. Passaporte e foto de perfil são opcionais." },
+  { icon: "pin", title: "A localização só existe durante a entrega.", text: "É apagada quando a entrega termina." },
+  { icon: "key", title: "Mandas tu.", text: "Podes pedir para ver, corrigir ou apagar os teus dados." },
+];
+
+const ROWS: [string, string, string][] = [
+  ["Nome, email, palavra-passe", "Obrigatório", "Criar e proteger a tua conta. A palavra-passe é guardada cifrada."],
+  ["Telefone", "Obrigatório", "A equipa fala contigo sobre pedidos e entregas."],
+  ["Número, validade e fotos do BI", "Obrigatório", "Saber quem envia e quem viaja, e prevenir fraude."],
+  ["Passaporte (número, validade, fotos)", "Opcional", "Ajuda a confirmar quem viaja. Só se quiseres."],
+  ["Foto de perfil", "Opcional", "A equipa reconhece-te melhor."],
+  ["Foto do bilhete de avião e datas", "Obrigatório para quem viaja", "Confirmar que a viagem existe."],
+  ["Rota, peso, valor e descrição do item; fatura", "Obrigatório para quem envia", "Juntar pedidos a viagens e cumprir a alfândega."],
+  ["Localização do telemóvel", "Só quem leva a encomenda, e só em trânsito", "Quem enviou acompanha a entrega no mapa."],
+  ["Pagamentos e movimentos da carteira", "Obrigatório nas entregas", "Reter e pagar os valores, e guardar o registo."],
+  ["Avaliações e feedback", "Opcional", "Melhorar o serviço e dar confiança às duas partes."],
+];
 
 /** Política de privacidade. Rascunho preparado para revisão por advogado antes de ser dado como definitivo. */
 export default function PrivacidadePage() {
   return (
-    <section className="doc">
-      <h2>Política de privacidade</h2>
-      <p className="muted">Versão de 14 de novembro de 2026. Explicamos que dados guardamos, para quê, quem os vê e que direitos tens.</p>
+    <LegalLayout
+      title="Política de privacidade"
+      version="14 de novembro de 2026"
+      readMin={4}
+      intro="Explicamos que dados guardamos, para quê, quem os vê e como os podes ver, corrigir ou apagar."
+      summary={SUMMARY}
+      toc={TOC}
+      related={[{ href: "/termos", label: "Termos de uso" }, { href: "/regras", label: "Regras de segurança" }, { href: "/feedback", label: "Pedir ou corrigir dados" }]}
+    >
+      <DocSection id="quem" n={1} title="Quem trata os teus dados">
+        <p>A Kamba Traz é a responsável pelos dados pessoais recolhidos nesta plataforma. Para qualquer pedido sobre os teus dados, usa o formulário de <Link href="/feedback">feedback</Link>.</p>
+      </DocSection>
 
-      <h3>1. Quem trata os teus dados</h3>
-      <p>A Kamba Traz («Kamba») é a responsável pelo tratamento dos dados pessoais recolhidos nesta plataforma. Fala connosco pelo formulário de <Link href="/feedback">feedback</Link>.</p>
+      <DocSection id="dados" n={2} title="O que recolhemos e porquê">
+        <p>Só pedimos o que é preciso. Quando um dado é <b>obrigatório</b>, sem ele não conseguimos prestar o serviço.</p>
+        <div className="doctablewrap">
+          <table className="doctable stack">
+            <thead><tr><th>Dado</th><th>É obrigatório?</th><th>Porquê</th></tr></thead>
+            <tbody>
+              {ROWS.map(([d, o, p]) => <tr key={d}><td data-label="Dado">{d}</td><td data-label="Obrigatório?">{o}</td><td data-label="Porquê">{p}</td></tr>)}
+            </tbody>
+          </table>
+        </div>
+        <p><b>Porque podemos tratar estes dados:</b> porque nos forneces os dados para usar o serviço, porque precisamos deles para o prestar e para cumprir a lei, e, quando a lei o exige, com o teu consentimento.</p>
+      </DocSection>
 
-      <h3>2. Que dados recolhemos</h3>
-      <table className="doctable">
-        <thead><tr><th>Dados</th><th>Quando</th></tr></thead>
-        <tbody>
-          <tr><td>Nome, email e palavra-passe (guardada cifrada pelo serviço de autenticação)</td><td>No registo</td></tr>
-          <tr><td>Telefone, número do BI, validade e fotos do BI; se quiseres, passaporte (número, validade e fotos)</td><td>Na identificação</td></tr>
-          <tr><td>Foto de perfil</td><td>Se a juntares</td></tr>
-          <tr><td>Rota, datas, peso, valor, descrição dos itens e fatura da compra</td><td>Nos pedidos e nas viagens</td></tr>
-          <tr><td>Foto do bilhete de avião</td><td>Quem viaja</td></tr>
-          <tr><td>Localização do telemóvel</td><td>Só quem leva a encomenda, enquanto ela está em trânsito</td></tr>
-          <tr><td>Pagamentos e movimentos da carteira</td><td>Nas entregas</td></tr>
-          <tr><td>Avaliações e mensagens de feedback</td><td>Quando as deixas</td></tr>
-        </tbody>
-      </table>
+      <DocSection id="vistos" n={3} title="Quem vê os teus dados">
+        <ul>
+          <li><b>O público</b> só vê o primeiro nome, a rota e valores de referência. Nunca contactos nem documentos.</li>
+          <li><b>A outra parte da entrega</b> vê só o que é preciso para a entrega acontecer, como o primeiro nome. O telefone, os documentos e os números não são partilhados com ela sem acordo.</li>
+          <li><b>A equipa da Kamba</b> vê os documentos, os números e as fotos, para confirmar a identificação. Cada abertura de um documento fica registada.</li>
+          <li><b>Serviços que usamos para funcionar:</b> a Supabase (base de dados, autenticação e ficheiros), a Vercel (alojamento do site) e o OpenStreetMap (mapas). Podem tratar dados em servidores fora de Angola.</li>
+          <li><b>Autoridades,</b> só quando a lei o exigir.</li>
+        </ul>
+      </DocSection>
 
-      <h3>3. Para que usamos</h3>
-      <ul>
-        <li>Identificar quem envia e quem viaja, para proteger as duas partes e prevenir fraude.</li>
-        <li>Verificar documentos e datas de validade, e confirmar os bilhetes de avião.</li>
-        <li>Juntar pedidos e viagens, acompanhar entregas e confirmar pagamentos.</li>
-        <li>Cumprir obrigações legais (por exemplo, fiscais e de prevenção de branqueamento de capitais).</li>
-        <li>Melhorar o serviço com o teu feedback.</li>
-      </ul>
-      <p>Tratamos os dados porque os forneces, para executar o serviço que pedes, para cumprir a lei e, quando a lei exigir, com o teu consentimento.</p>
+      <DocSection id="localizacao" n={4} title="Localização">
+        <Important title="Só durante a entrega">
+          <p>Se levas uma encomenda, partilhas a localização do teu telemóvel <b>só enquanto ela está em trânsito</b>, com a página aberta. Quem enviou e a equipa veem-na no mapa. Quando a entrega termina, apagamo-la. Podes parar de partilhar quando quiseres.</p>
+        </Important>
+      </DocSection>
 
-      <h3>4. Quem vê os teus dados</h3>
-      <ul>
-        <li><b>A equipa da Kamba</b> vê os documentos, números e fotos. Cada abertura de um documento fica registada.</li>
-        <li><b>A outra parte da entrega</b> só vê o que é preciso para a entrega acontecer, como o primeiro nome. Telefone, documentos e números nunca são partilhados com ela sem acordo.</li>
-        <li><b>O público</b> só vê o primeiro nome, a rota e os valores de referência. Nunca contactos nem documentos.</li>
-        <li><b>Prestadores que usamos:</b> a base de dados, a autenticação e o armazenamento de ficheiros são fornecidos pela Supabase; o alojamento do site, pela Vercel; os mapas, pelo OpenStreetMap. Estes serviços podem tratar dados em servidores fora de Angola.</li>
-        <li>Podemos comunicar dados a autoridades quando a lei o exigir.</li>
-      </ul>
+      <DocSection id="protecao" n={5} title="Como os protegemos">
+        <ul>
+          <li><b>Cifra.</b> Os números do BI e do passaporte são cifrados antes de serem guardados. A chave não está na base de dados.</li>
+          <li><b>Fotos privadas.</b> Documentos, bilhetes e faturas ficam num espaço privado, com ligações temporárias que só a equipa usa.</li>
+          <li><b>Acesso limitado.</b> Cada pessoa só vê o que é seu.</li>
+          <li><b>Se algo correr mal.</b> Nenhum sistema é perfeito. Se uma falha afetar os teus dados, avisamos-te.</li>
+        </ul>
+      </DocSection>
 
-      <h3>5. Como os protegemos</h3>
-      <ul>
-        <li>Os números do BI e do passaporte são cifrados antes de serem guardados. A chave não está na base de dados.</li>
-        <li>As fotos de documentos, bilhetes e faturas ficam em espaço privado, com ligações temporárias só para a equipa.</li>
-        <li>O acesso a cada tabela é limitado por regras: cada pessoa só vê o que é seu.</li>
-        <li>Mesmo assim, nenhum sistema é perfeito. Se houver uma falha que afete os teus dados, avisamos-te.</li>
-      </ul>
+      <DocSection id="tempo" n={6} title="Quanto tempo guardamos">
+        <ul>
+          <li><b>Localização:</b> apagada quando a entrega termina.</li>
+          <li><b>Conta, documentos e fotos:</b> enquanto a conta existir. Se a apagares, apagamos os teus documentos e as tuas fotos, exceto o que a lei nos obrigue a guardar (por exemplo, registos de pagamentos e de identificação para fins fiscais e de prevenção de fraude).</li>
+        </ul>
+      </DocSection>
 
-      <h3>6. Quanto tempo guardamos</h3>
-      <p>Enquanto a tua conta existir e durante o tempo que a lei exigir depois disso (por exemplo, registos de pagamentos e de identificação para fins fiscais e de prevenção de fraude). A localização apaga-se quando a entrega termina.</p>
+      <DocSection id="direitos" n={7} title="Os teus direitos">
+        <p>Nos termos da Lei de Proteção de Dados Pessoais de Angola (Lei 22/11), podes:</p>
+        <ul>
+          <li><b>Saber</b> que dados temos sobre ti e para quê.</li>
+          <li><b>Aceder e receber</b> uma cópia.</li>
+          <li><b>Corrigir</b> o que estiver errado e <b>atualizar</b> o que mudou.</li>
+          <li><b>Apagar</b> os teus dados.</li>
+          <li><b>Opor-te</b> a um tratamento, e retirar o consentimento que deste.</li>
+        </ul>
+        <p><b>Como exercer:</b> pelo formulário de <Link href="/feedback">feedback</Link>. Se achares que não cumprimos a lei, podes queixar-te à Agência de Proteção de Dados (APD). Para quem vive na União Europeia aplica-se também o Regulamento Geral sobre a Proteção de Dados.</p>
+      </DocSection>
 
-      <h3>7. Os teus direitos</h3>
-      <p>Podes pedir para ver, corrigir ou apagar os teus dados, retirar o consentimento e opor-te a certos tratamentos, nos termos da Lei de Proteção de Dados Pessoais de Angola. Pede-o pelo formulário de <Link href="/feedback">feedback</Link>. Se achares que não cumprimos, podes queixar-te à Agência de Proteção de Dados (APD). Para pessoas que vivem na União Europeia aplica-se também o Regulamento Geral sobre a Proteção de Dados.</p>
+      <DocSection id="automaticas" n={8} title="Decisões automáticas">
+        <p>O prémio do mês (um mês sem comissão) é calculado <b>automaticamente</b> a partir das avaliações. Se achares que o resultado está errado, pede à equipa que o reveja.</p>
+      </DocSection>
 
-      <h3>8. Cookies e armazenamento</h3>
-      <p>Usamos só o que é necessário: o cookie de sessão (para manteres a conta iniciada) e a tua preferência de modo claro ou escuro. Não usamos publicidade nem seguimento.</p>
+      <DocSection id="cookies" n={9} title="Cookies">
+        <p>Um cookie é um pequeno texto que o navegador guarda. Usamos só os necessários: o que mantém a tua conta iniciada e a tua escolha de modo claro ou escuro. Não usamos publicidade nem seguimento. Se os bloqueares, não consegues iniciar sessão.</p>
+      </DocSection>
 
-      <h3>9. Menores</h3>
-      <p>A plataforma é só para maiores de 18 anos.</p>
-
-      <h3>10. Alterações</h3>
-      <p>Podemos atualizar esta política. A versão em vigor é a desta página, com a data no topo.</p>
-    </section>
+      <DocSection id="mudancas" n={10} title="Alterações e contacto">
+        <p>A plataforma é só para maiores de 18 anos. Podemos atualizar esta política: a versão em vigor é a desta página, com a data no topo, e o que mudou fica registado em baixo. Ver também os <Link href="/termos">termos de uso</Link>.</p>
+        <div className="docversions">
+          <p className="itl">O que mudou</p>
+          <p><b>14 de novembro de 2026.</b> Primeira versão.</p>
+        </div>
+      </DocSection>
+    </LegalLayout>
   );
 }

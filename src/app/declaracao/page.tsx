@@ -14,7 +14,7 @@ export default function DeclaracaoPage() {
       <p className="muted noprint">Preenche uma por volume, no momento da entrega ao viajante, e tira uma foto dela junto ao volume selado. <Link href="/termos">Termos de uso</Link></p>
       <div className="noprint row"><PrintButton /></div>
 
-      <table className="doctable">
+      <div className="doctablewrap"><table className="doctable">
         <tbody>
           <tr><th>Referência do pedido (KT-)</th><td>&nbsp;</td><th>Data</th><td>&nbsp;</td></tr>
           <tr><th>Remetente (nome e telefone)</th><td colSpan={3}>&nbsp;</td></tr>
@@ -22,16 +22,16 @@ export default function DeclaracaoPage() {
           <tr><th>Destinatário em Angola (nome, telefone e cidade)</th><td colSpan={3}>&nbsp;</td></tr>
           <tr><th>Rota</th><td>&nbsp;</td><th>Peso do volume (kg)</th><td>&nbsp;</td></tr>
         </tbody>
-      </table>
+      </table></div>
 
       <h3>Conteúdo do volume</h3>
-      <table className="doctable">
+      <div className="doctablewrap"><table className="doctable">
         <thead><tr><th>Descrição</th><th>Qtd.</th><th>Valor unitário (€)</th><th>Total (€)</th><th>Fatura (sim/não)</th></tr></thead>
         <tbody>
           {ROWS.map((i) => <tr key={i}><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>)}
           <tr><th colSpan={3}>Valor total declarado</th><td>&nbsp;</td><td>&nbsp;</td></tr>
         </tbody>
-      </table>
+      </table></div>
       <p className="hint">Cada viagem leva no máximo Kz 1 500 000 em mercadoria. Os eletrónicos, cosméticos (perfumes), peças e itens acima de 300 € levam a fatura da compra, anexada.</p>
 
       <h3>Declarações</h3>
@@ -52,10 +52,10 @@ export default function DeclaracaoPage() {
       <p><b>O destinatário</b>, ao receber, confirma o estado do volume e dá o código ao viajante.</p>
       <p className="hint">A Kamba Traz é intermediária: não transporta, não declara mercadorias e não responde por perda, dano, atraso ou apreensão (ver os termos de uso).</p>
 
-      <table className="doctable sign">
+      <div className="doctablewrap"><table className="doctable sign">
         <thead><tr><th>Remetente</th><th>Viajante</th><th>Destinatário (à entrega)</th></tr></thead>
         <tbody><tr><td>Assinatura:<br /><br /><br />Data:</td><td>Assinatura:<br /><br /><br />Data:</td><td>Assinatura:<br /><br /><br />Data e estado do volume:</td></tr></tbody>
-      </table>
+      </table></div>
     </section>
   );
 }

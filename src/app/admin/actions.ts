@@ -94,6 +94,7 @@ export async function createDeal(_: AdminState, fd: FormData): Promise<AdminStat
   });
   if (error) return { error: "Não foi possível criar a entrega." };
   await supabase.from("requests").update({ status: "ligado" }).eq("id", r.id);
+  await supabase.from("offers").update({ status: "convertida", responded_at: new Date().toISOString() }).eq("request_id", r.id).eq("trip_id", t.id).eq("status", "aceite"); // o acordo virou entrega
   done();
   return { message: fee_waived ? "Entrega criada, sem comissão (prémio do mês)." : "Entrega criada." };
 }

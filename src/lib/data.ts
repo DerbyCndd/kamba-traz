@@ -1,7 +1,7 @@
 import { createClient } from "./supabase/server";
 import { decryptPii } from "./pii";
 import { today } from "./format";
-import type { Deal, LedgerRow, Position, Wallet, Config, PendingRating, RatingRole, RatingSummary, ReqPreview, ReqPub, TopEntry, TripPreview, TripPub, WaiverHolder, Winner } from "./types";
+import type { Deal, LedgerRow, Offer, Position, Wallet, Config, PendingRating, RatingRole, RatingSummary, ReqPreview, ReqPub, TopEntry, TripPreview, TripPub, WaiverHolder, Winner } from "./types";
 
 const DEFAULT_CONFIG: Config = { commission: 12, per_kg: 8000, whatsapp: "" };
 
@@ -117,6 +117,39 @@ export async function getMyDeals(): Promise<Deal[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("deals").select("*").order("created_at", { ascending: false });
   return (data ?? []) as Deal[];
+}
+
+/** As minhas propostas (enviadas e recebidas), com os dados públicos do pedido e da viagem a que se referem. `available` é falso até correr offers.sql. */
+export async function getMyOffers(): Promise<{ available: boolean; offers: Offer[]; requests: Record<string, ReqPub>; trips: Record<string, TripPub> }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("offers").select("*").order("created_at", { ascending: false }).limit(150);
+  if (error) return { available: false, offers: [], requests: {}, trips: {} };
+  const offers = (data ?? []) as Offer[];
+  const rid = [...new Set(offers.map((o) => o.request_id))];
+  const tid = [...new Set(offers.map((o) => o.trip_id))];
+  const [r, t] = await Promise.all([
+    rid.length ? supabase.from("requests_public").select("*").in("id", rid) : Promise.resolve({ data: [] }),
+    tid.length ? supabase.from("trips_public").select("*").in("id", tid) : Promise.resolve({ data: [] }),
+  ]);
+  return {
+    available: true, offers,
+    requests: Object.fromEntries(((r.data ?? []) as ReqPub[]).map((x) => [x.id, x])),
+    trips: Object.fromEntries(((t.data ?? []) as TripPub[]).map((x) => [x.id, x])),
+  };
+}
+
+/** Quantas propostas estão à espera da resposta desta pessoa (0 se as propostas ainda não estão ativas). */
+export async function getOffersWaiting(userId: string): Promise<number> {
+  const supabase = await createClient();
+  const { count, error } = await supabase.from("offers").select("id", { count: "exact", head: true }).eq("to_user", userId).eq("status", "aberta");
+  return error ? 0 : (count ?? 0);
+}
+
+/** Acordos fechados entre as partes, à espera de a equipa criar a entrega (só a equipa os vê todos). */
+export async function getAgreements(): Promise<Offer[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("offers").select("*").eq("status", "aceite").order("responded_at", { ascending: false });
+  return error ? [] : ((data ?? []) as Offer[]);
 }
 
 export type DealPhoto = { id: string; url: string; created_at: string };

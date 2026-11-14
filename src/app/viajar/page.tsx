@@ -29,7 +29,7 @@ export default async function ViajarPage() {
           <ol className="next">
             <li>A equipa confirma o teu bilhete e a tua identificação, que já deixaste, e fala contigo pelo número que indicaste.</li>
             <li>Depois de aprovada, a viagem aparece no quadro só com o teu primeiro nome.</li>
-            <li>Escolhes os pedidos que aceitas. Cada volume é aberto e fotografado junto de quem envia.</li>
+            <li>Escolhes os pedidos e propões um valor na página Propostas. Cada volume é aberto e fotografado junto de quem envia.</li>
           </ol>
           <p className="hint">O pagamento fica retido na carteira e chega-te quando a entrega é confirmada com o código. Vês a entrega em Entregas.</p>
         </aside>

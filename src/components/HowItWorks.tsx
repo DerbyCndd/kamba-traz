@@ -17,7 +17,7 @@ export function HowItWorks() {
       <li>
         <span className="stepico"><Icon name="plane" size={22} /></span>
         <h3>Entregam</h3>
-        <p className="muted">Quando há um pedido e uma viagem que combinam, acertam o valor e os detalhes. A equipa acompanha a entrega até ao fim.</p>
+        <p className="muted">Quando há um pedido e uma viagem que combinam, propõem-se valores na app até acordarem, sem trocar mensagens. A equipa trata do pagamento e acompanha a entrega até ao fim.</p>
       </li>
     </ol>
   );

@@ -33,3 +33,7 @@ export const needsInvoice = (category: string, valueEur: number) => RISK_CATS.in
 
 /** Valor máximo aceite por viagem, em euros (arredondado para baixo). */
 export const MAX_TRIP_EUR = Math.floor(CUSTOMS.flatMaxKz / CUSTOMS.eurKz);
+
+/** Um pedido e uma viagem encaixam se tiverem a mesma origem e o mesmo destino (ou se um deles for «Outra cidade»). */
+export const routeMatches = (a: { origin: string; destination: string }, b: { origin: string; destination: string }) =>
+  (a.origin === b.origin || a.origin === "OTH" || b.origin === "OTH") && (a.destination === b.destination || a.destination === "OTH" || b.destination === "OTH");

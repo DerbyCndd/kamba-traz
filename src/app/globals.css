@@ -736,3 +736,9 @@ ol.steps p{max-width:56ch}
 .thumbs{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0}
 .thumbs img{width:92px;height:92px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
 .thumbs.big img{width:132px;height:132px}
+
+/* propostas */
+.offeractions{display:grid;gap:10px;margin-top:6px}
+.offeractions .row{flex-wrap:wrap;gap:8px}
+.past{margin-top:18px}
+.past summary{cursor:pointer;font-weight:600;padding:8px 0}

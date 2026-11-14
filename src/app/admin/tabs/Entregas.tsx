@@ -2,17 +2,19 @@ import { SubmitButton } from "@/components/SubmitButton";
 import { TwoStepButton } from "@/components/TwoStepButton";
 import { DEAL_STEPS } from "@/lib/constants";
 import { kz } from "@/lib/format";
-import type { Deal, Req, Trip, WaiverHolder } from "@/lib/types";
+import type { Deal, Offer, Req, Trip, WaiverHolder } from "@/lib/types";
 import { deleteDeal, setDealStatus } from "../actions";
 import Link from "next/link";
 import { ConfirmPayment } from "./ConfirmPayment";
+import { Agreements } from "./Agreements";
 import { DealForm } from "./DealForm";
 
-export function Entregas({ trips, reqs, deals, commission, holders }: { trips: Trip[]; reqs: Req[]; deals: Deal[]; commission: number; holders: WaiverHolder[] }) {
+export function Entregas({ trips, reqs, deals, commission, holders, agreements }: { trips: Trip[]; reqs: Req[]; deals: Deal[]; commission: number; holders: WaiverHolder[]; agreements: Offer[] }) {
   const openReqs = reqs.filter((r) => r.status === "aberto");
   const openTrips = trips.filter((t) => t.status === "aberto" || t.status === "cheia");
   return (
     <div className="list">
+      <Agreements offers={agreements} reqs={openReqs} trips={openTrips} />
       <DealForm reqs={openReqs} trips={openTrips} commission={commission} holders={holders} />
       {deals.length ? <div className="row"><a className="btn small" href="/admin/export">Exportar entregas (CSV)</a></div> : null}
       {deals.length ? deals.map((d) => {

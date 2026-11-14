@@ -1,14 +1,10 @@
 import Link from "next/link";
-import { cityName, fdate, kz, refCode, waLink } from "@/lib/format";
+import { cityName, fdate, kz } from "@/lib/format";
 import type { ReqPub, TripPub } from "@/lib/types";
 import { Stars } from "./Stars";
 import { ExBadge, StatusPill } from "./ui";
 
-export function TripPass({ t, whatsapp }: { t: TripPub; whatsapp: string }) {
-  const wa = waLink(
-    whatsapp,
-    `Olá! Quero enviar uma encomenda na viagem ${cityName(t.origin)} → ${cityName(t.destination)} de ${fdate(t.travel_date)} (ref. ${refCode(t.id)}).`,
-  );
+export function TripPass({ t }: { t: TripPub; whatsapp?: string }) {
   return (
     <article className="pass">
       <div className="main">
@@ -23,19 +19,15 @@ export function TripPass({ t, whatsapp }: { t: TripPub; whatsapp: string }) {
       </div>
       <div className="stub">
         <div><span className="label">Por kg</span><div><b className="big">{kz(t.per_kg)}</b></div></div>
-        {wa
-          ? <a className="btn small primary" href={wa} target="_blank" rel="noopener">Quero enviar</a>
-          : <Link className="btn small primary" href="/pedir">Pedir envio</Link>}
+        {t.status === "aberto"
+          ? <Link className="btn small primary" href={`/propostas/nova?viagem=${t.id}`}>Propor valor</Link>
+          : <Link className="btn small" href="/pedir">Pedir envio</Link>}
       </div>
     </article>
   );
 }
 
-export function ReqTag({ r, whatsapp }: { r: ReqPub; whatsapp: string }) {
-  const wa = waLink(
-    whatsapp,
-    `Olá! Vou viajar de ${cityName(r.origin)} para ${cityName(r.destination)} e posso levar este pedido: ${r.item} (ref. ${refCode(r.id)}).`,
-  );
+export function ReqTag({ r }: { r: ReqPub; whatsapp?: string }) {
   return (
     <article className="bagtag">
       <div className="head">
@@ -51,9 +43,7 @@ export function ReqTag({ r, whatsapp }: { r: ReqPub; whatsapp: string }) {
       <div className="row indent"><span className="hint">{r.category}</span><ExBadge example={r.example} /></div>
       {r.status === "aberto" ? (
         <div className="indent">
-          {wa
-            ? <a className="btn small primary" href={wa} target="_blank" rel="noopener">Posso levar</a>
-            : <Link className="btn small" href="/viajar">Publicar a minha viagem</Link>}
+          <Link className="btn small primary" href={`/propostas/nova?pedido=${r.id}`}>Propor valor</Link>
         </div>
       ) : null}
     </article>

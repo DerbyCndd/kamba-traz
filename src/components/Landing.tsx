@@ -91,7 +91,7 @@ export async function Landing() {
       <section className="split rev">
         <div className="text">
           <h2>Transforma o espaço livre da mala em receita.</h2>
-          <p className="muted">Já tens a viagem marcada? Diz-nos quando voas e quantos kg te sobram. Escolhes os pedidos que aceitas e recebes o valor combinado por cada volume.</p>
+          <p className="muted">Já tens a viagem marcada? Diz-nos quando voas e quantos kg te sobram. Escolhes os pedidos, propões um valor e recebes o valor combinado por cada volume.</p>
           <ul className="ticks">
             <Check>Defines tu o preço por kg.</Check>
             <Check>Cada volume é aberto e fotografado junto de quem envia.</Check>

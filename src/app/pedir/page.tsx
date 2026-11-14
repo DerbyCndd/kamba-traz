@@ -25,7 +25,7 @@ export default async function PedirPage() {
           <ol className="next">
             <li>A equipa verifica o pedido e fala contigo pelo número que deixaste.</li>
             <li>Depois de aprovado, aparece no quadro só com o teu primeiro nome.</li>
-            <li>Quando houver um viajante compatível, combinam o valor e a entrega.</li>
+            <li>Quando houver um viajante compatível, propõem-se valores na página Propostas até acordarem. A equipa trata do pagamento e da entrega.</li>
           </ol>
           <p className="hint">O pagamento é combinado com a equipa e fica retido na carteira até a entrega ser confirmada com o código.</p>
         </aside>

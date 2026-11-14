@@ -94,7 +94,7 @@ export default function TermosPage() {
 
       <DocSection id="pagamento" n={7} title="Pagamento e carteira">
         <ol>
-          <li>O valor da entrega é combinado entre as partes.</li>
+          <li>O valor da entrega é combinado entre as partes, na página Propostas: cada uma propõe um valor e a outra aceita, recusa ou propõe outro. Não há chat. Quando aceitam, a equipa trata do pagamento.</li>
           <li>O remetente paga à equipa por transferência ou Multicaixa, e a equipa confirma.</li>
           <li>O valor fica <b>registado como retido</b> até a entrega ser confirmada com o código de 6 dígitos que o remetente dá a quem recebe.</li>
           <li>Só então a equipa paga ao viajante, descontada a comissão da Kamba Traz.</li>

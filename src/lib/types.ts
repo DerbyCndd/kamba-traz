@@ -64,3 +64,10 @@ export type FormState = {
   done?: { ref: string; summary: string; kind: "trip" | "request" };
 };
 export const emptyForm: FormState = { errors: {}, values: {} };
+
+/** Proposta de valor entre quem envia e quem viaja (negociação sem chat). */
+export type OfferStatus = "aberta" | "aceite" | "recusada" | "substituida" | "fechada" | "convertida";
+export type Offer = {
+  id: string; request_id: string; trip_id: string; from_user: string; to_user: string; from_role: RatingRole;
+  from_name: string; to_name: string; price: number; status: OfferStatus; parent_id: string | null; created_at: string; responded_at: string | null;
+};

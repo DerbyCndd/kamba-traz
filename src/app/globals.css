@@ -721,3 +721,11 @@ ol.steps p{max-width:56ch}
 .srctitle{margin:0 0 2px;font-weight:600}
 .srclist ul{margin:8px 0 0}
 @media print{.src a{color:#333!important}}
+
+/* voltar ao topo */
+.totop{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(20px,env(safe-area-inset-bottom));z-index:40;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25);opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .2s,transform .2s,visibility .2s}
+.totop.show{opacity:1;visibility:visible;transform:none}
+.totop:hover{background:var(--raised)}
+@media (max-width:900px){body.in .totop{bottom:calc(88px + env(safe-area-inset-bottom,0px))}}
+@media (prefers-reduced-motion:reduce){.totop{transition:none}}
+@media print{.totop{display:none!important}}

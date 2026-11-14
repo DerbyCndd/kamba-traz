@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Geist_Mono, Public_Sans } from "next/font/google";
 import { AppShell } from "@/components/AppShell";
+import { BackToTop } from "@/components/BackToTop";
 import { Header } from "@/components/Header";
 import { SiteFooter, type FooterColumn } from "@/components/SiteFooter";
 import { getProfile } from "@/lib/auth";
@@ -47,6 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <SiteFooter columns={PUBLIC_COLUMNS} />
           </div>
         )}
+        <BackToTop />
       </body>
     </html>
   );

@@ -28,14 +28,13 @@ export async function submitFeedback(_: FeedbackState, fd: FormData): Promise<Fe
   if (await isLimited("fb-ip", ip, 5, 3600)) return { error: TOO_MANY };
 
   const [supabase, user] = await Promise.all([createClient(), getUser()]);
-  const { error } = await supabase.from("feedback").insert({
-    user_id: user?.id ?? null,
-    kind,
-    rating: rating >= 1 && rating <= 5 ? rating : null,
-    message,
-    email: email || null,
-    page,
+  const row = { user_id: user?.id ?? null, kind, rating: rating >= 1 && rating <= 5 ? rating : null, message, email: email || null, page };
+  // Grava por uma função que exige o segredo do servidor: quem usar a API pública diretamente já não consegue inundar a tabela.
+  // Enquanto o SQL da auditoria não correr (função em falta), usa a gravação antiga.
+  let { error } = await supabase.rpc("submit_feedback", {
+    p_secret: process.env.RATE_LIMIT_SECRET ?? "", p_user: row.user_id, p_kind: kind, p_rating: row.rating, p_message: message, p_email: email, p_page: page,
   });
+  if (error && error.code === "PGRST202") ({ error } = await supabase.from("feedback").insert(row));
   if (error) return { error: "Não foi possível enviar agora. Tenta de novo daqui a pouco." };
   await recordHit("fb-ip", ip);
   return { done: true };

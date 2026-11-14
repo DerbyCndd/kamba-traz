@@ -72,6 +72,7 @@ export async function createDeal(_: AdminState, fd: FormData): Promise<AdminStat
   ]);
   if (!r || !t) return { error: "Pedido ou viagem não encontrados." };
   if (r.status !== "aberto") return { error: "Esse pedido já não está aberto." };
+  if (r.user_id === t.user_id) return { error: "O pedido e a viagem são da mesma pessoa. Escolhe uma viagem de outra pessoa." };
   if (t.status === "pendente" || t.status === "recusado" || t.status === "concluida") return { error: "Essa viagem ainda não está aprovada (ou já terminou)." };
 
   // Alfândega: o valor total das mercadorias de uma viagem não passa Kz 1 500 000 (acima é regime geral, com despachante).

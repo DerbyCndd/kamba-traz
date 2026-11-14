@@ -37,5 +37,6 @@ begin
   if random() < 0.02 then delete from public.rate_limits where at < now() - interval '1 day'; end if;
 end $$;
 
-revoke execute on function public.rl_ok(text), public.rl_count(text, text, int), public.rl_hit(text, text) from public;
+revoke execute on function public.rl_ok(text), public.rl_count(text, text, int), public.rl_hit(text, text) from public, anon, authenticated;
+-- rl_ok é interna (só outras funções a chamam): fica sem permissões para ninguém.
 grant execute on function public.rl_count(text, text, int), public.rl_hit(text, text) to anon, authenticated;

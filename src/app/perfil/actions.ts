@@ -1,6 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
+import { isLimited, recordHit, TOO_MANY } from "@/lib/ratelimit";
 
 export type PhotoState = { error?: string; done?: boolean };
 
@@ -23,6 +24,9 @@ export async function uploadPhoto(_: PhotoState, fd: FormData): Promise<PhotoSta
   const bytes = new Uint8Array(await file.arrayBuffer());
   const kind = imageKind(bytes);
   if (!kind) return { error: "Usa uma foto em JPG, PNG ou WebP." };
+
+  if (await isLimited("photo-user", user.id, 10, 3600)) return { error: TOO_MANY };
+  await recordHit("photo-user", user.id);
 
   const { data: old } = await supabase.from("profiles").select("photo_path").eq("id", user.id).maybeSingle();
   const path = `${user.id}/${crypto.randomUUID()}.${kind}`;

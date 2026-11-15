@@ -88,6 +88,7 @@ export default function PrivacidadePage() {
       <DocSection id="protecao" n={5} title="Como os protegemos">
         <ul>
           <li><b>Cifra.</b> Os números do BI e do passaporte são cifrados antes de serem guardados. A chave não está na base de dados.</li>
+          <li><b>Documento repetido.</b> Guardamos também uma «impressão» do número do documento, que não permite recuperá-lo, só para a equipa ver se o mesmo número aparece em contas diferentes e travar fraudes.</li>
           <li><b>Fotos privadas.</b> Documentos, bilhetes e faturas ficam num espaço privado, com ligações temporárias que só a equipa usa.</li>
           <li><b>Acesso limitado.</b> Cada pessoa só vê o que é seu.</li>
           <li><b>Se algo correr mal.</b> Nenhum sistema é perfeito. Se uma falha afetar os teus dados, avisamos-te.</li>

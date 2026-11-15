@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 type Digest = {
   trips_pending: number; requests_pending: number; old_pending: number; identities_pending: number;
   agreements_waiting: number; offers_open: number; deals_unpaid: number; deals_in_transit: number;
-  new_accounts_24h: number; login_attempts_24h: number; signup_attempts_24h: number;
+  new_accounts_24h: number; login_attempts_24h: number; signup_attempts_24h: number; duplicate_ids: number;
 };
 
 // Limites a partir dos quais o resumo chama a atenção (ajusta se for preciso).
@@ -27,6 +27,7 @@ function build(d: Digest) {
   if (d.agreements_waiting) todo.push(`${d.agreements_waiting} acordo(s) por transformar em entrega`);
   if (d.deals_unpaid) todo.push(`${d.deals_unpaid} entrega(s) à espera do pagamento`);
   const alerts: string[] = [];
+  if (d.duplicate_ids) alerts.push(`${d.duplicate_ids} documento(s) de identificação com o mesmo número em contas diferentes`);
   if (d.login_attempts_24h >= LOGIN_ALERT) alerts.push(`${d.login_attempts_24h} tentativas de entrada nas últimas 24 h`);
   if (d.signup_attempts_24h >= SIGNUP_ALERT) alerts.push(`${d.signup_attempts_24h} tentativas de registo nas últimas 24 h`);
   const lines = ["Kamba Traz · resumo do dia"];
@@ -69,7 +70,8 @@ export async function GET(request: Request) {
     const sent = await send("Kamba Traz: o resumo diário não conseguiu ler a base de dados. Verifica se o supabase/monitor.sql foi corrido e se a base está a responder.", "Kamba Traz: o resumo diário falhou");
     return Response.json({ ok: false, sent }, { status: 502 });
   }
-  const { text, urgent } = build(data as Digest);
+  const dup = await supabase.rpc("duplicate_count", { p_secret: rl }); // 0 se identity-duplicates.sql ainda não foi corrido
+  const { text, urgent } = build({ ...(data as Digest), duplicate_ids: dup.error ? 0 : Number(dup.data) || 0 });
   const sent = await send(text, (urgent ? "Atenção · " : "") + "Kamba Traz: resumo do dia");
   return Response.json({ ok: true, sent, urgent });
 }

@@ -1,5 +1,6 @@
 import "server-only";
 import type { createClient } from "./supabase/server";
+import { idHash } from "./pii";
 
 type Supa = Awaited<ReturnType<typeof createClient>>;
 
@@ -22,4 +23,16 @@ export async function myIdentity(supabase: Supa, userId: string): Promise<{ avai
   const base = await supabase.from("identities").select(BASE).eq("user_id", userId).maybeSingle();
   if (base.error) return { available: false, dates: false, sides: false, row: null };
   return { available: true, dates: false, sides, row: (base.data as MyIdentity | null) ?? null };
+}
+
+/**
+ * Guarda a «impressão» do BI e do passaporte de uma pessoa, para a equipa ver se o mesmo número aparece noutra conta.
+ * Falha em silêncio (por exemplo, se identity-duplicates.sql ainda não foi corrido): a identificação não depende disto.
+ */
+export async function saveIdHashes(supabase: Supa, userId: string, bi: string, passport: string | null): Promise<boolean> {
+  const secret = process.env.RATE_LIMIT_SECRET ?? "";
+  const b = idHash("bi", bi);
+  if (!secret || !b) return false;
+  const { error } = await supabase.rpc("set_identity_hashes", { p_secret: secret, p_user: userId, p_bi: b, p_passport: passport ? idHash("passport", passport) ?? "" : "" });
+  return !error;
 }

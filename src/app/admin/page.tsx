@@ -12,6 +12,7 @@ import { Economia } from "./tabs/Economia";
 import { Pitch } from "./tabs/Pitch";
 import { FeedbackTab } from "./tabs/FeedbackTab";
 import { Definicoes } from "./tabs/Definicoes";
+import { CheckIdentities } from "./tabs/CheckIdentities";
 
 export const metadata: Metadata = { title: "Equipa" };
 
@@ -20,7 +21,7 @@ const TABS = [["entradas", "Por verificar"], ["ligacoes", "Entregas"], ["quadro"
 type Supa = Awaited<ReturnType<typeof requireAdmin>>["supabase"];
 
 /** Identificações para a equipa. Tenta com as colunas mais recentes e recua se a base ainda não as tem. */
-async function loadIdentities(supabase: Supa): Promise<IdentityView[]> {
+async function loadIdentityRows(supabase: Supa): Promise<IdentityView[]> {
   const base = "user_id, full_name, phone, bi_last4, passport_last4, status";
   const a = await supabase.from("identities").select(base + ", bi_expiry, passport_expiry, bi_back_path, passport_last_path");
   if (!a.error) {
@@ -32,12 +33,24 @@ async function loadIdentities(supabase: Supa): Promise<IdentityView[]> {
   return (c.data ?? []) as unknown as IdentityView[];
 }
 
+/** Junta a cada identificação quem partilha o mesmo número de BI ou de passaporte (só se identity-duplicates.sql já foi corrido). */
+async function loadIdentities(supabase: Supa): Promise<IdentityView[]> {
+  const rows = await loadIdentityRows(supabase);
+  const { data, error } = await supabase.rpc("identity_duplicates");
+  if (error || !data) return rows;
+  const by = new Map<string, { kind: "bi" | "passport"; name: string }[]>();
+  for (const d of data as { user_id: string; kind: "bi" | "passport"; other_name: string }[]) {
+    by.set(d.user_id, [...(by.get(d.user_id) ?? []), { kind: d.kind, name: d.other_name }]);
+  }
+  return rows.map((r) => (by.has(r.user_id) ? { ...r, dups: by.get(r.user_id) } : r));
+}
+
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { supabase } = await requireAdmin();
   const { tab: raw } = await searchParams;
   const tab = TABS.some((t) => t[0] === raw) ? raw! : "entradas";
 
-  const [config, holders, docs, feedback, trips, reqs, deals, idents, agreements] = await Promise.all([
+  const [config, holders, docs, feedback, trips, reqs, deals, idents, agreements, unchecked] = await Promise.all([
     getConfig(),
     getWaiverHolders(),
     supabase.from("traveler_docs").select("trip_id, full_name, passport_last4, outbound_date, return_date, status, created_at").then((r) => (r.data ?? []) as TravelerDocView[]),
@@ -47,6 +60,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     supabase.from("deals").select("*").order("created_at", { ascending: false }).then((r) => (r.data ?? []) as Deal[]),
     loadIdentities(supabase),
     getAgreements(),
+    supabase.rpc("identity_unchecked").then((r) => (r.error ? 0 : Number(r.data) || 0)),
   ]);
 
   const pending = trips.filter((t) => t.status === "pendente").length + reqs.filter((r) => r.status === "pendente").length;
@@ -73,6 +87,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           </Link>
         ))}
       </div>
+      {tab === "entradas" && <CheckIdentities unchecked={unchecked} />}
       {tab === "entradas" && <Entradas trips={trips} reqs={reqs} deals={deals} config={config} docs={docs} idents={idents} />}
       {tab === "ligacoes" && <Entregas trips={trips} reqs={reqs} deals={deals} commission={config.commission} holders={holders} agreements={agreements} />}
       {tab === "quadro" && <Quadro trips={trips} reqs={reqs} />}

@@ -6,6 +6,7 @@ import { firstName } from "@/lib/format";
 import { CUSTOMS } from "@/lib/customs";
 import { randomInt } from "node:crypto";
 import { decryptPii, encryptPii, piiReady } from "@/lib/pii";
+import { saveIdHashes } from "@/lib/identity";
 
 export type AdminState = { error?: string; message?: string };
 
@@ -265,4 +266,23 @@ export async function setIdentityStatus(userId: string, status: "confirmado" | "
   await supabase.from("identities").update({ status }).eq("user_id", userId);
   console.info("[auditoria] identificação", { equipa: profile.id, pessoa: userId, estado: status });
   done();
+}
+
+/** Calcula a «impressão» do BI e do passaporte das contas anteriores à verificação do mesmo número. Os números não são mostrados nem guardados em claro. */
+export async function checkOldIdentities(): Promise<AdminState> {
+  const { supabase, profile } = await requireAdmin();
+  if (!piiReady()) return { error: "A chave de cifra não está configurada." };
+  const { data, error } = await supabase.from("identities").select("user_id, bi_enc, passport_enc, bi_hash, passport_hash").or("bi_hash.is.null,passport_hash.is.null").limit(200);
+  if (error) return { error: "Corre primeiro o supabase/identity-duplicates.sql." };
+  let n = 0;
+  for (const r of (data ?? []) as { user_id: string; bi_enc: string; passport_enc: string | null; bi_hash: string | null; passport_hash: string | null }[]) {
+    if (r.bi_hash && (!r.passport_enc || r.passport_hash)) continue;
+    const bi = decryptPii(r.bi_enc);
+    const pp = r.passport_enc ? decryptPii(r.passport_enc) : null;
+    if (!bi) continue;
+    if (await saveIdHashes(supabase, r.user_id, bi, pp)) n++;
+  }
+  console.info("[auditoria] verificação do mesmo número de documento nas contas anteriores", { equipa: profile.id, contas: n });
+  done();
+  return { message: n ? `${n} identificação(ões) verificada(s).` : "Nada para verificar." };
 }

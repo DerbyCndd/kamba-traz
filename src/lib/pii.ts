@@ -1,5 +1,5 @@
 import "server-only";
-import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHmac, randomBytes } from "node:crypto";
 
 // Cifra dados pessoais sensíveis (número de passaporte) antes de chegarem à base de dados.
 // AES-256-GCM: cifra e garante que o texto não foi alterado. Formato: v1:base64(iv 12 | etiqueta 16 | cifrado).
@@ -34,4 +34,16 @@ export function decryptPii(stored: string): string | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * «Impressão» de um número de documento (HMAC-SHA256 com a chave PII_KEY): o mesmo número dá sempre a mesma impressão,
+ * o que permite detetar o mesmo BI ou passaporte em contas diferentes sem guardar nem comparar o número em claro.
+ * Normaliza (maiúsculas, sem espaços nem hífenes) para que «006 123-45 LA» e «00612345LA» coincidam.
+ */
+export function idHash(kind: "bi" | "passport", value: string): string | null {
+  const k = key();
+  if (!k) return null;
+  const n = value.replace(/[\s-]/g, "").toUpperCase();
+  return createHmac("sha256", k).update("id-hash:" + kind + ":" + n).digest("hex");
 }

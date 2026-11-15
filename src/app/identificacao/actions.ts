@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { expiryError } from "@/lib/docchecks";
 import { today } from "@/lib/format";
-import { myIdentity } from "@/lib/identity";
+import { myIdentity, saveIdHashes } from "@/lib/identity";
 import { encryptPii, piiReady } from "@/lib/pii";
 import { isLimited, recordHit, TOO_MANY } from "@/lib/ratelimit";
 
@@ -101,6 +101,7 @@ export async function saveIdentity(_: IdentityState, fd: FormData): Promise<Iden
     await supabase.storage.from("ids").remove(uploaded);
     return { errors: {}, values, formError: "Não foi possível guardar a identificação agora. Tenta de novo daqui a pouco." };
   }
+  await saveIdHashes(supabase, user.id, bi, withPassport ? passport : null); // para a equipa detetar o mesmo número noutra conta
   // Troca feita: as fotos antigas já não servem.
   const o = old as Record<string, string | null> | null;
   const stale = [o?.bi_photo_path, o?.passport_photo_path, o?.bi_back_path, o?.passport_last_path].filter((p): p is string => !!p && !uploaded.includes(p));

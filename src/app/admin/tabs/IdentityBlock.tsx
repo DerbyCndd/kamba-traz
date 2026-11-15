@@ -49,6 +49,13 @@ export function IdentityBlock({ userId, ident, accountName, tripReturn }: { user
         {ident.bi_expiry ? <div><span>Validade do BI</span>{fdate(ident.bi_expiry)}</div> : null}
         {ident.passport_expiry ? <div><span>Validade do passaporte</span>{fdate(ident.passport_expiry)}</div> : null}
       </div>
+      {ident.dups?.length ? (
+        <div className="notice bad" role="alert">
+          <b>Mesmo número noutra conta:</b>{" "}
+          {ident.dups.map((d) => `${d.kind === "bi" ? "BI" : "passaporte"} igual ao de ${d.name}`).join("; ")}.
+          Pode ser engano ao escrever ou o documento de outra pessoa. Compara as fotos e o nome antes de confirmar.
+        </div>
+      ) : null}
       {alerts.length ? (
         <div className="notice bad" role="alert"><b>Atenção:</b> {alerts.join(" ")}</div>
       ) : ident.bi_expiry ? <p className="hint">Validades em ordem.</p> : <p className="hint">Sem datas de validade (conta anterior às validades). Confere nas fotos.</p>}

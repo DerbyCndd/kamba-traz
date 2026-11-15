@@ -33,6 +33,8 @@ export type IdentityView = {
   user_id: string; full_name: string; phone: string; bi_last4: string; passport_last4: string | null;
   bi_expiry?: string | null; passport_expiry?: string | null;
   has_bi_back?: boolean; has_passport_last?: boolean;
+  /** Mesmo número de BI ou de passaporte noutra conta (só o primeiro nome da outra pessoa). */
+  dups?: { kind: "bi" | "passport"; name: string }[];
   status: "pendente" | "confirmado" | "recusado";
 };
 export type Req = ReqPub & { invoice_path?: string | null; user_id: string; contact: string; item_value: number; created_at: string };

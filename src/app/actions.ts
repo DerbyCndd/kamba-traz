@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { myIdentity } from "@/lib/identity";
+import { getNewAccountRule } from "@/lib/data";
 import { customsEstimate, needsInvoice } from "@/lib/customs";
 import { passportVsTrip } from "@/lib/docchecks";
 import { CATS, FROM, TO } from "@/lib/constants";
@@ -79,6 +80,14 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
     else if (invFile.size > MAX_INVOICE) errors.invoice = "O ficheiro é demasiado grande (máximo 3 MB).";
     else { invBytes = new Uint8Array(await invFile.arrayBuffer()); invKind = invoiceKind(invBytes); if (!invKind) errors.invoice = "Usa uma foto (JPG, PNG, WebP) ou um PDF."; }
   }
+  // Conta nova: acima do limite só com «urgente» e uma justificação, que a equipa lê antes de decidir.
+  const rule = await getNewAccountRule();
+  const overLimit = rule.limit != null && rule.isNew && Number(v.value) > rule.limit;
+  const urgent = overLimit && v.urgent === "on";
+  const reason = (v.urgent_reason ?? "").slice(0, 400);
+  if (overLimit && (!urgent || reason.length < 20)) {
+    errors.urgent_reason = `Conta nova: o valor passa o limite de ${rule.limit} €. Marca o pedido como urgente e explica porquê, em pelo menos 20 caracteres.`;
+  }
   if (Object.keys(errors).length) return { errors, values: v };
 
   const ident = await myIdentity(supabase, user.id);
@@ -97,6 +106,7 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
 
   const row = {
     ...(invoicePath ? { invoice_path: invoicePath } : {}),
+    ...(rule.limit != null ? { urgent, urgent_reason: urgent ? reason : null } : {}),
     user_id: user.id, name: v.name, contact: v.contact, origin: v.origin, destination: v.destination,
     item: v.item, category: v.category, kg: num(v.kg)!, item_value: Number(v.value), offer: Math.round(num(v.offer)!),
     deadline: v.deadline || null,

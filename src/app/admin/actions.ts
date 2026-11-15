@@ -148,6 +148,11 @@ export async function saveConfig(_: AdminState, fd: FormData): Promise<AdminStat
   const whatsapp = String(fd.get("whatsapp") ?? "").trim().slice(0, 30);
   const { error } = await supabase.from("config").update({ commission, per_kg, whatsapp }).eq("id", 1);
   if (error) return { error: "Não foi possível guardar." };
+  if (fd.has("new_limit")) {
+    const lim = Math.min(1000000, Math.max(0, Math.round(parseFloat(String(fd.get("new_limit"))) || 0)));
+    const { error: e2 } = await supabase.from("config").update({ new_account_limit_eur: lim }).eq("id", 1);
+    if (e2) return { error: "Não foi possível guardar o limite das contas novas." };
+  }
   done();
   return { message: "Guardado." };
 }

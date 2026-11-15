@@ -14,7 +14,7 @@ import { SubmitResult } from "@/components/SubmitResult";
 const cityOpts = (codes: string[]) =>
   codes.map((c) => <option key={c} value={c}>{cityName(c)}{c !== "OTH" ? ` (${c})` : ""}</option>);
 
-export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoices, minDate }: { perKg: number; whatsapp: string; defaultName: string; defaultPhone: string; invoices: boolean; minDate: string }) {
+export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoices, minDate, limitEur }: { perKg: number; whatsapp: string; defaultName: string; defaultPhone: string; invoices: boolean; minDate: string; limitEur: number | null }) {
   const [state, action, pending] = useActionState(submitRequest, emptyForm);
   const [cat, setCat] = useState<string | null>(null);
   const [kg, setKg] = useState("");
@@ -25,6 +25,8 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoic
   const v = state.values, e = state.errors;
   const k = parseFloat(kg);
   const wantsInvoice = invoices && needsInvoice(cat ?? v.category ?? CATS[0], parseFloat(val) || Number(v.value) || 0);
+
+  const overLimit = limitEur != null && (parseFloat(val) || Number(v.value) || 0) > limitEur;
 
   // Envio manual: assim o formulário não se apaga quando há um erro (a pessoa não tem de escolher a fatura outra vez).
   function onSubmit(ev: React.FormEvent<HTMLFormElement>) {
@@ -95,6 +97,23 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoic
             <div className="fields">
               <Field id="invoice" label="Foto ou PDF da fatura" hint="JPG, PNG, WebP ou PDF, até 3 MB." error={e.invoice} full>
                 <input id="invoice" name="invoice" type="file" accept="image/*,application/pdf" />
+              </Field>
+            </div>
+          </fieldset>
+        ) : null}
+        {overLimit ? (
+          <fieldset className="fs">
+            <legend>Valor acima do limite de conta nova</legend>
+            <p className="privacy">As contas novas podem enviar itens até {limitEur} €, para proteger quem envia e quem viaja. O limite sobe depois da primeira entrega concluída. Se precisas de enviar mais já, marca o pedido como urgente e explica porquê: a equipa lê e decide se liberta.</p>
+            <div className="fields">
+              <div className="field full">
+                <label className="check" htmlFor="urgent">
+                  <input id="urgent" name="urgent" type="checkbox" defaultChecked={v.urgent === "on"} />
+                  <span>Marco este pedido como urgente</span>
+                </label>
+              </div>
+              <Field id="urgent_reason" label="Porque precisas de enviar este valor agora" hint="Pelo menos 20 caracteres. Só a equipa lê." error={e.urgent_reason} full>
+                <textarea id="urgent_reason" name="urgent_reason" rows={3} maxLength={400} defaultValue={v.urgent_reason} />
               </Field>
             </div>
           </fieldset>

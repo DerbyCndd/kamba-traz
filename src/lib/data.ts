@@ -217,3 +217,19 @@ export async function getMyReports(dealId: string): Promise<{ available: boolean
   if (error) return { available: false, reports: [] };
   return { available: true, reports: (data ?? []) as DealReport[] };
 }
+
+/** Limite de valor (em euros) das contas novas. null se conta-nova.sql ainda não foi corrido; 0 = sem limite. */
+export async function getNewAccountLimitSetting(): Promise<number | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("config").select("new_account_limit_eur").eq("id", 1).maybeSingle();
+  if (error || !data) return null;
+  return Number(data.new_account_limit_eur) || 0;
+}
+
+/** A regra para quem está a pedir: o limite em euros (null se não há regra) e se esta conta ainda é nova. */
+export async function getNewAccountRule(): Promise<{ limit: number | null; isNew: boolean }> {
+  const supabase = await createClient();
+  const [limit, n] = await Promise.all([getNewAccountLimitSetting(), supabase.rpc("am_i_new_account")]);
+  if (limit == null || limit <= 0 || n.error) return { limit: null, isNew: false };
+  return { limit, isNew: n.data === true };
+}

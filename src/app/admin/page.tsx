@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
-import { getAgreements, getConfig, getWaiverHolders } from "@/lib/data";
+import { getAgreements, getConfig, getNewAccountLimitSetting, getWaiverHolders } from "@/lib/data";
 import { kz } from "@/lib/format";
 import type { Deal, DealReport, FeedbackRow, IdentityView, Req, TravelerDocView, Trip } from "@/lib/types";
 import { Entradas } from "./tabs/Entradas";
@@ -70,6 +70,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     ? Object.fromEntries(((await supabase.from("profiles").select("id, full_name").in("id", reporterIds)).data ?? []).map((p: { id: string; full_name: string | null }) => [p.id, (p.full_name ?? "").split(" ")[0]]))
     : {};
 
+  const newLimit = await getNewAccountLimitSetting();
   const itemUsers = new Set([...trips.filter((t) => t.status === "pendente").map((t) => t.user_id), ...reqs.filter((r) => r.status === "pendente").map((r) => r.user_id)]);
   const looseIdents = idents.filter((i) => i.status === "pendente" && !itemUsers.has(i.user_id)); // enviaram o BI mas ainda não têm viagem nem pedido por aprovar
   const pending = trips.filter((t) => t.status === "pendente").length + reqs.filter((r) => r.status === "pendente").length + looseIdents.length;
@@ -106,7 +107,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       {tab === "pitch" && <Pitch />}
       {tab === "denuncias" && <Denuncias rows={reports} names={reporterNames} />}
       {tab === "feedback" && <FeedbackTab rows={feedback} />}
-      {tab === "definicoes" && <Definicoes config={config} />}
+      {tab === "definicoes" && <Definicoes config={config} newLimit={newLimit} />}
     </section>
   );
 }

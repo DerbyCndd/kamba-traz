@@ -5,7 +5,7 @@ import { Field } from "@/components/ui";
 import { SubmitButton } from "@/components/SubmitButton";
 import type { Config } from "@/lib/types";
 
-export function Definicoes({ config }: { config: Config }) {
+export function Definicoes({ config, newLimit }: { config: Config; newLimit: number | null }) {
   const [state, action] = useActionState(saveConfig, {} as AdminState);
   return (
     <div className="panel">
@@ -18,6 +18,11 @@ export function Definicoes({ config }: { config: Config }) {
           <Field id="s-kg" label="Preço de referência por kg (Kz)" hint="Valor inicial. Substitui pelos preços reais que ouvires do mercado.">
             <input id="s-kg" name="per_kg" type="number" min="0" step="500" defaultValue={config.per_kg} />
           </Field>
+          {newLimit != null ? (
+            <Field id="s-nl" label="Limite de valor para contas novas (€)" hint="Contas sem nenhuma entrega concluída só podem pedir itens até este valor. Acima, marcam urgente e justificam, e a equipa decide. 0 = sem limite.">
+              <input id="s-nl" name="new_limit" type="number" min="0" max="1000000" step="10" defaultValue={newLimit} />
+            </Field>
+          ) : null}
           <Field id="s-wa" label="WhatsApp da equipa" hint="Aparece nos botões “Quero enviar” e no resumo dos formulários.">
             <input id="s-wa" name="whatsapp" type="tel" placeholder="+351 9XX XXX XXX" defaultValue={config.whatsapp} />
           </Field>

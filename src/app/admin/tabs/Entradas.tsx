@@ -15,7 +15,7 @@ export function Entradas({ trips, reqs, deals, config, docs, idents }: { trips: 
   const items = [
     ...trips.filter((t) => t.status === "pendente").map((t) => ({ kind: "trip" as const, it: t })),
     ...reqs.filter((r) => r.status === "pendente").map((r) => ({ kind: "request" as const, it: r })),
-  ].sort((a, b) => b.it.created_at.localeCompare(a.it.created_at));
+  ].sort((a, b) => Number(!!(b.it as Req).urgent) - Number(!!(a.it as Req).urgent) || b.it.created_at.localeCompare(a.it.created_at)); // urgentes primeiro
 
   const steps: [boolean, string, string][] = [
     [!!config.whatsapp, "Definir o WhatsApp da equipa", "definicoes"],
@@ -56,7 +56,7 @@ export function Entradas({ trips, reqs, deals, config, docs, idents }: { trips: 
                 <span className="label">{isTrip ? "Viagem" : "Pedido de envio"}</span>
                 <h3>{isTrip ? `${cityName(t.origin)} → ${cityName(t.destination)} · ${fdate(t.travel_date)}` : r.item}</h3>
               </div>
-              <span className="pill warn">NOVO</span>
+              {!isTrip && r.urgent ? <span className="pill bad">URGENTE</span> : <span className="pill warn">NOVO</span>}
             </div>
             <div className="kv">
               <div><span>Nome</span>{it.name}</div>
@@ -78,6 +78,11 @@ export function Entradas({ trips, reqs, deals, config, docs, idents }: { trips: 
                 </>
               )}
             </div>
+            {!isTrip && r.urgent ? (
+              <div className="notice bad" role="alert">
+                <b>Pedido urgente de conta nova, acima do limite.</b> Justificação: {r.urgent_reason || "(sem texto)"}. Lê, vê os documentos da pessoa e decide: aprovar e publicar, ou recusar.
+              </div>
+            ) : null}
             {!isTrip && "invoice_path" in r && !r.invoice_path && needsInvoice(r.category, r.item_value) ? <div className="notice bad" role="alert"><b>Falta a fatura.</b> Este pedido é de um bem de risco e não trouxe fatura.</div> : null}
             <IdentityBlock userId={it.user_id} ident={identOf.get(it.user_id)} accountName={it.name} tripReturn={isTrip ? t.return_date : null} />
             {isTrip ? <DocBlock tripId={it.id} doc={docOf.get(it.id)} accountName={it.name} /> : null}

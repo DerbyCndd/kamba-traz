@@ -1,6 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
+import { uploadFile } from "@/lib/storage-upload";
 import { isLimited, recordHit, TOO_MANY } from "@/lib/ratelimit";
 
 export type DeliveryState = { error?: string; done?: boolean };
@@ -82,8 +83,8 @@ export async function uploadDealPhotos(fd: FormData): Promise<DeliveryState & { 
   const paths: string[] = [];
   for (const p of prepared) {
     const path = `${dealId}/${crypto.randomUUID()}.${p.kind}`;
-    const up = await supabase.storage.from("deal-photos").upload(path, p.bytes, { contentType: MIME[p.kind], upsert: false });
-    if (up.error) { if (paths.length) await supabase.storage.from("deal-photos").remove(paths); return { error: "Não foi possível enviar as fotos agora. Tenta de novo daqui a pouco." }; }
+    const up = await uploadFile(supabase, "deal-photos", path, p.bytes, MIME[p.kind]);
+    if (!up.ok) { if (paths.length) await supabase.storage.from("deal-photos").remove(paths); return { error: `Não foi possível enviar as fotos agora. Tenta de novo daqui a pouco. (Motivo técnico: ${up.reason})` }; }
     paths.push(path);
   }
   const { error } = await supabase.from("deal_photos").insert(paths.map((path) => ({ deal_id: dealId, user_id: user.id, kind: "recolha", path })));

@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
+import { uploadFile } from "@/lib/storage-upload";
 import { expiryError } from "@/lib/docchecks";
 import { today } from "@/lib/format";
 import { myIdentity, saveIdHashes } from "@/lib/identity";
@@ -71,10 +72,12 @@ export async function saveIdentity(_: IdentityState, fd: FormData): Promise<Iden
   const { data: old } = await supabase.from("identities").select("bi_photo_path, passport_photo_path" + (sides ? ", bi_back_path, passport_last_path" : "")).eq("user_id", user.id).maybeSingle();
 
   const uploaded: string[] = [];
+  let failReason = "";
   const put = async (p: { bytes: Uint8Array; kind: keyof typeof MIME }, tag: string) => {
+    if (failReason) return null;
     const path = `${user.id}/${tag}-${crypto.randomUUID()}.${p.kind}`;
-    const up = await supabase.storage.from("ids").upload(path, p.bytes, { contentType: MIME[p.kind], upsert: false });
-    if (up.error) return null;
+    const up = await uploadFile(supabase, "ids", path, p.bytes, MIME[p.kind]);
+    if (!up.ok) { failReason = up.reason; return null; }
     uploaded.push(path);
     return path;
   };
@@ -84,7 +87,7 @@ export async function saveIdentity(_: IdentityState, fd: FormData): Promise<Iden
   const ppLastPath = ppLast ? await put(ppLast, "passaporte-ultima") : null;
   if (!biPath || (biBack && !biBackPath) || (ppPhoto && !ppPath) || (ppLast && !ppLastPath)) {
     if (uploaded.length) await supabase.storage.from("ids").remove(uploaded);
-    return { errors: {}, values, formError: "Não foi possível enviar as fotos agora. Tenta de novo daqui a pouco." };
+    return { errors: {}, values, formError: `Não foi possível enviar as fotos agora. Tenta de novo daqui a pouco. (Motivo técnico: ${failReason || "desconhecido"})` };
   }
 
   const row = {

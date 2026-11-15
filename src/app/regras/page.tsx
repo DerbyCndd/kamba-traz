@@ -15,7 +15,7 @@ export default function RegrasPage() {
         <div className="panel forbid">
           <h3>Nunca transportamos</h3>
           <ul className="bullets">
-            {["Drogas e substâncias controladas", "Armas, munições e réplicas", "Dinheiro em numerário e documentos de valor", "Medicamentos",
+            {["Drogas e substâncias controladas", "Armas, munições e réplicas", "Dinheiro em numerário e documentos de valor", "Medicamentos", "Bebidas alcoólicas e tabaco",
               "Baterias soltas, gás, líquidos inflamáveis e químicos", "Produtos falsificados", "Animais, plantas e alimentos perecíveis",
               "Qualquer volume fechado que o viajante não possa abrir"].map(li)}
           </ul>
@@ -40,6 +40,15 @@ export default function RegrasPage() {
               "Em caso de problema, a equipa analisa as fotos e o histórico"].map(li)}
           </ul>
         </div>
+      </div>
+      <div className="panel">
+        <h3>Contas e identificação</h3>
+        <ul className="bullets">
+          {["Uma conta por pessoa, com os teus próprios documentos e dados verdadeiros", "A equipa confirma a identificação antes de publicar viagens e pedidos",
+            "O mesmo número de BI ou de passaporte em contas diferentes é analisado pela equipa e pode levar à suspensão das contas",
+            "Não cedas a tua conta nem uses documentos de outra pessoa", "Dados falsos ou fraude levam à remoção da conta"].map(li)}
+        </ul>
+        <p className="hint">Como tratamos estes dados: <Link href="/privacidade">política de privacidade</Link>. Condições gerais: <Link href="/termos">termos de uso</Link>.</p>
       </div>
       <div className="panel" id="alfandega">
         <h3>Alfândega em Angola</h3>

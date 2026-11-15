@@ -33,7 +33,6 @@ export default function TermosPage() {
   return (
     <LegalLayout
       title="Termos de uso"
-      version="14 de novembro de 2026"
       readMin={5}
       intro="Ao criar conta, fazer um pedido ou publicar uma viagem, aceitas estas regras. Escrevemo-las para se perceberem: dizem quem faz o quê e quem responde por quê."
       summary={SUMMARY}
@@ -50,7 +49,8 @@ export default function TermosPage() {
         <ul>
           <li><b>Idade.</b> Tens de ter 18 anos ou mais.</li>
           <li><b>Dados verdadeiros.</b> Pedimos telefone e BI (número, validade e fotos). O passaporte é opcional. Quem viaja junta ainda a foto do bilhete. A equipa confirma tudo antes de publicar.</li>
-          <li><b>Uma conta por pessoa.</b></li>
+          <li><b>Uma conta por pessoa.</b> Se o mesmo número de BI ou de passaporte aparecer em contas diferentes, a equipa analisa o caso e pode pedir esclarecimentos, suspender ou remover contas.</li>
+          <li><b>Só a tua identidade.</b> Não uses documentos de outra pessoa nem cedas a tua conta a terceiros. A conta e o que se faz nela são da tua responsabilidade.</li>
           <li><b>Recusa.</b> Podemos recusar ou remover contas com dados falsos ou que quebrem estas regras.</li>
         </ul>
       </DocSection>
@@ -128,11 +128,12 @@ export default function TermosPage() {
       </DocSection>
 
       <DocSection id="alteracoes" n={12} title="Alterações e contacto">
-        <p>Podemos atualizar estes termos. A versão em vigor é a desta página, com a data no topo. O que mudou fica registado em baixo.</p>
+        <p>Podemos atualizar estes termos. A versão em vigor é a desta página. O que mudou fica registado em baixo, com a data.</p>
         <p>Em caso de litígio, procura-se primeiro resolver com a equipa. O que não se resolver fica sujeito à lei e aos tribunais competentes.</p>
         <p>Dados pessoais: ver a <Link href="/privacidade">política de privacidade</Link>. Para falar connosco, usa o formulário de <Link href="/feedback">feedback</Link> ou o WhatsApp da equipa.</p>
         <div className="docversions">
           <p className="itl">O que mudou</p>
+          <p><b>15 de novembro de 2026.</b> Regras sobre uma conta por pessoa, documentos repetidos e não usar documentos nem contas de outras pessoas.</p>
           <p><b>14 de novembro de 2026.</b> Primeira versão.</p>
         </div>
       </DocSection>

@@ -36,7 +36,9 @@ const ROWS: [string, string, string][] = [
   ["Rota, peso, valor e descrição do item; fatura", "Obrigatório para quem envia", "Juntar pedidos a viagens e cumprir a alfândega."],
   ["Localização do telemóvel", "Só quem leva a encomenda, e só em trânsito", "Quem enviou acompanha a entrega no mapa."],
   ["Fotos do estado do volume", "Obrigatório para quem leva a encomenda", "Provar em que estado o volume foi recebido, se houver um problema."],
+  ["Propostas de valor entre quem envia e quem viaja", "Obrigatório nas entregas", "Combinar o preço. Não há conversa livre: só valores e estado da proposta."],
   ["Pagamentos e movimentos da carteira", "Obrigatório nas entregas", "Reter e pagar os valores, e guardar o registo."],
+  ["Impressão cifrada do IP e do email", "Automático", "Limitar tentativas repetidas de entrada e registo. Não guardamos o IP nem o email em claro para isto."],
   ["Avaliações e feedback", "Opcional", "Melhorar o serviço e dar confiança às duas partes."],
 ];
 
@@ -45,7 +47,6 @@ export default function PrivacidadePage() {
   return (
     <LegalLayout
       title="Política de privacidade"
-      version="14 de novembro de 2026"
       readMin={4}
       intro="Explicamos que dados guardamos, para quê, quem os vê e como os podes ver, corrigir ou apagar."
       summary={SUMMARY}
@@ -74,7 +75,7 @@ export default function PrivacidadePage() {
           <li><b>O público</b> só vê o primeiro nome, a rota e valores de referência. Nunca contactos nem documentos.</li>
           <li><b>A outra parte da entrega</b> vê só o que é preciso para a entrega acontecer, como o primeiro nome. O telefone, os documentos e os números não são partilhados com ela sem acordo.</li>
           <li><b>A equipa da Kamba</b> vê os documentos, os números e as fotos, para confirmar a identificação. Cada abertura de um documento fica registada.</li>
-          <li><b>Serviços que usamos para funcionar:</b> a Supabase (base de dados, autenticação e ficheiros), a Vercel (alojamento do site) e o OpenStreetMap (mapas). Podem tratar dados em servidores fora de Angola.</li>
+          <li><b>Serviços que usamos para funcionar:</b> a Supabase (base de dados, autenticação e ficheiros), a Vercel (alojamento do site), o OpenStreetMap (mapas), o Sentry (avisos de erros técnicos: removemos nomes, contactos, documentos e o que escreves antes do envio) e o Resend (email do resumo diário à equipa, que só tem contagens). Podem tratar dados em servidores fora de Angola.</li>
           <li><b>Autoridades,</b> só quando a lei o exigir.</li>
         </ul>
       </DocSection>
@@ -88,7 +89,7 @@ export default function PrivacidadePage() {
       <DocSection id="protecao" n={5} title="Como os protegemos">
         <ul>
           <li><b>Cifra.</b> Os números do BI e do passaporte são cifrados antes de serem guardados. A chave não está na base de dados.</li>
-          <li><b>Documento repetido.</b> Guardamos também uma «impressão» do número do documento, que não permite recuperá-lo, só para a equipa ver se o mesmo número aparece em contas diferentes e travar fraudes.</li>
+          <li><b>Documento repetido.</b> Guardamos também uma «impressão» do número do documento, que não permite recuperá-lo, só para a equipa ver se o mesmo número aparece em contas diferentes e travar fraudes. Quem se identifica não é avisado, e a equipa só vê o primeiro nome da outra conta. Isto não bloqueia ninguém sozinho: pode ser engano, e a equipa decide.</li>
           <li><b>Fotos privadas.</b> Documentos, bilhetes e faturas ficam num espaço privado, com ligações temporárias que só a equipa usa.</li>
           <li><b>Acesso limitado.</b> Cada pessoa só vê o que é seu.</li>
           <li><b>Se algo correr mal.</b> Nenhum sistema é perfeito. Se uma falha afetar os teus dados, avisamos-te.</li>
@@ -98,7 +99,8 @@ export default function PrivacidadePage() {
       <DocSection id="tempo" n={6} title="Quanto tempo guardamos">
         <ul>
           <li><b>Localização:</b> apagada quando a entrega termina.</li>
-          <li><b>Conta, documentos e fotos:</b> enquanto a conta existir. Se a apagares, apagamos os teus documentos e as tuas fotos, exceto o que a lei nos obrigue a guardar (por exemplo, registos de pagamentos e de identificação para fins fiscais e de prevenção de fraude).</li>
+          <li><b>Contagem de tentativas de entrada e registo:</b> apagada ao fim de 1 dia.</li>
+          <li><b>Conta, documentos e fotos:</b> enquanto a conta existir (a impressão do número do documento apaga-se com a identificação). Se a apagares, apagamos os teus documentos e as tuas fotos, exceto o que a lei nos obrigue a guardar (por exemplo, registos de pagamentos e de identificação para fins fiscais e de prevenção de fraude).</li>
         </ul>
       </DocSection>
 
@@ -124,9 +126,10 @@ export default function PrivacidadePage() {
       </DocSection>
 
       <DocSection id="mudancas" n={10} title="Alterações e contacto">
-        <p>A plataforma é só para maiores de 18 anos. Podemos atualizar esta política: a versão em vigor é a desta página, com a data no topo, e o que mudou fica registado em baixo. Ver também os <Link href="/termos">termos de uso</Link>.</p>
+        <p>A plataforma é só para maiores de 18 anos. Podemos atualizar esta política: a versão em vigor é a desta página, e o que mudou fica registado em baixo, com a data. Ver também os <Link href="/termos">termos de uso</Link>.</p>
         <div className="docversions">
           <p className="itl">O que mudou</p>
+          <p><b>15 de novembro de 2026.</b> Passámos a indicar o Sentry e o Resend entre os serviços que usamos, explicámos o aviso de documento repetido, as propostas de valor e a contagem temporária de tentativas.</p>
           <p><b>14 de novembro de 2026.</b> Primeira versão.</p>
         </div>
       </DocSection>

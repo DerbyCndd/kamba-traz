@@ -9,8 +9,8 @@ export type SummaryPoint = { icon: IconName; title: string; text: string };
  * Moldura dos documentos legais: título e versão, «Em resumo» (primeira camada), índice com ligações e o texto completo (segunda camada).
  * Índice fixo ao lado em ecrãs largos; num cartão que abre e fecha em ecrãs estreitos.
  */
-export function LegalLayout({ title, version, readMin, intro, summary, toc, related, children }: {
-  title: string; version: string; readMin: number; intro: string;
+export function LegalLayout({ title, readMin, intro, summary, toc, related, children }: {
+  title: string; readMin: number; intro: string;
   summary: SummaryPoint[]; toc: TocItem[]; related: { href: string; label: string }[]; children: ReactNode;
 }) {
   const list = (
@@ -22,7 +22,7 @@ export function LegalLayout({ title, version, readMin, intro, summary, toc, rela
     <section className="doc legaldoc">
       <header className="dochead">
         <h2>{title}</h2>
-        <p className="docmeta">Versão de {version} · Leitura de {readMin} min</p>
+        <p className="docmeta">Leitura de {readMin} min</p>
         <p className="muted">{intro}</p>
       </header>
 

@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
+import * as Sentry from "@sentry/nextjs";
 import { uploadFile } from "@/lib/storage-upload";
 import { expiryError } from "@/lib/docchecks";
 import { today } from "@/lib/format";
@@ -102,7 +103,11 @@ export async function saveIdentity(_: IdentityState, fd: FormData): Promise<Iden
   const { error } = await supabase.from("identities").upsert(row, { onConflict: "user_id" });
   if (error) {
     await supabase.storage.from("ids").remove(uploaded);
-    return { errors: {}, values, formError: "Não foi possível guardar a identificação agora. Tenta de novo daqui a pouco." };
+    // Só o código e o texto do erro (nomes de regras e colunas, nunca os valores escritos): para se perceber a causa logo ao primeiro erro.
+    const reason = `${error.code ? error.code + ": " : ""}${error.message}`.slice(0, 200);
+    console.error(`[identificacao] gravação falhou: ${reason}`);
+    Sentry.captureMessage(`Gravar a identificação falhou: ${reason}`, "error");
+    return { errors: {}, values, formError: `Não foi possível guardar a identificação agora. Tenta de novo daqui a pouco. (Motivo técnico: ${reason})` };
   }
   await saveIdHashes(supabase, user.id, bi, withPassport ? passport : null); // para a equipa detetar o mesmo número noutra conta
   // Troca feita: as fotos antigas já não servem.

@@ -17,28 +17,28 @@ export default function DeclaracaoPage() {
 
       <div className="noprint">
         <h3>Como usar esta folha</h3>
-        <p><b>Quando.</b> No momento em que o remetente entrega o volume ao viajante, com os dois presentes. É uma folha por volume: se o viajante leva dois volumes do mesmo remetente, são duas folhas.</p>
+        <p><b>Quando usar:</b> no momento em que o remetente entrega o volume ao viajante, com os dois presentes. É uma folha por volume: se o viajante leva dois volumes do mesmo remetente, são duas folhas.</p>
 
-        <p><b>Papel ou digital: as duas formas servem.</b></p>
+        <p><b>Papel ou digital: as duas formas servem:</b></p>
         <ul>
-          <li><b>Em papel (recomendado).</b> Carregue em «Imprimir ou guardar em PDF», imprima e preencha à caneta, com letra legível. O viajante deve levar a folha impressa na mala, junto à fatura, para a mostrar se for pedida num controlo.</li>
-          <li><b>Em formato digital.</b> Carregue no mesmo botão e escolha «Guardar como PDF». Fica um PDF em branco, que se preenche e assina num telemóvel ou computador com uma aplicação que permita escrever sobre PDF ou fotografias, ou então preenche-se uma folha impressa e fotografa-se. Quem preencher em formato digital deve enviar o PDF aos outros dois e guardar uma cópia.</li>
-          <li><b>Nos dois casos</b> todos ficam com uma cópia: o remetente, o viajante e, se possível, o destinatário.</li>
+          <li><b>Em papel (recomendado):</b> carregue em «Imprimir ou guardar em PDF», imprima e preencha à caneta, com letra legível. O viajante deve levar a folha impressa na mala, junto à fatura, para a mostrar se for pedida num controlo.</li>
+          <li><b>Em formato digital:</b> carregue no mesmo botão e escolha «Guardar como PDF». Fica um PDF em branco, que se preenche e assina num telemóvel ou computador com uma aplicação que permita escrever sobre PDF ou fotografias, ou então preenche-se uma folha impressa e fotografa-se. Quem preencher em formato digital deve enviar o PDF aos outros dois e guardar uma cópia.</li>
+          <li><b>Nos dois casos,</b> todos ficam com uma cópia: o remetente, o viajante e, se possível, o destinatário.</li>
         </ul>
 
-        <p><b>Passo a passo.</b></p>
+        <p><b>Passo a passo:</b></p>
         <ol>
-          <li><b>Cabeçalho.</b> Escreva a referência do pedido (começa por KT-, aparece na app), a data, a rota e os nomes e telefones do remetente, do viajante e do destinatário (com a cidade em Angola).</li>
-          <li><b>Abra o volume e confira.</b> O remetente abre o volume à frente do viajante. Os dois conferem o que lá está contra a lista. O viajante recusa o que não estiver na lista ou lhe parecer suspeito.</li>
-          <li><b>Liste o conteúdo.</b> Uma linha por tipo de item: descrição clara (por exemplo, «telemóvel Samsung A15», e não «eletrónicos»), quantidade, valor unitário e total em euros. Some tudo em «Valor total declarado». Se faltarem linhas, use outra folha e indique «folha 1 de 2».</li>
-          <li><b>Fatura.</b> Marque «sim» nos itens com fatura anexada. Eletrónicos, cosméticos (perfumes), peças e qualquer item acima de 300 € exigem a fatura da compra.</li>
-          <li><b>Pese o volume</b> e escreva o peso em quilos. Confirme que o total das mercadorias da viagem não passa de Kz 1 500 000.</li>
-          <li><b>Sele e fotografe.</b> Feche e sele o volume. Fotografe o volume selado com a folha ao lado, de forma que a referência KT- e o conteúdo se leiam. Envie as fotos pela app, como pede o processo (pelo menos 2).</li>
-          <li><b>Assine.</b> Remetente e viajante assinam e datam logo ali. Não assine uma folha em branco nem com linhas por preencher.</li>
-          <li><b>Na entrega em Angola.</b> O destinatário confere o estado do volume, assina em «Destinatário», escreve a data e o estado, e só então dá o código de entrega ao viajante.</li>
+          <li><b>Cabeçalho:</b> escreva a referência do pedido (começa por KT-, aparece na app), a data, a rota e os nomes e telefones do remetente, do viajante e do destinatário (com a cidade em Angola).</li>
+          <li><b>Abra o volume e confira:</b> o remetente abre o volume à frente do viajante. Os dois conferem o que lá está contra a lista. O viajante recusa o que não estiver na lista ou lhe parecer suspeito.</li>
+          <li><b>Liste o conteúdo:</b> uma linha por tipo de item: descrição clara (por exemplo, «telemóvel Samsung A15», e não «eletrónicos»), quantidade, valor unitário e total em euros. Some tudo em «Valor total declarado». Se faltarem linhas, use outra folha e indique «folha 1 de 2».</li>
+          <li><b>Fatura:</b> marque «sim» nos itens com fatura anexada. Eletrónicos, cosméticos (perfumes), peças e qualquer item acima de 300 € exigem a fatura da compra.</li>
+          <li><b>Pese o volume:</b> escreva o peso em quilos. Confirme que o total das mercadorias da viagem não passa de Kz 1 500 000.</li>
+          <li><b>Sele e fotografe:</b> feche e sele o volume. Fotografe o volume selado com a folha ao lado, de forma que a referência KT- e o conteúdo se leiam. Envie as fotos pela app, como pede o processo (pelo menos 2).</li>
+          <li><b>Assine:</b> remetente e viajante assinam e datam logo ali. Não assine uma folha em branco nem com linhas por preencher.</li>
+          <li><b>Na entrega em Angola:</b> o destinatário confere o estado do volume, assina em «Destinatário», escreve a data e o estado, e só então dá o código de entrega ao viajante.</li>
         </ol>
 
-        <p><b>Conselhos.</b></p>
+        <p><b>Conselhos:</b></p>
         <ul>
           <li>Declare o valor real. Uma declaração falsa ou incompleta é responsabilidade do remetente.</li>
           <li>Não escreva nada que a lista de proibidos não permita (ver <Link href="/regras">as regras</Link>). Se o remetente não quiser abrir o volume ou mostrar o que leva, o viajante não deve aceitar.</li>

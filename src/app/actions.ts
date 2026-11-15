@@ -5,6 +5,7 @@ import { myIdentity } from "@/lib/identity";
 import { getNewAccountRule } from "@/lib/data";
 import { customsEstimate, needsInvoice } from "@/lib/customs";
 import { passportVsTrip } from "@/lib/docchecks";
+import { CURRENCIES, isCur, toEur } from "@/lib/currency";
 import { CATS, FROM, TO } from "@/lib/constants";
 import { cityName, kz, refCode, today } from "@/lib/format";
 import type { FormState, RateState } from "@/lib/types";
@@ -62,16 +63,21 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
   if (!phoneOk(v.contact)) errors.contact = "Indica um número com indicativo, por exemplo +244 923 000 000.";
   if (v.item.length < 3 || v.item.length > 90) errors.item = "Descreve o que queres enviar.";
   if (!num(v.kg) || num(v.kg)! > 100) errors.kg = "Indica o peso aproximado em kg.";
-  if (v.value === "" || !(Number(v.value) >= 0)) errors.value = "Indica o valor do item em euros.";
-  if (v.value !== "" && Number(v.value) >= 0 && customsEstimate(Number(v.value)).kind === "geral") errors.value = "O valor passa o limite da alfândega para uma encomenda de viajante (Kz 1 500 000). Divide em envios mais pequenos.";
+  // O valor escreve-se na moeda do país de origem; por dentro tudo é em euros (alfândega, fatura, teto, limite das contas novas).
+  const currency = isCur(v.currency) ? v.currency : null;
+  const valueEur = currency ? toEur(Number(v.value) || 0, currency) : 0;
+  if (!currency) errors.value = "Escolhe a moeda do item.";
+  else if (v.value === "" || !(Number(v.value) >= 0)) errors.value = "Indica o valor do item.";
+  else if (customsEstimate(valueEur).kind === "geral") errors.value = `O valor passa o limite da alfândega para uma encomenda de viajante (Kz 1 500 000, cerca de ${valueEur} € ao nosso câmbio de referência). Divide em envios mais pequenos.`;
   if (!num(v.offer)) errors.offer = "Indica quanto ofereces pelo transporte, em Kz.";
   if (v.ok !== "on") errors.ok = "Tens de confirmar para continuar.";
   if (!FROM.includes(v.origin) || !TO.includes(v.destination) || !CATS.includes(v.category)) errors.item = "Escolhe valores válidos da lista.";
   else if (v.origin === v.destination && v.origin !== "OTH") errors.item = "A origem e o destino não podem ser iguais.";
   if (v.deadline && v.deadline < today()) errors.deadline = "A data já passou.";
   // Bens de risco levam a fatura da compra (só se a base já guarda faturas: invoices.sql).
+  const currencyOn = (await supabase.from("requests").select("item_currency").limit(1)).error === null; // moeda.sql corrido?
   const invoicesOn = (await supabase.from("requests").select("invoice_path").limit(1)).error === null;
-  const mustInvoice = invoicesOn && needsInvoice(v.category, Number(v.value) || 0);
+  const mustInvoice = invoicesOn && needsInvoice(v.category, valueEur);
   const invFile = fd.get("invoice");
   let invBytes: Uint8Array | null = null;
   let invKind: keyof typeof INVOICE_MIME | null = null;
@@ -82,7 +88,7 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
   }
   // Conta nova: acima do limite só com «urgente» e uma justificação, que a equipa lê antes de decidir.
   const rule = await getNewAccountRule();
-  const overLimit = rule.limit != null && rule.isNew && Number(v.value) > rule.limit;
+  const overLimit = rule.limit != null && rule.isNew && valueEur > rule.limit;
   const urgent = overLimit && v.urgent === "on";
   const reason = (v.urgent_reason ?? "").slice(0, 400);
   if (overLimit && (!urgent || reason.length < 20)) {
@@ -107,8 +113,9 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
   const row = {
     ...(invoicePath ? { invoice_path: invoicePath } : {}),
     ...(rule.limit != null ? { urgent, urgent_reason: urgent ? reason : null } : {}),
+    ...(currencyOn && currency ? { item_currency: currency, item_amount: Number(v.value) } : {}),
     user_id: user.id, name: v.name, contact: v.contact, origin: v.origin, destination: v.destination,
-    item: v.item, category: v.category, kg: num(v.kg)!, item_value: Number(v.value), offer: Math.round(num(v.offer)!),
+    item: v.item, category: v.category, kg: num(v.kg)!, item_value: valueEur, offer: Math.round(num(v.offer)!),
     deadline: v.deadline || null,
   };
   const { data, error } = await supabase.from("requests").insert(row).select("id").single();
@@ -119,7 +126,7 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
   const summary = [
     "PEDIDO · Kamba Traz", "Nome: " + row.name, "Contacto: " + row.contact,
     `Rota: ${cityName(row.origin)} → ${cityName(row.destination)}`, `Item: ${row.item} (${row.category})`,
-    `Peso: ${row.kg} kg`, `Valor do item: ${row.item_value} €`, "Oferta pelo transporte: " + kz(row.offer),
+    `Peso: ${row.kg} kg`, `Valor do item: ${row.item_value} €` + (currency && currency !== "EUR" ? ` (${v.value} ${CURRENCIES[currency].symbol} na moeda do país, convertido ao câmbio de referência)` : ""), "Oferta pelo transporte: " + kz(row.offer),
     row.deadline ? "Preciso até: " + row.deadline : null,
   ].filter(Boolean).join("\n");
   return { errors: {}, values: {}, done: { ref: "KT-" + refCode(data.id), summary, kind: "request" } };

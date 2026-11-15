@@ -6,6 +6,7 @@ import { CATS, FROM, TO } from "@/lib/constants";
 import { cityName, kz } from "@/lib/format";
 import { CUSTOMS, INVOICE_MIN_EUR, MAX_TRIP_EUR, customsEstimate, needsInvoice } from "@/lib/customs";
 import { emptyForm } from "@/lib/types";
+import { CURRENCIES, ORIGIN_CURRENCY, RATES_DATE, isCur, toEur, type Cur } from "@/lib/currency";
 import { Field } from "@/components/ui";
 import { Src } from "@/components/Src";
 import { useFocusFirstError } from "@/components/useFocusFirstError";
@@ -19,14 +20,17 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoic
   const [cat, setCat] = useState<string | null>(null);
   const [kg, setKg] = useState("");
   const [val, setVal] = useState("");
+  const [cur, setCur] = useState<Cur>(isCur(state.values.currency) ? state.values.currency : ORIGIN_CURRENCY[state.values.origin ?? "LIS"] ?? "EUR");
   useFocusFirstError(state.errors);
   if (state.done) return <SubmitResult done={state.done} whatsapp={whatsapp} />;
 
   const v = state.values, e = state.errors;
   const k = parseFloat(kg);
-  const wantsInvoice = invoices && needsInvoice(cat ?? v.category ?? CATS[0], parseFloat(val) || Number(v.value) || 0);
+  const amount = parseFloat(val) || Number(v.value) || 0;
+  const valEur = toEur(amount, cur); // tudo por dentro é em euros
+  const wantsInvoice = invoices && needsInvoice(cat ?? v.category ?? CATS[0], valEur);
 
-  const overLimit = limitEur != null && (parseFloat(val) || Number(v.value) || 0) > limitEur;
+  const overLimit = limitEur != null && valEur > limitEur;
 
   // Envio manual: assim o formulário não se apaga quando há um erro (a pessoa não tem de escolher a fatura outra vez).
   function onSubmit(ev: React.FormEvent<HTMLFormElement>) {
@@ -34,14 +38,14 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoic
     const fd = new FormData(ev.currentTarget);
     startTransition(() => action(fd));
   }
-  const est = parseFloat(val) > 0 ? customsEstimate(parseFloat(val)) : null;
+  const est = valEur > 0 ? customsEstimate(valEur) : null;
   return (
     <div className="panel">
       <form onSubmit={onSubmit} noValidate>
         <fieldset className="fs">
           <legend>Percurso</legend>
           <div className="fields">
-            <Field id="origin" label="Sai de" hint="Não está a tua cidade? Escolhe «Outra cidade»: a equipa pergunta-te qual é."><select id="origin" name="origin" defaultValue={v.origin ?? "LIS"}>{cityOpts(FROM)}</select></Field>
+            <Field id="origin" label="Sai de" hint="Não está a tua cidade? Escolhe «Outra cidade»: a equipa pergunta-te qual é."><select id="origin" name="origin" defaultValue={v.origin ?? "LIS"} onChange={(ev) => setCur(ORIGIN_CURRENCY[ev.target.value] ?? "EUR")}>{cityOpts(FROM)}</select></Field>
             <Field id="destination" label="Chega a" hint="Entregamos em Angola. Não está a tua cidade? Escolhe «Outra cidade»."><select id="destination" name="destination" defaultValue={v.destination ?? "LAD"}>{cityOpts(TO)}</select></Field>
           </div>
         </fieldset>
@@ -57,9 +61,19 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoic
             <Field id="kg" label="Peso aproximado (kg)" error={e.kg}>
             <input id="kg" name="kg" type="number" min="0.1" step="0.1" inputMode="decimal" defaultValue={v.kg} onChange={(ev) => setKg(ev.target.value)} />
           </Field>
-            <Field id="value" label="Valor do item (€)" hint="Serve para o seguro e a alfândega." error={e.value}>
+            <Field id="currency" label="Moeda do item" hint="Muda sozinha com a cidade de onde sai. Podes escolher outra.">
+            <select id="currency" name="currency" value={cur} onChange={(ev) => setCur(ev.target.value as Cur)}>
+              {(Object.keys(CURRENCIES) as Cur[]).map((c) => <option key={c} value={c}>{CURRENCIES[c].name} ({CURRENCIES[c].symbol === c ? c : CURRENCIES[c].symbol + ", " + c})</option>)}
+            </select>
+          </Field>
+            <Field id="value" label={`Valor do item (${CURRENCIES[cur].symbol})`} hint="Quanto pagaste, ou quanto vale, na moeda do país de onde sai." error={e.value}>
             <input id="value" name="value" type="number" min="0" step="1" inputMode="decimal" defaultValue={v.value} onChange={(ev) => setVal(ev.target.value)} />
           </Field>
+          <div className="hint customs" role="note">
+            <b>Porque convertemos para euros?</b> A alfândega de Angola, a exigência de fatura (a partir de {INVOICE_MIN_EUR} €), o teto por viagem e o limite das contas novas calculam-se todos numa só moeda, para tratarmos toda a gente da mesma forma. Por isso a Kamba Traz converte o valor que escreves para euros, com uma taxa de referência de {RATES_DATE} arredondada de propósito para não ficar abaixo do valor real.
+            {" "}Não é a taxa do teu banco, e o valor na alfândega pode diferir um pouco.
+            {cur !== "EUR" && valEur > 0 ? <> <b>{amount} {CURRENCIES[cur].symbol} ≈ {valEur} €</b> (1 € = {String(CURRENCIES[cur].perEur).replace(".", ",")} {CURRENCIES[cur].symbol === cur ? cur : CURRENCIES[cur].symbol}).</> : null}
+          </div>
           {est ? (
             <p className={"hint customs" + (est.kind === "geral" ? " over" : "")} role="status">
               {est.kind === "geral"

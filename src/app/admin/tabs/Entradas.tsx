@@ -73,7 +73,7 @@ export function Entradas({ trips, reqs, deals, config, docs, idents }: { trips: 
                   <div><span>Rota</span>{cityName(r.origin)} → {cityName(r.destination)}</div>
                   <div><span>Tipo</span>{r.category}</div>
                   <div><span>Peso</span>{r.kg} kg</div>
-                  <div><span>Valor do item</span>{r.item_value} €</div>
+                  <div><span>Valor do item</span>{r.item_value} €{r.item_currency && r.item_currency !== "EUR" && r.item_amount ? ` (escreveu ${r.item_amount} ${r.item_currency}, convertido)` : ""}</div>
                   <div><span>Oferta</span>{kz(r.offer)}</div>
                 </>
               )}

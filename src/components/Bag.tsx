@@ -23,12 +23,11 @@ export function Bag({ className }: { className?: string }) {
       <path d="M36 147h308" stroke="#FFC52A" strokeWidth="4" strokeDasharray="5 6" strokeLinecap="round" />
       <rect x="170" y="125" width="48" height="23" rx="8" fill="#FFC52A" stroke="#0D1530" strokeWidth="4" />
       {/* a etiqueta pendurada */}
-      <path d="M300 149C334 168 334 188 322 210" fill="none" stroke="#9BA7C9" strokeWidth="3.5" strokeLinecap="round" />
-      <g transform="translate(302 204) rotate(12) scale(.92)">
-        <path d="M15 0h34a15 15 0 0 1 15 15v34a15 15 0 0 1-15 15H27A27 27 0 0 1 0 37V15A15 15 0 0 1 15 0z" fill="#FFC52A" stroke="#0D1530" strokeWidth="3.5" />
-        <path d="M19 14v36M27 33.5l19 16.5" fill="none" stroke="#0D1530" strokeWidth="8.5" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M27.5 33.5l13-12" fill="none" stroke="#0D1530" strokeWidth="8.5" strokeLinecap="round" />
-        <path d="M55 8.5L34.5 14.8l9 5.4 3.3 10.3z" fill="#0D1530" stroke="#0D1530" strokeWidth="2.6" strokeLinejoin="round" />
+      <path d="M300 149C338 164 346 192 315 208" fill="none" stroke="#9BA7C9" strokeWidth="3.5" strokeLinecap="round" />
+      <g transform="translate(292 200) rotate(10) scale(1.2)">
+        <rect width="46" height="52" rx="11" fill="#F4F6FF" stroke="#0D1530" strokeWidth="3.5" />
+        <circle cx="23" cy="8" r="3" fill="#0D1530" />
+        <path d="M15 23v24M15 35l15-12M15 35l15 12" fill="none" stroke="#0D1530" strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round" />
       </g>
     </svg>
   );

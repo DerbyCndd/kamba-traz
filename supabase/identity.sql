@@ -29,7 +29,7 @@ revoke all on public.identities from anon, authenticated;
 grant select on public.identities to authenticated;
 -- O dono escreve só os dados; o estado fica de fora (só a equipa o muda, por baixo).
 grant insert (user_id, full_name, phone, bi_enc, bi_last4, bi_photo_path, passport_enc, passport_last4, passport_photo_path) on public.identities to authenticated;
-grant update (full_name, phone, bi_enc, bi_last4, bi_photo_path, passport_enc, passport_last4, passport_photo_path) on public.identities to authenticated;
+grant update (user_id, full_name, phone, bi_enc, bi_last4, bi_photo_path, passport_enc, passport_last4, passport_photo_path) on public.identities to authenticated;
 grant update (status) on public.identities to authenticated; -- só passa nas políticas da equipa
 
 drop policy if exists ident_read on public.identities;

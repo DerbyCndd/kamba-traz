@@ -9,7 +9,7 @@ import { needsInvoice } from "@/lib/customs";
 import { approveItem, rejectItem } from "../actions";
 import Link from "next/link";
 
-export function Entradas({ trips, reqs, deals, config, docs, idents }: { trips: Trip[]; reqs: Req[]; deals: Deal[]; config: Config; docs: TravelerDocView[]; idents: IdentityView[] }) {
+export function Entradas({ trips, reqs, deals, config, docs, idents, otherPending = 0 }: { trips: Trip[]; reqs: Req[]; deals: Deal[]; config: Config; docs: TravelerDocView[]; idents: IdentityView[]; otherPending?: number }) {
   const docOf = new Map(docs.map((d) => [d.trip_id, d]));
   const identOf = new Map(idents.map((i) => [i.user_id, i]));
   const items = [
@@ -38,7 +38,7 @@ export function Entradas({ trips, reqs, deals, config, docs, idents }: { trips: 
             ))}
           </div>
         </div>
-        <div className="empty"><h3>Nada por verificar</h3><p>Os pedidos e viagens enviados aparecem aqui com o contacto de quem os fez.</p></div>
+        {otherPending ? null : <div className="empty"><h3>Nada por verificar</h3><p>Os pedidos e viagens enviados aparecem aqui com o contacto de quem os fez.</p></div>}
       </div>
     );
   }

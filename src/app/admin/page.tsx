@@ -99,7 +99,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       </div>
       {tab === "entradas" && <CheckIdentities unchecked={unchecked} />}
       {tab === "entradas" && <Identificacoes idents={looseIdents} />}
-      {tab === "entradas" && <Entradas trips={trips} reqs={reqs} deals={deals} config={config} docs={docs} idents={idents} />}
+      {tab === "entradas" && <Entradas trips={trips} reqs={reqs} deals={deals} config={config} docs={docs} idents={idents} otherPending={looseIdents.length} />}
       {tab === "ligacoes" && <Entregas trips={trips} reqs={reqs} deals={deals} commission={config.commission} holders={holders} agreements={agreements} />}
       {tab === "quadro" && <Quadro trips={trips} reqs={reqs} />}
       {tab === "analise" && <Analise trips={trips} reqs={reqs} deals={deals} />}

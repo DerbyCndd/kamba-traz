@@ -38,7 +38,7 @@ export default async function Home() {
             {trips.length ? <Link className="link" href="/quadro">Ver o quadro →</Link> : null}
           </div>
           {trips.length ? (
-            <div className="list">{trips.slice(0, 3).map((t) => <TripPass key={t.id} t={t} whatsapp={config.whatsapp} />)}</div>
+            <div className="list">{trips.slice(0, 3).map((t) => <TripPass key={t.id} t={t} />)}</div>
           ) : (
             <p className="muted">Ainda não há viagens publicadas. Podes ser a primeira pessoa.</p>
           )}

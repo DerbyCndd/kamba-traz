@@ -4,7 +4,7 @@ import type { ReqPub, TripPub } from "@/lib/types";
 import { Stars } from "./Stars";
 import { ExBadge, StatusPill } from "./ui";
 
-export function TripPass({ t }: { t: TripPub; whatsapp?: string }) {
+export function TripPass({ t }: { t: TripPub }) {
   return (
     <article className="pass">
       <div className="main">
@@ -27,7 +27,7 @@ export function TripPass({ t }: { t: TripPub; whatsapp?: string }) {
   );
 }
 
-export function ReqTag({ r }: { r: ReqPub; whatsapp?: string }) {
+export function ReqTag({ r }: { r: ReqPub }) {
   return (
     <article className="bagtag">
       <div className="head">

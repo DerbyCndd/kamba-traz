@@ -98,7 +98,6 @@ main{padding-top:56px}
 .btn.ghost{border-color:transparent}
 .btn.ghost:hover{background:var(--raised);border-color:transparent}
 .btn.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,transparent)}
-.btn.inverse{border-color:var(--edge)}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .row.between{justify-content:space-between}
@@ -110,18 +109,13 @@ main{padding-top:56px}
 .hero .copy{display:flex;flex-direction:column;gap:24px;min-width:0}
 .hero .lead{font-size:19px;color:var(--muted);max-width:44ch}
 .hero .row{gap:14px}
-.heroart{display:flex;justify-content:center}
 .bag{display:block;width:min(100%,380px);height:auto}
 .bag.small{width:min(220px,100%)}
-.name-note{font-size:14px;color:var(--muted)}
 
 /* passos */
 
 
 /* factos de confiança, numa linha */
-.facts-row{display:flex;flex-wrap:wrap;gap:12px 36px;color:var(--muted);font-size:15px}
-.facts-row span{display:inline-flex;align-items:center;gap:10px}
-.facts-row svg{color:var(--ink);flex:none}
 
 /* ===== listas do quadro (linhas, não cartões) ===== */
 .rows{display:flex;flex-direction:column}
@@ -272,7 +266,6 @@ form.row select{flex:1 1 200px;max-width:280px}
 .podium li{display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
 .podium li:first-child{border-top:0}
 .place{width:22px;font:600 14px var(--f-mono);color:var(--muted);flex:none}
-.p1 .place{color:var(--accent-text)}
 .who{display:flex;flex-direction:column;gap:3px;min-width:0}
 .who b{font-weight:600;overflow-wrap:anywhere}
 .rank-empty{color:var(--muted);font-size:15px}
@@ -351,7 +344,6 @@ form.row select{flex:1 1 200px;max-width:280px}
 
 @media (max-width:900px){
   .hero{grid-template-columns:1fr;gap:32px}
-  .heroart{justify-content:flex-start}
   .bag{width:min(70%,280px)}
   ol.steps{grid-template-columns:1fr;gap:20px}
   .two{grid-template-columns:1fr}

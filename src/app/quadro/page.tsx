@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ReqTag, TripPass } from "@/components/Cards";
 import { Empty } from "@/components/ui";
 import { FROM } from "@/lib/constants";
-import { getConfig, getOpenRequests, getOpenTrips } from "@/lib/data";
+import { getOpenRequests, getOpenTrips } from "@/lib/data";
 import { cityName } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Quadro" };
@@ -12,7 +12,7 @@ export default async function QuadroPage({ searchParams }: { searchParams: Promi
   const sp = await searchParams;
   const tab = sp.tab === "pedidos" ? "pedidos" : "viagens";
   const from = FROM.includes(sp.from ?? "") ? sp.from! : "";
-  const [config, trips, reqs] = await Promise.all([getConfig(), getOpenTrips(from), getOpenRequests(from)]);
+  const [trips, reqs] = await Promise.all([getOpenTrips(from), getOpenRequests(from)]);
   const q = (t: string) => `/quadro?tab=${t}${from ? "&from=" + from : ""}`;
 
   return (
@@ -36,11 +36,11 @@ export default async function QuadroPage({ searchParams }: { searchParams: Promi
 
       {tab === "viagens" ? (
         trips.length
-          ? <div className="grid">{trips.map((t) => <TripPass key={t.id} t={t} whatsapp={config.whatsapp} />)}</div>
+          ? <div className="grid">{trips.map((t) => <TripPass key={t.id} t={t} />)}</div>
           : <Empty title="Nenhuma viagem com este filtro" text="Publica a tua viagem e aparece aqui para quem precisa de enviar." cta="Publicar viagem" href="/viajar" />
       ) : (
         reqs.length
-          ? <div className="grid tags">{reqs.map((r) => <ReqTag key={r.id} r={r} whatsapp={config.whatsapp} />)}</div>
+          ? <div className="grid tags">{reqs.map((r) => <ReqTag key={r.id} r={r} />)}</div>
           : <Empty title="Nenhum pedido com este filtro" text="Precisas de trazer algo? Faz o teu pedido e os viajantes vêem-no aqui." cta="Pedir envio" href="/pedir" />
       )}
     </section>

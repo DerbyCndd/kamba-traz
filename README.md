@@ -39,6 +39,7 @@ Next.js (App Router) + Supabase (login por email verificado, Postgres, RLS).
 - **Resumo diário da equipa:** a Vercel chama `/api/cron/resumo` todos os dias às 08:00 UTC (`vercel.json`). Envia só contagens (entradas por aprovar, identificações, acordos, pagamentos, tentativas de entrada), nunca dados de pessoas. Para funcionar:
   1. Correr `supabase/monitor.sql` no SQL Editor.
   2. Na Vercel, definir `CRON_SECRET` (mínimo 16 caracteres) e um canal: `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`, ou `RESEND_API_KEY` + `DIGEST_EMAIL` (ver `.env.example`). Sem canal, o resumo corre mas não é enviado.
+- **Erros da app (Sentry):** o código está pronto e fica desligado até existir `NEXT_PUBLIC_SENTRY_DSN`. Crie um projeto Next.js em sentry.io, copie o DSN e ponha-o na Vercel (produção). Só envia o tipo de erro, o texto e o sítio do código: nunca cookies, cabeçalhos, IP, utilizador, dados do pedido, texto depois do «?» das ligações nem o rasto de cliques (ver `src/lib/sentry.ts`). Não envia desempenho nem gravação de sessões.
 - **Bibliotecas:** o Dependabot (`.github/dependabot.yml`) abre um pedido por semana quando há versões novas ou falhas de segurança conhecidas.
 
 ## Estrutura

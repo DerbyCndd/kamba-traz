@@ -7,6 +7,10 @@ const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT
 const supaHttp = supabase ? supabase.origin : "https://*.supabase.co";
 const supaWs = supabase ? "wss://" + supabase.host : "wss://*.supabase.co";
 
+// O Sentry (erros) só é permitido se estiver configurado: o navegador envia os erros para o endereço do DSN.
+let sentryHost = "";
+try { if (process.env.NEXT_PUBLIC_SENTRY_DSN) sentryHost = " " + new URL(process.env.NEXT_PUBLIC_SENTRY_DSN).origin; } catch { /* DSN inválido: ignora */ }
+
 // Política de conteúdo: só carrega e liga a quem conhece. Scripts e estilos em linha são precisos para o Next.js (hidratação) e para o tema.
 const csp = [
   "default-src 'self'",
@@ -14,7 +18,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: blob: ${supaHttp} https://tile.openstreetmap.org`,
   "font-src 'self' data:",
-  `connect-src 'self' ${supaHttp} ${supaWs}${dev ? " ws://localhost:*" : ""}`,
+  `connect-src 'self' ${supaHttp} ${supaWs}${sentryHost}${dev ? " ws://localhost:*" : ""}`,
   "manifest-src 'self'",
   "frame-ancestors 'none'",
   "object-src 'none'",

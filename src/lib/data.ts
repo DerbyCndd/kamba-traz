@@ -1,7 +1,7 @@
 import { createClient } from "./supabase/server";
 import { decryptPii } from "./pii";
 import { today } from "./format";
-import type { Deal, LedgerRow, Offer, Position, Wallet, Config, PendingRating, RatingRole, RatingSummary, ReqPreview, ReqPub, TopEntry, TripPreview, TripPub, WaiverHolder, Winner } from "./types";
+import type { Deal, DealReport, Reputation, LedgerRow, Offer, Position, Wallet, Config, PendingRating, RatingRole, RatingSummary, ReqPreview, ReqPub, TopEntry, TripPreview, TripPub, WaiverHolder, Winner } from "./types";
 
 const DEFAULT_CONFIG: Config = { commission: 12, per_kg: 8000, whatsapp: "" };
 
@@ -198,4 +198,22 @@ export async function getDeliveryCode(dealId: string): Promise<string | null> {
   const supabase = await createClient();
   const { data } = await supabase.from("deal_secrets").select("code_enc").eq("deal_id", dealId).maybeSingle();
   return data?.code_enc ? decryptPii(data.code_enc) : null;
+}
+
+/** Reputação das outras partes (média, avaliações, entregas concluídas, identificação confirmada). Vazio se protecao.sql ainda não foi corrido. */
+export async function getReputations(ids: string[]): Promise<Record<string, Reputation>> {
+  const list = [...new Set(ids.filter(Boolean))];
+  if (!list.length) return {};
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("party_reputation", { p_users: list });
+  if (error || !data) return {};
+  return Object.fromEntries((data as Reputation[]).map((r) => [r.user_id, r]));
+}
+
+/** As minhas denúncias numa entrega (a equipa vê todas na aba «Denúncias»). Vazio se protecao.sql ainda não foi corrido. */
+export async function getMyReports(dealId: string): Promise<{ available: boolean; reports: DealReport[] }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("deal_reports").select("*").eq("deal_id", dealId).order("created_at", { ascending: false });
+  if (error) return { available: false, reports: [] };
+  return { available: true, reports: (data ?? []) as DealReport[] };
 }

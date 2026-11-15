@@ -202,6 +202,14 @@ export async function fundDeal(dealId: string, _: AdminState, fd: FormData): Pro
   return { message: "Pagamento confirmado. O valor ficou retido." };
 }
 
+// ---------- denúncias ----------
+export async function setReportStatus(id: string, status: "aberta" | "em_analise" | "resolvida") {
+  const { supabase } = await requireAdmin();
+  if (!["aberta", "em_analise", "resolvida"].includes(status)) return;
+  await supabase.from("deal_reports").update({ status }).eq("id", id);
+  done();
+}
+
 // ---------- feedback ----------
 export async function setFeedbackStatus(id: string, status: "novo" | "lido" | "resolvido") {
   const { supabase } = await requireAdmin();

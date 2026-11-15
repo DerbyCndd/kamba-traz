@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { getConfig, getMyOffers } from "@/lib/data";
+import { getConfig, getMyOffers, getReputations } from "@/lib/data";
 import { cityName, fdate, kz } from "@/lib/format";
-import type { Offer, ReqPub, TripPub } from "@/lib/types";
+import type { Offer, Reputation, ReqPub, TripPub } from "@/lib/types";
 import { Empty } from "@/components/ui";
 import { OfferActions } from "./OfferActions";
 
@@ -17,6 +17,19 @@ const LABEL: Record<Offer["status"], [string, string]> = {
   substituida: ["info", "Substituída"],
   fechada: ["info", "Fechada"],
 };
+
+/** Reputação da outra parte, para decidir com mais informação: média, avaliações, entregas concluídas e identificação confirmada. */
+function Rep({ r }: { r?: Reputation }) {
+  if (!r) return null;
+  const rated = r.total > 0 && r.avg_stars != null;
+  return (
+    <p className="hint indent">
+      {rated ? <>★ {Number(r.avg_stars).toFixed(1).replace(".", ",")} ({r.total} {r.total === 1 ? "avaliação" : "avaliações"})</> : "Sem avaliações ainda"}
+      {" · "}{r.deals_done} {r.deals_done === 1 ? "entrega concluída" : "entregas concluídas"}
+      {" · "}{r.id_confirmed ? "identificação confirmada pela equipa" : "identificação ainda por confirmar"}
+    </p>
+  );
+}
 
 function Context({ r, t }: { r?: ReqPub; t?: TripPub }) {
   return (
@@ -45,6 +58,7 @@ export default async function PropostasPage() {
   const sent = offers.filter((o) => o.from_user === user.id && o.status === "aberta");
   const agreed = offers.filter((o) => o.status === "aceite" || o.status === "convertida");
   const past = offers.filter((o) => ["recusada", "substituida", "fechada"].includes(o.status));
+  const reps = await getReputations(offers.map((o) => (o.from_user === user.id ? o.to_user : o.from_user)));
   const other = (o: Offer) => (o.from_user === user.id ? o.to_name : o.from_name);
   const mineRole = (o: Offer) => (o.from_user === user.id ? o.from_role : o.from_role === "traveler" ? "requester" : "traveler");
   const fee = (p: number) => Math.round((p * config.commission) / 100);
@@ -58,6 +72,7 @@ export default async function PropostasPage() {
         </div>
         <span className={"pill " + LABEL[o.status][0]}>{LABEL[o.status][1].toUpperCase()}</span>
       </div>
+      <Rep r={reps[o.from_user === user.id ? o.to_user : o.from_user]} />
       <Context r={requests[o.request_id]} t={trips[o.trip_id]} />
       <p className="hint indent">O viajante recebe {kz(o.price - fee(o.price))} (taxa Kamba de {config.commission}%).</p>
       {body}

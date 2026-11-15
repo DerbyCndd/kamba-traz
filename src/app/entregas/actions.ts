@@ -95,3 +95,22 @@ export async function uploadDealPhotos(fd: FormData): Promise<DeliveryState & { 
   revalidatePath(`/entregas/${dealId}`);
   return { done: true, count: (have ?? 0) + paths.length };
 }
+
+const KINDS = ["nao_recebida", "volume_diferente", "item_proibido", "conduta", "outro"];
+
+/** Quem participa numa entrega pode denunciar um problema à equipa. A outra parte não vê a denúncia. */
+export async function reportDeal(_: DeliveryState, fd: FormData): Promise<DeliveryState> {
+  const { user, supabase } = await requireUser();
+  const dealId = String(fd.get("deal") ?? "");
+  const kind = String(fd.get("kind") ?? "");
+  const message = String(fd.get("message") ?? "").trim();
+  if (!UUID.test(dealId)) return { error: "Entrega inválida." };
+  if (!KINDS.includes(kind)) return { error: "Escolhe o tipo de problema." };
+  if (message.length < 10 || message.length > 600) return { error: "Descreve o problema em 10 a 600 caracteres." };
+  if (await isLimited("deal-report-user", user.id, 5, 24 * 3600)) return { error: TOO_MANY };
+  await recordHit("deal-report-user", user.id);
+  const { error } = await supabase.rpc("report_deal", { p_deal: dealId, p_kind: kind, p_message: message });
+  if (error) return { error: safe(error) };
+  revalidatePath(`/entregas/${dealId}`);
+  return { done: true };
+}

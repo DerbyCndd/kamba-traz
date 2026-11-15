@@ -5,9 +5,10 @@ import { ConfirmDelivery } from "@/components/ConfirmDelivery";
 import { DeliveryMap } from "@/components/DeliveryMap";
 import { LocationSharer } from "@/components/LocationSharer";
 import { PickupPanel } from "@/components/PickupPanel";
+import { ReportForm } from "@/components/ReportForm";
 import { getProfile, requireUser } from "@/lib/auth";
 import { DEAL_STEPS } from "@/lib/constants";
-import { getDeal, getDealPhotos, getDeliveryCode, getPositions } from "@/lib/data";
+import { getDeal, getDealPhotos, getDeliveryCode, getMyReports, getPositions } from "@/lib/data";
 import { fdate, kz } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Entrega" };
@@ -42,6 +43,7 @@ export default async function EntregaPage({ params }: { params: Promise<{ id: st
   const idx = DEAL_STEPS.findIndex((s) => s[0] === deal.status);
   const cancelled = deal.status === "cancelado";
 
+  const reports = isSender || isTraveler ? await getMyReports(id) : { available: false, reports: [] };
   const [positions, code, shots] = await Promise.all([
     deal.status === "transito" && (isSender || admin) ? getPositions(id) : Promise.resolve([]),
     isSender && (deal.status === "garantia" || deal.status === "transito") ? getDeliveryCode(id) : Promise.resolve(null),
@@ -99,6 +101,22 @@ export default async function EntregaPage({ params }: { params: Promise<{ id: st
           {(isSender || admin) && deal.status === "transito" ? <DeliveryMap dealId={id} initial={positions} /> : null}
           {(isSender || admin) && deal.status === "garantia" ? <p className="muted">O mapa aparece quando o entregador pegar a encomenda.</p> : null}
           {deal.status === "entregue" || deal.status === "liberado" ? <p className="muted">A localização foi apagada quando a entrega terminou.</p> : null}
+
+          {reports.available && (isSender || isTraveler) ? (
+            <div className="panel">
+              <h3>Algo correu mal?</h3>
+              <p className="muted">Se a encomenda não chegou, o volume é diferente do combinado ou algo parece errado, conta à equipa. A outra parte não vê a denúncia.</p>
+              {reports.reports.length ? (
+                <ul className="muted">
+                  {reports.reports.map((r) => <li key={r.id}>{fdate(r.created_at.slice(0, 10))}: {r.status === "resolvida" ? "resolvida" : r.status === "em_analise" ? "a equipa está a analisar" : "recebida, à espera da equipa"}</li>)}
+                </ul>
+              ) : null}
+              <details className="past">
+                <summary>Denunciar um problema</summary>
+                <ReportForm dealId={id} />
+              </details>
+            </div>
+          ) : null}
         </div>
 
         <aside className="aside">

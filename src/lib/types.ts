@@ -73,3 +73,8 @@ export type Offer = {
   id: string; request_id: string; trip_id: string; from_user: string; to_user: string; from_role: RatingRole;
   from_name: string; to_name: string; price: number; status: OfferStatus; parent_id: string | null; created_at: string; responded_at: string | null;
 };
+
+export type ReportKind = "nao_recebida" | "volume_diferente" | "item_proibido" | "conduta" | "outro";
+export type ReportStatus = "aberta" | "em_analise" | "resolvida";
+export type DealReport = { id: string; deal_id: string; reporter_id: string; kind: ReportKind; message: string; status: ReportStatus; created_at: string };
+export type Reputation = { user_id: string; avg_stars: number | null; total: number; deals_done: number; id_confirmed: boolean };

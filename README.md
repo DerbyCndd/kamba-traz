@@ -33,6 +33,14 @@ Next.js (App Router) + Supabase (login por email verificado, Postgres, RLS).
 - O pagamento em garantia e o código de entrega ainda não estão ligados a nenhum fornecedor: hoje a equipa
   acompanha os estados à mão no painel (como no protótipo).
 
+## Monitorização
+
+- **Site no ar:** `/api/saude` responde 200 se o site e a base de dados funcionam e 503 se não (não mostra dados). Aponte para lá um serviço de monitorização gratuito (por exemplo UptimeRobot), com aviso por email ou Telegram.
+- **Resumo diário da equipa:** a Vercel chama `/api/cron/resumo` todos os dias às 08:00 UTC (`vercel.json`). Envia só contagens (entradas por aprovar, identificações, acordos, pagamentos, tentativas de entrada), nunca dados de pessoas. Para funcionar:
+  1. Correr `supabase/monitor.sql` no SQL Editor.
+  2. Na Vercel, definir `CRON_SECRET` (mínimo 16 caracteres) e um canal: `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`, ou `RESEND_API_KEY` + `DIGEST_EMAIL` (ver `.env.example`). Sem canal, o resumo corre mas não é enviado.
+- **Bibliotecas:** o Dependabot (`.github/dependabot.yml`) abre um pedido por semana quando há versões novas ou falhas de segurança conhecidas.
+
 ## Estrutura
 
 - `src/proxy.ts` — renova a sessão e manda para `/login` quem não tem email verificado.

@@ -85,6 +85,9 @@ export function Entradas({ trips, reqs, deals, config, docs, idents }: { trips: 
             ) : null}
             {!isTrip && "invoice_path" in r && !r.invoice_path && needsInvoice(r.category, r.item_value) ? <div className="notice bad" role="alert"><b>Falta a fatura.</b> Este pedido é de um bem de risco e não trouxe fatura.</div> : null}
             <IdentityBlock userId={it.user_id} ident={identOf.get(it.user_id)} accountName={it.name} tripReturn={isTrip ? t.return_date : null} />
+            {isTrip && identOf.get(it.user_id) && !identOf.get(it.user_id)?.passport_last4 ? (
+              <div className="notice bad" role="alert"><b>Sem passaporte registado.</b> Esta pessoa vai viajar mas não registou o passaporte (nem as fotos). Não aprovar antes de o registar.</div>
+            ) : null}
             {isTrip ? <DocBlock tripId={it.id} doc={docOf.get(it.id)} accountName={it.name} /> : null}
             <div className="row">
               {isTrip && (docOf.get(it.id)?.status !== "confirmado" || (identOf.get(it.user_id) && identOf.get(it.user_id)?.status !== "confirmado")) ? (

@@ -43,9 +43,9 @@ function PhotoPick({ id, label, hint, error, tag }: { id: string; label: string;
   );
 }
 
-export function IdentityForm({ defaultName, defaultPhone, next, hasIdentity, dates, sides }: { defaultName: string; defaultPhone: string; next: string; hasIdentity: boolean; dates: boolean; sides: boolean }) {
+export function IdentityForm({ defaultName, defaultPhone, next, hasIdentity, dates, sides, needPassport }: { defaultName: string; defaultPhone: string; next: string; hasIdentity: boolean; dates: boolean; sides: boolean; needPassport?: boolean }) {
   const [state, action, pending] = useActionState(saveIdentity, empty);
-  const [withPassport, setWithPassport] = useState(false);
+  const [withPassport, setWithPassport] = useState(!!needPassport);
   useFocusFirstError(state.errors);
   const v = state.values, e = state.errors;
 
@@ -90,11 +90,18 @@ export function IdentityForm({ defaultName, defaultPhone, next, hasIdentity, dat
         </fieldset>
 
         <fieldset className="fs">
-          <legend>Passaporte (opcional)</legend>
-          <label className="check" htmlFor="withPassport">
-            <input id="withPassport" name="withPassport" type="checkbox" checked={withPassport} onChange={(ev) => setWithPassport(ev.target.checked)} />
-            <span>Quero já indicar o meu passaporte. Se não, basta o BI e o telefone.</span>
-          </label>
+          <legend>{needPassport ? "Passaporte (obrigatório para viajar)" : "Passaporte (opcional)"}</legend>
+          {needPassport ? (
+            <>
+              <input type="hidden" name="withPassport" value="on" />
+              <p className="privacy">Quem viaja tem de ter o passaporte registado, para a equipa o conferir com o bilhete. Se o BI já está guardado, volta a juntar as fotos dele: enviar de novo substitui a identificação anterior.</p>
+            </>
+          ) : (
+            <label className="check" htmlFor="withPassport">
+              <input id="withPassport" name="withPassport" type="checkbox" checked={withPassport} onChange={(ev) => setWithPassport(ev.target.checked)} />
+              <span>Quero já indicar o meu passaporte. Se não, basta o BI e o telefone para enviar encomendas (para viajar é preciso o passaporte).</span>
+            </label>
+          )}
           {withPassport ? (
             <>
               <div className="fields">

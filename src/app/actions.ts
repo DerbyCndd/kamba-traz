@@ -183,6 +183,8 @@ export async function submitTrip(_: FormState, fd: FormData): Promise<FormState>
   }
   const ident = await myIdentity(supabase, user.id);
   if (!ident.available || !ident.row) return { errors: {}, values: safe(v), formError: "Completa primeiro a tua identificação (BI e telefone) em Meu perfil." };
+  // Quem viaja tem de ter o passaporte registado (número e fotos): a equipa confere-o com o bilhete. Para só enviar, não é preciso.
+  if (!ident.row.passport_last4) return { errors: {}, values: safe(v), formError: "Para viajar, tens de ter o passaporte registado (número e fotos). Abre «Vou viajar» outra vez e regista-o primeiro." };
   if (ident.row.bi_expiry && ident.row.bi_expiry <= today()) return { errors: {}, values: safe(v), formError: "O teu BI está fora de validade. Atualiza a identificação em Meu perfil." };
   if (ident.row.passport_expiry && ident.row.passport_expiry <= today()) return { errors: {}, values: safe(v), formError: "O teu passaporte está fora de validade. Atualiza a identificação em Meu perfil." };
   const pp = passportVsTrip(ident.row.passport_expiry, v.returnDate);

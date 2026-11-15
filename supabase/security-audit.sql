@@ -50,7 +50,8 @@ grant execute on function public.submit_feedback(text, uuid, text, int, text, te
 revoke insert on public.feedback from anon, authenticated;
 drop policy if exists feedback_insert on public.feedback;
 
--- 4. Ficheiros: cada pessoa só pode ter um número limitado de ficheiros em cada espaço (evita encher o armazenamento).
+-- 4. (corre antes storage-fix.sql, que cria public.storage_count)
+-- Ficheiros: cada pessoa só pode ter um número limitado de ficheiros em cada espaço (evita encher o armazenamento).
 do $$
 declare b record;
 begin
@@ -59,7 +60,7 @@ begin
     execute format('drop policy if exists %I on storage.objects', b.bucket || '_insert_own');
     execute format($p$create policy %I on storage.objects for insert to authenticated with check (
       bucket_id = %L and (storage.foldername(name))[1] = auth.uid()::text
-      and (select count(*) from storage.objects o where o.bucket_id = %L and (storage.foldername(o.name))[1] = auth.uid()::text) < %s
+      and public.storage_count(%L, auth.uid()) < %s -- função: ler storage.objects aqui dentro dava recursão infinita (ver storage-fix.sql)
     )$p$, b.bucket || '_insert_own', b.bucket, b.bucket, b.maxfiles);
   end loop;
 end $$;

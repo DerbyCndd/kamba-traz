@@ -49,7 +49,7 @@ create policy deal_photos_storage_insert on storage.objects for insert to authen
       where d.id::text = (storage.foldername(name))[1] and d.traveler_id = auth.uid() and d.status = 'garantia'
     )
     -- Limite de ficheiros por pessoa (o limite por entrega está na tabela deal_photos: 10 fotos).
-    and (select count(*) from storage.objects o where o.bucket_id = 'deal-photos' and o.owner_id = auth.uid()::text) < 400
+    and public.storage_count('deal-photos', auth.uid()) < 400 -- função: ler storage.objects aqui dentro dava recursão infinita (ver storage-fix.sql)
   );
 
 drop policy if exists deal_photos_storage_read on storage.objects;

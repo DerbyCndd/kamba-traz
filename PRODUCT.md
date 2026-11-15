@@ -49,7 +49,7 @@ Modo claro e modo escuro (segue o sistema por defeito; a pessoa pode escolher, e
 
 ## Brand Commitments
 
-Origem do nome (confirmada pelo dono): "Kamba" quer dizer amigo em kimbundu. A marca fala assim: o amigo que leva a tua encomenda. Marca (criada com o dono, a manter): um K em forma de etiqueta de bagagem (canto inferior esquerdo bem arredondado) cujo braço superior é um avião de papel. Amarelo (#FFC52A) com o K em azul-noite (#0D1530). O nome escreve-se "Kamba" na cor do texto e "Traz" a amarelo. Componente em src/components/Logo.tsx; ficheiros em src/app (icon.svg, favicon.ico, apple-icon.png, opengraph-image.png, manifest.ts) e public (icon-*.png).
+Origem do nome (confirmada pelo dono): "Kamba" quer dizer amigo em kimbundu. A marca fala assim: o amigo que leva a tua encomenda. Marca (escolhida pelo dono, opção E, a manter): uma mala amarela (#FFC52A) com uma etiqueta de bagagem branca pendurada e o K em azul-noite (#0D1530), sobre fundo azul-noite. O nome escreve-se "Kamba" na cor do texto e "Traz" a amarelo. Alternativas descartadas em Logos/_antigos. Componente em src/components/Logo.tsx; ficheiros em src/app (icon.svg, favicon.ico, apple-icon.png, opengraph-image.png, manifest.ts) e public (icon-*.png).
 
 Só o nome "Kamba Traz" é obrigatório. O dono deu liberdade para redesenhar paleta, tipografia e cartões. Idioma: português de Portugal.
 

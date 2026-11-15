@@ -1,27 +1,20 @@
-import { useId } from "react";
-
 /**
- * A marca da Kamba Traz: um K feito de mãos. A haste é um braço de mão levantada, e a perna do K é outro braço dobrado no cotovelo, também de mão levantada.
- * Duas mãos a entregar, sobre a etiqueta de bagagem. A mesma forma está em src/app/icon.svg.
+ * A marca da Kamba Traz: uma mala amarela com uma etiqueta de bagagem pendurada, e o K na etiqueta.
+ * Fundo azul-noite próprio (funciona sobre claro e escuro). A mesma forma está em src/app/icon.svg e em Logos/.
  */
 export function LogoMark({ size = 32 }: { size?: number }) {
-  const id = useId().replace(/:/g, "");
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-    <defs>
-      <g id={`hd-${id}`} fill="#F4F6FF" stroke="#0D1530" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round">
-        <rect x="-7" y="-9" width="14" height="17" rx="6"/>
-        <path d="M-2.4-8.5v5.5M2.4-8.5v5.5" fill="none"/>
-        <path d="M-6.5-1.5q-5.5-.5-5 3.5t5.6 3.5"/>
+      <rect width="64" height="64" rx="16" fill="#0D1530"/>
+      <path d="M20 26v-5a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v5" fill="none" stroke="#FFC52A" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
+      <rect x="7" y="25" width="42" height="32" rx="9" fill="#FFC52A"/>
+      <path d="M7 34h42" stroke="#0D1530" strokeWidth="1.6" strokeDasharray="3 3"/>
+      <path d="M40 30C46 28 49 32 49 37" fill="none" stroke="#F4F6FF" strokeWidth="1.8" strokeLinecap="round"/>
+      <g transform="rotate(10 50 44)">
+      <rect x="40" y="36" width="19" height="22" rx="5" fill="#F4F6FF"/>
+      <circle cx="54" cy="40.5" r="1.5" fill="#0D1530"/>
+      <path d="M46 44.5V56.5M46 50.5L52 44.5M46 50.5L52 56.5" fill="none" stroke="#0D1530" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"/>
       </g>
-    </defs>
-    <path d="M15 0h34a15 15 0 0 1 15 15v34a15 15 0 0 1-15 15H27A27 27 0 0 1 0 37V15A15 15 0 0 1 15 0z" fill="#FFC52A"/>
-    <g fill="none" stroke="#0D1530" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M19 24V54"/>
-      <path d="M49 54L26 37l17-14"/>
-    </g>
-    <use href={`#hd-${id}`} transform="translate(19 17)" />
-    <use href={`#hd-${id}`} transform="translate(46.5 18) rotate(40)" />
     </svg>
   );
 }

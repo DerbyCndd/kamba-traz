@@ -77,6 +77,7 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
   if (v.deadline && v.deadline < today()) errors.deadline = "A data já passou.";
   // Bens de risco levam a fatura da compra (só se a base já guarda faturas: invoices.sql).
   const deliveryOn = (await supabase.from("requests").select("pickup_address").limit(1)).error === null; // contactos.sql corrido?
+  const handoverOn = (await supabase.from("requests").select("handover").limit(1)).error === null; // entrega-local.sql corrido?
   const currencyOn = (await supabase.from("requests").select("item_currency").limit(1)).error === null; // moeda.sql corrido?
   const invoicesOn = (await supabase.from("requests").select("invoice_path").limit(1)).error === null;
   const mustInvoice = invoicesOn && needsInvoice(v.category, valueEur);
@@ -98,9 +99,10 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
   }
   // O texto público não leva contactos: trocam-se na app, depois de o pagamento ficar retido.
   if (v.item && hasContactInfo(v.item)) errors.item = NO_CONTACTS_MSG;
+  const handover = handoverOn && v.handover === "levar" ? "levar" : "buscar"; // o entregador vai buscar, ou quem envia leva-lhe a encomenda
   // Recolha e destinatário: o entregador precisa deles para pegar e entregar a encomenda.
   if (deliveryOn) {
-    if ((v.pickup_address ?? "").length < 8 || v.pickup_address.length > 300) errors.pickup_address = "Escreve a morada onde o entregador pega a encomenda.";
+    if (handover === "buscar" && ((v.pickup_address ?? "").length < 8 || v.pickup_address.length > 300)) errors.pickup_address = "Escreve a morada onde o entregador pega a encomenda.";
     if ((v.pickup_notes ?? "").length > 300) errors.pickup_notes = "Demasiado longo.";
     if (v.pickup_map && !/^https?:\/\/\S{4,290}$/i.test(v.pickup_map)) errors.pickup_map = "Cola uma ligação do mapa que comece por https://, ou deixa em branco.";
     if ((v.recipient_name ?? "").length < 2 || v.recipient_name.length > 80) errors.recipient_name = "Escreve o nome de quem recebe em Angola.";
@@ -127,7 +129,8 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
   const row = {
     ...(invoicePath ? { invoice_path: invoicePath } : {}),
     ...(rule.limit != null ? { urgent, urgent_reason: urgent ? reason : null } : {}),
-    ...(deliveryOn ? { pickup_address: v.pickup_address, pickup_notes: v.pickup_notes || null, pickup_map: v.pickup_map || null, recipient_name: v.recipient_name, recipient_phone: v.recipient_phone, recipient_address: v.recipient_address } : {}),
+    ...(deliveryOn ? { pickup_address: handover === "buscar" ? v.pickup_address : null, pickup_notes: handover === "buscar" ? v.pickup_notes || null : null, pickup_map: handover === "buscar" ? v.pickup_map || null : null, recipient_name: v.recipient_name, recipient_phone: v.recipient_phone, recipient_address: v.recipient_address } : {}),
+    ...(handoverOn ? { handover } : {}),
     ...(currencyOn && currency ? { item_currency: currency, item_amount: Number(v.value) } : {}),
     user_id: user.id, name: v.name, contact: v.contact, origin: v.origin, destination: v.destination,
     item: v.item, category: v.category, kg: num(v.kg)!, item_value: valueEur, offer: Math.round(num(v.offer)!),
@@ -192,6 +195,13 @@ export async function submitTrip(_: FormState, fd: FormData): Promise<FormState>
     kind = imageKind(bytes);
     if (!kind) errors.ticket = "Usa uma foto em JPG, PNG ou WebP.";
   }
+  // Onde recebe encomendas (opcional): só se entrega-local.sql já foi corrido.
+  const dropoffOn = (await supabase.from("trips").select("dropoff_address").limit(1)).error === null;
+  if (dropoffOn) {
+    if (v.dropoff_address && (v.dropoff_address.length < 8 || v.dropoff_address.length > 300)) errors.dropoff_address = "Escreve a morada completa, ou deixa em branco.";
+    if ((v.dropoff_notes ?? "").length > 300) errors.dropoff_notes = "Demasiado longo.";
+    if (v.dropoff_map && !/^https?:\/\/\S{4,290}$/i.test(v.dropoff_map)) errors.dropoff_map = "Cola uma ligação do mapa que comece por https://, ou deixa em branco.";
+  }
   if (Object.keys(errors).length) return { errors, values: safe(v) };
 
   if (await tooManyPending(supabase, user.id)) {
@@ -224,6 +234,10 @@ export async function submitTrip(_: FormState, fd: FormData): Promise<FormState>
   }
 
   revalidatePath("/meus");
+  if (dropoffOn && v.dropoff_address) {
+    // Opcional: se falhar, a viagem fica registada na mesma.
+    await supabase.rpc("set_trip_dropoff", { p_trip: tripId as string, p_address: v.dropoff_address, p_notes: v.dropoff_notes ?? "", p_map: v.dropoff_map ?? "" });
+  }
   const summary = [
     "VIAGEM · Kamba Traz", "Nome: " + v.name, "Contacto: " + v.contact,
     `Rota: ${cityName(v.origin)} → ${cityName(v.destination)}`, `Ida: ${v.date} · Regresso: ${v.returnDate}`,

@@ -10,11 +10,12 @@ import { useFocusFirstError } from "@/components/useFocusFirstError";
 import { SubmitResult } from "@/components/SubmitResult";
 import { shrinkImage } from "@/lib/shrink";
 import { Src } from "@/components/Src";
+import { MapField } from "@/components/MapField";
 
 const cityOpts = (codes: string[]) =>
   codes.map((c) => <option key={c} value={c}>{cityName(c)}{c !== "OTH" ? ` (${c})` : ""}</option>);
 
-export function TripForm({ perKg, whatsapp, defaultName, defaultPhone, minDate }: { perKg: number; whatsapp: string; defaultName: string; defaultPhone: string; minDate: string }) {
+export function TripForm({ perKg, whatsapp, defaultName, defaultPhone, minDate, dropoff }: { perKg: number; whatsapp: string; defaultName: string; defaultPhone: string; minDate: string; dropoff: boolean }) {
   const [state, action, pending] = useActionState(submitTrip, emptyForm);
   const [preview, setPreview] = useState<{ url: string; kb: number } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -91,6 +92,21 @@ export function TripForm({ perKg, whatsapp, defaultName, defaultPhone, minDate }
           ) : null}
         </fieldset>
 
+        {dropoff ? (
+          <fieldset className="fs">
+            <legend>Onde recebes encomendas (opcional)</legend>
+            <p className="privacy">Se preferires que quem envia te leve a encomenda, indica onde a recebes. Quem envia só vê isto depois de o pagamento ficar retido, e deixa de ver quando a entrega termina. Se deixares em branco, és tu a ir buscar à morada de quem envia, ou combinam pelo telefone.</p>
+            <div className="fields">
+              <Field id="dropoff_address" label="Morada onde recebes" hint="Rua, número, bairro e cidade." error={e.dropoff_address} full>
+                <input id="dropoff_address" name="dropoff_address" maxLength={300} autoComplete="street-address" defaultValue={v.dropoff_address} />
+              </Field>
+              <Field id="dropoff_notes" label="Horários e referências" hint="Ex.: dias úteis depois das 18h, junto à estação." error={e.dropoff_notes} full>
+                <input id="dropoff_notes" name="dropoff_notes" maxLength={300} defaultValue={v.dropoff_notes} />
+              </Field>
+              <MapField id="dropoff_map" label="Localização no mapa" hint="Cola uma ligação do Google Maps, ou usa o botão para enviar a tua localização atual." error={e.dropoff_map} defaultValue={v.dropoff_map} />
+            </div>
+          </fieldset>
+        ) : null}
         <fieldset className="fs">
           <legend>Os teus dados</legend>
           <div className="fields">

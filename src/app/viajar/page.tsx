@@ -16,6 +16,7 @@ export default async function ViajarPage() {
   if (ident.available && !ident.row) redirect("/identificacao?next=/viajar");
   if (ident.row && safetyIncomplete(ident)) redirect("/identificacao/contactos?next=/viajar");
   const hasPhoto = await supabase.from("profiles").select("photo_path").eq("id", user.id).maybeSingle().then((r) => (r.error ? true : !!r.data?.photo_path));
+  const dropoff = (await supabase.from("trips").select("dropoff_address").limit(1)).error === null; // entrega-local.sql corrido?
   const needsPassport = !!ident.row && !ident.row.passport_last4; // só se envia a viagem com o passaporte já registado
   return (
     <section>
@@ -31,7 +32,7 @@ export default async function ViajarPage() {
         </div>
       ) : null}
       <div className="formgrid">
-        {needsPassport ? <div className="panel"><p className="muted">O formulário da viagem abre depois de registares o passaporte.</p></div> : <TripForm perKg={config.per_kg} whatsapp={config.whatsapp} defaultName={profile?.full_name ?? ""} defaultPhone={ident.row?.phone ?? ""} minDate={today()} />}
+        {needsPassport ? <div className="panel"><p className="muted">O formulário da viagem abre depois de registares o passaporte.</p></div> : <TripForm perKg={config.per_kg} whatsapp={config.whatsapp} defaultName={profile?.full_name ?? ""} defaultPhone={ident.row?.phone ?? ""} minDate={today()} dropoff={dropoff} />}
       <aside className="aside" aria-label="O que acontece a seguir">
           <h3>O que acontece a seguir</h3>
           <ol className="next">

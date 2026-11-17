@@ -36,7 +36,8 @@ const ROWS: [string, string, string][] = [
   ["Foto de perfil", "Opcional", "A equipa reconhece-te melhor."],
   ["Foto do bilhete de avião e datas", "Obrigatório para quem viaja", "Confirmar que a viagem existe."],
   ["Rota, peso, valor e descrição do item; fatura", "Obrigatório para quem envia", "Juntar pedidos a viagens e cumprir a alfândega."],
-  ["Local de recolha e dados de quem recebe em Angola (nome, telefone, morada)", "Obrigatório para quem envia", "O entregador pegar e entregar a encomenda. Quem envia garante que tem autorização de quem recebe."],
+  ["Local de recolha e dados de quem recebe em Angola (nome, telefone, morada)", "Obrigatório para quem envia (o local de recolha só se quiser que o entregador vá buscar)", "O entregador pegar e entregar a encomenda. Quem envia garante que tem autorização de quem recebe."],
+  ["Morada onde o entregador recebe encomendas (opcional)", "Opcional, para quem viaja", "Quem envia levar-lhe a encomenda, se preferir. Só quem envia a vê, com o pagamento retido."],
   ["Localização do telemóvel", "Só quem leva a encomenda, e só em trânsito", "Quem enviou acompanha a entrega no mapa."],
   ["Fotos do estado do volume", "Obrigatório para quem leva a encomenda", "Provar em que estado o volume foi recebido, se houver um problema."],
   ["Propostas de valor entre quem envia e quem viaja", "Obrigatório nas entregas", "Combinar o preço. Não há conversa livre: só valores e estado da proposta."],
@@ -77,7 +78,7 @@ export default function PrivacidadePage() {
       <DocSection id="vistos" n={3} title="Quem vê os teus dados">
         <ul>
           <li><b>O público</b> só vê o primeiro nome, a rota e valores de referência. Nunca contactos nem documentos.</li>
-          <li><b>A outra parte da entrega</b> vê só o que é preciso para a entrega acontecer. Antes de o pagamento ficar retido vê só o primeiro nome. Depois, e até a entrega ser confirmada, vê o nome e o telefone de quem está do outro lado; o entregador vê ainda o local de recolha e o nome, o telefone e a morada de quem recebe. Quando a entrega termina, deixa de ver tudo isto. Os documentos, a morada de residência e os familiares nunca são partilhados com ela.</li>
+          <li><b>A outra parte da entrega</b> vê só o que é preciso para a entrega acontecer. Antes de o pagamento ficar retido vê só o primeiro nome. Depois, e até a entrega ser confirmada, vê o nome e o telefone de quem está do outro lado; o entregador vê ainda o local de recolha (se for ele a ir buscar) e o nome, o telefone e a morada de quem recebe, e quem envia vê onde o entregador recebe encomendas, se ele o indicou. Quando a entrega termina, deixa de ver tudo isto. Os documentos, a morada de residência e os familiares nunca são partilhados com ela.</li>
           <li><b>A equipa da Kamba</b> vê os documentos, os números e as fotos, para confirmar a identificação. Cada abertura de um documento fica registada.</li>
           <li><b>Serviços que usamos para funcionar:</b> a Supabase (base de dados, autenticação e ficheiros), a Vercel (alojamento do site), o OpenStreetMap (mapas), o Sentry (avisos de erros técnicos: removemos nomes, contactos, documentos e o que escreves antes do envio) e o Resend (email do resumo diário à equipa, que só tem contagens). Podem tratar dados em servidores fora de Angola.</li>
           <li><b>Autoridades,</b> só quando a lei o exigir.</li>

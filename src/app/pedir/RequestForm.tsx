@@ -15,13 +15,14 @@ import { SubmitResult } from "@/components/SubmitResult";
 const cityOpts = (codes: string[]) =>
   codes.map((c) => <option key={c} value={c}>{cityName(c)}{c !== "OTH" ? ` (${c})` : ""}</option>);
 
-export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoices, minDate, limitEur, delivery }: { perKg: number; whatsapp: string; defaultName: string; defaultPhone: string; invoices: boolean; minDate: string; limitEur: number | null; delivery: boolean }) {
+export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoices, minDate, limitEur, delivery, handoverChoice }: { perKg: number; whatsapp: string; defaultName: string; defaultPhone: string; invoices: boolean; minDate: string; limitEur: number | null; delivery: boolean; handoverChoice: boolean }) {
   const [state, action, pending] = useActionState(submitRequest, emptyForm);
   const [cat, setCat] = useState<string | null>(null);
   const [kg, setKg] = useState("");
   const [val, setVal] = useState("");
   const [map, setMap] = useState(state.values.pickup_map ?? "");
   const [geoMsg, setGeoMsg] = useState("");
+  const [handover, setHandover] = useState<"buscar" | "levar">(state.values.handover === "levar" ? "levar" : "buscar");
   const [cur, setCur] = useState<Cur>(isCur(state.values.currency) ? state.values.currency : ORIGIN_CURRENCY[state.values.origin ?? "LIS"] ?? "EUR");
   useFocusFirstError(state.errors);
   if (state.done) return <SubmitResult done={state.done} whatsapp={whatsapp} />;
@@ -110,6 +111,24 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoic
         </fieldset>
         {delivery ? (
           <>
+            {handoverChoice ? (
+              <fieldset className="fs">
+                <legend>Como a encomenda chega ao entregador</legend>
+                <div className="fields">
+                  <div className="field full">
+                    <label className="check" htmlFor="h-buscar">
+                      <input id="h-buscar" name="handover" type="radio" value="buscar" checked={handover === "buscar"} onChange={() => setHandover("buscar")} />
+                      <span><b>O entregador vem buscar</b> à minha morada. Indico onde, e ele só a vê depois de o pagamento ficar retido.</span>
+                    </label>
+                    <label className="check" htmlFor="h-levar">
+                      <input id="h-levar" name="handover" type="radio" value="levar" checked={handover === "levar"} onChange={() => setHandover("levar")} />
+                      <span><b>Levo eu a encomenda ao entregador.</b> Não preciso de indicar a minha morada: vejo onde ele recebe depois de o pagamento ficar retido, e combinamos.</span>
+                    </label>
+                  </div>
+                </div>
+              </fieldset>
+            ) : null}
+            {handover === "buscar" ? (
             <fieldset className="fs">
               <legend>Onde pegar a encomenda</legend>
               <p className="privacy">O entregador vê isto só depois de o pagamento ficar retido, para vir buscar a encomenda. Mais ninguém, além da equipa.</p>
@@ -129,6 +148,7 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoic
                 </div>
               </div>
             </fieldset>
+            ) : null}
             <fieldset className="fs">
               <legend>Quem recebe em Angola</legend>
               <p className="privacy">O entregador usa isto para entregar. Pede à pessoa que dê o código de entrega ao receber. Só o entregador e a equipa veem estes dados.</p>

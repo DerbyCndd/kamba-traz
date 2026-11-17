@@ -22,7 +22,7 @@ export type TripPreview = Omit<TripPub, "id" | "name">;
 export type ReqPreview = Omit<ReqPub, "id" | "name" | "item">;
 
 // Linhas completas (só o dono e a equipa as vêem).
-export type Trip = TripPub & { user_id: string; contact: string; flight: string; created_at: string; return_date?: string | null };
+export type Trip = TripPub & { user_id: string; contact: string; flight: string; created_at: string; return_date?: string | null; dropoff_address?: string | null; dropoff_notes?: string | null; dropoff_map?: string | null };
 
 /** Documentos do viajante, sem o passaporte nem o caminho da foto (esses só passam por acções da equipa). */
 export type TravelerDocView = {
@@ -37,7 +37,7 @@ export type IdentityView = {
   dups?: { kind: "bi" | "passport"; name: string }[];
   status: "pendente" | "confirmado" | "recusado";
 };
-export type Req = ReqPub & { pickup_address?: string | null; pickup_notes?: string | null; pickup_map?: string | null; recipient_name?: string | null; recipient_phone?: string | null; recipient_address?: string | null; item_currency?: string | null; item_amount?: number | null; urgent?: boolean; urgent_reason?: string | null; invoice_path?: string | null; user_id: string; contact: string; item_value: number; created_at: string };
+export type Req = ReqPub & { handover?: "buscar" | "levar"; pickup_address?: string | null; pickup_notes?: string | null; pickup_map?: string | null; recipient_name?: string | null; recipient_phone?: string | null; recipient_address?: string | null; item_currency?: string | null; item_amount?: number | null; urgent?: boolean; urgent_reason?: string | null; invoice_path?: string | null; user_id: string; contact: string; item_value: number; created_at: string };
 
 export type Deal = {
   id: string; request_id: string | null; trip_id: string | null; label: string; traveler: string; requester: string;
@@ -80,7 +80,8 @@ export type DealReport = { id: string; deal_id: string; reporter_id: string; kin
 export type Reputation = { user_id: string; avg_stars: number | null; total: number; deals_done: number; id_confirmed: boolean };
 
 export type DealContacts = {
-  as_role: "traveler" | "sender"; other_name: string; other_phone: string;
+  as_role: "traveler" | "sender"; other_name: string; other_phone: string; handover: "buscar" | "levar" | null;
+  dropoff_address: string | null; dropoff_notes: string | null; dropoff_map: string | null;
   pickup_address: string | null; pickup_notes: string | null; pickup_map: string | null;
   recipient_name: string | null; recipient_phone: string | null; recipient_address: string | null;
 };

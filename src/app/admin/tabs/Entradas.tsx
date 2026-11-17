@@ -67,6 +67,7 @@ export function Entradas({ trips, reqs, deals, config, docs, idents, otherPendin
                   <div><span>Espaço livre</span>{t.kg} kg</div>
                   <div><span>Preço por kg</span>{kz(t.per_kg)}</div>
                   {t.flight ? <div><span>Voo</span>{t.flight}</div> : null}
+                  {t.dropoff_address ? <div><span>Onde recebe encomendas</span>{t.dropoff_address}{t.dropoff_notes ? " · " + t.dropoff_notes : ""}</div> : null}
                   {t.return_date ? <div><span>Regresso</span>{fdate(t.return_date)}</div> : null}
                 </>
               ) : (

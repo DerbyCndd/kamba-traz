@@ -13,7 +13,7 @@ export default function DeclaracaoPage() {
     <section className="doc form">
       <h2>Declaração de conteúdo</h2>
       <p className="muted noprint">Preenche uma por volume, no momento da entrega ao viajante, e tira uma foto dela junto ao volume selado. <Link href="/termos">Termos de uso</Link></p>
-      <div className="noprint row"><PrintButton /></div>
+      <div className="noprint row"><PrintButton /><a className="btn small" href="/documentos/Declaracao-de-Conteudo.pdf" download>Descarregar a folha em PDF</a></div>
 
       <div className="noprint">
         <h3>Como usar esta folha</h3>

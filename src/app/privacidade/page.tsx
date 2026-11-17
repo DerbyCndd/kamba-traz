@@ -54,6 +54,7 @@ export default function PrivacidadePage() {
       intro="Explicamos que dados guardamos, para quê, quem os vê e como os podes ver, corrigir ou apagar."
       summary={SUMMARY}
       toc={TOC}
+      pdf="/documentos/Politica-de-Privacidade.pdf"
       related={[{ href: "/termos", label: "Termos de uso" }, { href: "/regras", label: "Regras de segurança" }, { href: "/feedback", label: "Pedir ou corrigir dados" }]}
     >
       <DocSection id="quem" n={1} title="Quem trata os teus dados">

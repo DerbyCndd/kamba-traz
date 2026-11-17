@@ -37,6 +37,7 @@ export default function TermosPage() {
       intro="Ao criar conta, fazer um pedido ou publicar uma viagem, aceitas estas regras. Escrevemo-las para se perceberem: dizem quem faz o quê e quem responde por quê."
       summary={SUMMARY}
       toc={TOC}
+      pdf="/documentos/Termos-de-Uso.pdf"
       related={[{ href: "/privacidade", label: "Política de privacidade" }, { href: "/regras", label: "Regras de segurança" }, { href: "/declaracao", label: "Declaração de conteúdo" }]}
     >
       <DocSection id="o-que-somos" n={1} title="O que é a Kamba Traz">

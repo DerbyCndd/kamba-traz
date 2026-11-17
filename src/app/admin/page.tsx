@@ -15,6 +15,7 @@ import { Denuncias } from "./tabs/Denuncias";
 import { Definicoes } from "./tabs/Definicoes";
 import { CheckIdentities } from "./tabs/CheckIdentities";
 import { Identificacoes } from "./tabs/Identificacoes";
+import { EquipaTab, type TeamMember } from "./tabs/EquipaTab";
 
 export const metadata: Metadata = { title: "Equipa" };
 
@@ -50,7 +51,10 @@ async function loadIdentities(supabase: Supa): Promise<IdentityView[]> {
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { supabase } = await requireAdmin();
   const { tab: raw } = await searchParams;
-  const tab = TABS.some((t) => t[0] === raw) ? raw! : "entradas";
+  const owner = await supabase.rpc("is_owner").then((r) => (r.error ? false : r.data === true)); // só o dono vê «Equipa» (equipa.sql)
+  const tabs: readonly (readonly [string, string])[] = owner ? [...TABS, ["equipa", "Equipa"] as const] : TABS;
+  const tab = tabs.some((t) => t[0] === raw) ? raw! : "entradas";
+  const members: TeamMember[] = owner ? await supabase.rpc("team_list").then((r) => (r.error ? [] : (r.data ?? [])) as TeamMember[]) : [];
 
   const [config, holders, docs, feedback, trips, reqs, deals, idents, agreements, unchecked, reports] = await Promise.all([
     getConfig(),
@@ -91,7 +95,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         <div><span className="label">Comissão recebida</span><b>{kz(earned)}</b></div>
       </div>
       <div className="tabs" role="tablist">
-        {TABS.map(([k, t]) => (
+        {tabs.map(([k, t]) => (
           <Link key={k} role="tab" aria-selected={tab === k} href={`/admin?tab=${k}`}>
             {t}{k in counts ? <span className="cnt">{counts[k]}</span> : null}
           </Link>
@@ -107,6 +111,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       {tab === "pitch" && <Pitch />}
       {tab === "denuncias" && <Denuncias rows={reports} names={reporterNames} />}
       {tab === "feedback" && <FeedbackTab rows={feedback} />}
+      {tab === "equipa" && owner && <EquipaTab members={members} />}
       {tab === "definicoes" && <Definicoes config={config} newLimit={newLimit} />}
     </section>
   );

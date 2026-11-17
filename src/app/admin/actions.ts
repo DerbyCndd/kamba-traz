@@ -207,6 +207,29 @@ export async function fundDeal(dealId: string, _: AdminState, fd: FormData): Pro
   return { message: "Pagamento confirmado. O valor ficou retido." };
 }
 
+// ---------- equipa (só o dono) ----------
+const TEAM_ERR = ["P0001", "42501"]; // mensagens escritas por nós na função SQL: seguras de mostrar
+
+/** O dono acrescenta alguém à equipa, pelo email. A base de dados volta a confirmar que quem pede é o dono. */
+export async function addTeamMember(_: AdminState, fd: FormData): Promise<AdminState> {
+  const { supabase, profile } = await requireAdmin();
+  const email = String(fd.get("email") ?? "").trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 200) return { error: "Escreve um email válido." };
+  const { error } = await supabase.rpc("team_set_role", { p_email: email, p_admin: true });
+  if (error) return { error: TEAM_ERR.includes(error.code ?? "") ? error.message : "Não foi possível agora. Tenta de novo daqui a pouco." };
+  console.info("[auditoria] pessoa acrescentada à equipa", { dono: profile.id });
+  done();
+  return { message: "Acrescentada. A pessoa tem de sair e voltar a entrar para ver o painel." };
+}
+
+/** O dono retira alguém da equipa. */
+export async function removeTeamMember(email: string) {
+  const { supabase, profile } = await requireAdmin();
+  const { error } = await supabase.rpc("team_set_role", { p_email: email, p_admin: false });
+  if (!error) console.info("[auditoria] pessoa retirada da equipa", { dono: profile.id });
+  done();
+}
+
 // ---------- denúncias ----------
 export async function setReportStatus(id: string, status: "aberta" | "em_analise" | "resolvida") {
   const { supabase } = await requireAdmin();

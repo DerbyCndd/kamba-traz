@@ -116,5 +116,8 @@ export async function saveIdentity(_: IdentityState, fd: FormData): Promise<Iden
   if (stale.length) await supabase.storage.from("ids").remove(stale);
 
   revalidatePath("/", "layout");
-  redirect(NEXT.has(values.next) ? values.next : "/");
+  const to = NEXT.has(values.next) ? values.next : "/";
+  const after = await myIdentity(supabase, user.id);
+  if (after.safety === false) redirect("/identificacao/contactos?next=" + encodeURIComponent(to)); // falta a morada e os familiares
+  redirect(to);
 }

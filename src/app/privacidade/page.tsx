@@ -21,7 +21,7 @@ const TOC: TocItem[] = [
 const SUMMARY: SummaryPoint[] = [
   { icon: "shield", title: "Não vendemos os teus dados.", text: "Não há publicidade nem seguimento." },
   { icon: "lock", title: "Só a equipa vê os teus documentos.", text: "Os números ficam cifrados e as fotos num espaço privado." },
-  { icon: "idcard", title: "Pedimos o mínimo.", text: "Telefone e BI são obrigatórios. Passaporte e foto de perfil são opcionais." },
+  { icon: "idcard", title: "Pedimos o mínimo.", text: "Telefone, BI, morada e um contacto de familiar são obrigatórios. O passaporte só é obrigatório para quem viaja." },
   { icon: "pin", title: "A localização só existe durante a entrega.", text: "É apagada quando a entrega termina." },
   { icon: "key", title: "Mandas tu.", text: "Podes pedir para ver, corrigir ou apagar os teus dados." },
 ];
@@ -30,10 +30,12 @@ const ROWS: [string, string, string][] = [
   ["Nome, email, palavra-passe", "Obrigatório", "Criar e proteger a tua conta. A palavra-passe é guardada cifrada."],
   ["Telefone", "Obrigatório", "A equipa fala contigo sobre pedidos e entregas."],
   ["Número, validade e fotos do BI", "Obrigatório", "Saber quem envia e quem viaja, e prevenir fraude."],
-  ["Passaporte (número, validade, fotos)", "Opcional", "Ajuda a confirmar quem viaja. Só se quiseres."],
+  ["Morada, estado civil e contactos de familiares (mãe, pai, cônjuge)", "Obrigatório", "Agir depressa em caso de emergência ou de suspeita de fraude, e tornar mais difícil fugir com uma encomenda. Ficam cifrados e só a equipa os vê. Quem os indica garante que tem autorização dessas pessoas."],
+  ["Passaporte (número, validade, fotos)", "Obrigatório para quem viaja", "Confirmar quem viaja, com o bilhete. Quem só envia não precisa."],
   ["Foto de perfil", "Opcional", "A equipa reconhece-te melhor."],
   ["Foto do bilhete de avião e datas", "Obrigatório para quem viaja", "Confirmar que a viagem existe."],
   ["Rota, peso, valor e descrição do item; fatura", "Obrigatório para quem envia", "Juntar pedidos a viagens e cumprir a alfândega."],
+  ["Local de recolha e dados de quem recebe em Angola (nome, telefone, morada)", "Obrigatório para quem envia", "O entregador pegar e entregar a encomenda. Quem envia garante que tem autorização de quem recebe."],
   ["Localização do telemóvel", "Só quem leva a encomenda, e só em trânsito", "Quem enviou acompanha a entrega no mapa."],
   ["Fotos do estado do volume", "Obrigatório para quem leva a encomenda", "Provar em que estado o volume foi recebido, se houver um problema."],
   ["Propostas de valor entre quem envia e quem viaja", "Obrigatório nas entregas", "Combinar o preço. Não há conversa livre: só valores e estado da proposta."],
@@ -73,7 +75,7 @@ export default function PrivacidadePage() {
       <DocSection id="vistos" n={3} title="Quem vê os teus dados">
         <ul>
           <li><b>O público</b> só vê o primeiro nome, a rota e valores de referência. Nunca contactos nem documentos.</li>
-          <li><b>A outra parte da entrega</b> vê só o que é preciso para a entrega acontecer, como o primeiro nome. O telefone, os documentos e os números não são partilhados com ela sem acordo.</li>
+          <li><b>A outra parte da entrega</b> vê só o que é preciso para a entrega acontecer. Antes de o pagamento ficar retido vê só o primeiro nome. Depois, e até a entrega ser confirmada, vê o nome e o telefone de quem está do outro lado; o entregador vê ainda o local de recolha e o nome, o telefone e a morada de quem recebe. Quando a entrega termina, deixa de ver tudo isto. Os documentos, a morada de residência e os familiares nunca são partilhados com ela.</li>
           <li><b>A equipa da Kamba</b> vê os documentos, os números e as fotos, para confirmar a identificação. Cada abertura de um documento fica registada.</li>
           <li><b>Serviços que usamos para funcionar:</b> a Supabase (base de dados, autenticação e ficheiros), a Vercel (alojamento do site), o OpenStreetMap (mapas), o Sentry (avisos de erros técnicos: removemos nomes, contactos, documentos e o que escreves antes do envio) e o Resend (email do resumo diário à equipa, que só tem contagens). Podem tratar dados em servidores fora de Angola.</li>
           <li><b>Autoridades,</b> só quando a lei o exigir.</li>
@@ -99,6 +101,7 @@ export default function PrivacidadePage() {
       <DocSection id="tempo" n={6} title="Quanto tempo guardamos">
         <ul>
           <li><b>Localização:</b> apagada quando a entrega termina.</li>
+          <li><b>Contactos entre as partes e dados de recolha e entrega:</b> só se mostram à outra parte enquanto a entrega está ativa; guardam-se com o pedido. A morada e os familiares guardam-se enquanto a conta existir.</li>
           <li><b>Contagem de tentativas de entrada e registo:</b> apagada ao fim de 1 dia.</li>
           <li><b>Conta, documentos e fotos:</b> enquanto a conta existir (a impressão do número do documento apaga-se com a identificação). Se a apagares, apagamos os teus documentos e as tuas fotos, exceto o que a lei nos obrigue a guardar (por exemplo, registos de pagamentos e de identificação para fins fiscais e de prevenção de fraude).</li>
         </ul>
@@ -129,6 +132,7 @@ export default function PrivacidadePage() {
         <p>A plataforma é só para maiores de 18 anos. Podemos atualizar esta política: a versão em vigor é a desta página, e o que mudou fica registado em baixo, com a data. Ver também os <Link href="/termos">termos de uso</Link>.</p>
         <div className="docversions">
           <p className="itl">O que mudou</p>
+          <p><b>17 de novembro de 2026.</b> Passámos a pedir a morada, o estado civil e contactos de familiares (cifrados, só a equipa os vê), o local de recolha e os dados de quem recebe em Angola. Depois de o pagamento ficar retido, as duas partes veem o contacto uma da outra até a entrega ser confirmada. O passaporte passou a ser obrigatório só para quem viaja.</p>
           <p><b>15 de novembro de 2026.</b> Passámos a indicar o Sentry e o Resend entre os serviços que usamos, explicámos o aviso de documento repetido, as propostas de valor e a contagem temporária de tentativas.</p>
           <p><b>14 de novembro de 2026.</b> Primeira versão.</p>
         </div>

@@ -4,7 +4,8 @@ import { SubmitButton } from "@/components/SubmitButton";
 import { identityAlerts } from "@/lib/docchecks";
 import { fdate, today } from "@/lib/format";
 import type { IdentityView } from "@/lib/types";
-import { idPhotoUrl, revealIdNumber, setIdentityStatus } from "../actions";
+import { idPhotoUrl, revealIdNumber, revealSafety, setIdentityStatus } from "../actions";
+import { CIVIL, REL_LABEL, type FamilyRel } from "@/lib/safety";
 
 const LABEL = { pendente: ["warn", "POR CONFIRMAR"], confirmado: ["ok", "CONFIRMADA"], recusado: ["bad", "RECUSADA"] } as const;
 
@@ -14,6 +15,7 @@ export function IdentityBlock({ userId, ident, accountName, tripReturn }: { user
   const [pp, setPp] = useState<string | null>(null);
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [safety, setSafety] = useState<{ address?: string; civil?: string; family?: { rel: string; name: string; phone: string }[] } | null>(null);
 
   if (!ident) {
     return <div className="notice"><b>Sem identificação.</b> Esta pessoa ainda não deixou o BI e o telefone.</div>;
@@ -26,6 +28,12 @@ export function IdentityBlock({ userId, ident, accountName, tripReturn }: { user
     const r = await revealIdNumber(userId, kind);
     (kind === "bi" ? setBi : setPp)(r.value ?? null);
     if (r.error) setMsg(r.error);
+    setBusy(false);
+  }
+  async function showSafety() {
+    setBusy(true); setMsg("");
+    const r = await revealSafety(userId);
+    if (r.error) setMsg(r.error); else setSafety(r);
     setBusy(false);
   }
   async function photo(kind: "bi" | "bi_back" | "passport" | "passport_last") {
@@ -73,6 +81,15 @@ export function IdentityBlock({ userId, ident, accountName, tripReturn }: { user
           <form action={setIdentityStatus.bind(null, userId, "recusado")} className="inline"><SubmitButton className="btn small danger" pending="A guardar…">Recusar</SubmitButton></form>
         ) : null}
       </div>
+      {safety ? (
+        <div className="kv">
+          <div><span>Morada</span>{safety.address ?? "—"}</div>
+          <div><span>Estado civil</span>{CIVIL.find(([k]) => k === safety.civil)?.[1] ?? "—"}</div>
+          {(safety.family ?? []).map((f) => <div key={f.rel + f.phone}><span>{REL_LABEL[f.rel as FamilyRel] ?? f.rel}</span>{f.name} · {f.phone}</div>)}
+        </div>
+      ) : (
+        <div className="row"><button type="button" className="btn small" onClick={showSafety} disabled={busy}>Ver morada e familiares</button></div>
+      )}
       {msg ? <p className="err" role="alert">{msg}</p> : null}
     </div>
   );

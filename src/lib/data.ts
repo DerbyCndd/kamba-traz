@@ -1,7 +1,7 @@
 import { createClient } from "./supabase/server";
 import { decryptPii } from "./pii";
 import { today } from "./format";
-import type { Deal, DealReport, Reputation, LedgerRow, Offer, Position, Wallet, Config, PendingRating, RatingRole, RatingSummary, ReqPreview, ReqPub, TopEntry, TripPreview, TripPub, WaiverHolder, Winner } from "./types";
+import type { Deal, DealContacts, DealReport, Reputation, LedgerRow, Offer, Position, Wallet, Config, PendingRating, RatingRole, RatingSummary, ReqPreview, ReqPub, TopEntry, TripPreview, TripPub, WaiverHolder, Winner } from "./types";
 
 const DEFAULT_CONFIG: Config = { commission: 12, per_kg: 8000, whatsapp: "" };
 
@@ -232,4 +232,12 @@ export async function getNewAccountRule(): Promise<{ limit: number | null; isNew
   const [limit, n] = await Promise.all([getNewAccountLimitSetting(), supabase.rpc("am_i_new_account")]);
   if (limit == null || limit <= 0 || n.error) return { limit: null, isNew: false };
   return { limit, isNew: n.data === true };
+}
+
+/** Contactos e dados da recolha de uma entrega ativa (pagamento retido ou em trânsito). null fora disso ou se contactos.sql ainda não foi corrido. */
+export async function getDealContacts(dealId: string): Promise<DealContacts | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("deal_contacts", { p_deal: dealId });
+  if (error || !Array.isArray(data) || !data.length) return null;
+  return data[0] as DealContacts;
 }

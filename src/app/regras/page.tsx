@@ -46,7 +46,9 @@ export default function RegrasPage() {
         <ul className="bullets">
           {["Uma conta por pessoa, com os teus próprios documentos e dados verdadeiros", "A equipa confirma a identificação antes de publicar viagens e pedidos",
             "O mesmo número de BI ou de passaporte em contas diferentes é analisado pela equipa e pode levar à suspensão das contas",
-            "Contas novas, sem nenhuma entrega concluída, têm um limite de valor por pedido; para pedir mais, marca o pedido como urgente e explica porquê, e a equipa decide", "Não cedas a tua conta nem uses documentos de outra pessoa", "Dados falsos ou fraude levam à remoção da conta"].map(li)}
+            "Contas novas, sem nenhuma entrega concluída, têm um limite de valor por pedido; para pedir mais, marca o pedido como urgente e explica porquê, e a equipa decide", "Não cedas a tua conta nem uses documentos de outra pessoa", "Dados falsos ou fraude levam à remoção da conta",
+            "A morada e o contacto de um familiar são obrigatórios; o passaporte é obrigatório para quem viaja",
+            "Os contactos trocam-se na app, depois de o pagamento ficar retido. Pagar ou entregar fora da app tira-te a proteção (pagamento retido, código, denúncia) e pode levar à suspensão da conta"].map(li)}
         </ul>
         <p className="hint">Como tratamos estes dados: <Link href="/privacidade">política de privacidade</Link>. Condições gerais: <Link href="/termos">termos de uso</Link>.</p>
       </div>

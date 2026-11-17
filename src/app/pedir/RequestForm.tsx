@@ -15,11 +15,13 @@ import { SubmitResult } from "@/components/SubmitResult";
 const cityOpts = (codes: string[]) =>
   codes.map((c) => <option key={c} value={c}>{cityName(c)}{c !== "OTH" ? ` (${c})` : ""}</option>);
 
-export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoices, minDate, limitEur }: { perKg: number; whatsapp: string; defaultName: string; defaultPhone: string; invoices: boolean; minDate: string; limitEur: number | null }) {
+export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoices, minDate, limitEur, delivery }: { perKg: number; whatsapp: string; defaultName: string; defaultPhone: string; invoices: boolean; minDate: string; limitEur: number | null; delivery: boolean }) {
   const [state, action, pending] = useActionState(submitRequest, emptyForm);
   const [cat, setCat] = useState<string | null>(null);
   const [kg, setKg] = useState("");
   const [val, setVal] = useState("");
+  const [map, setMap] = useState(state.values.pickup_map ?? "");
+  const [geoMsg, setGeoMsg] = useState("");
   const [cur, setCur] = useState<Cur>(isCur(state.values.currency) ? state.values.currency : ORIGIN_CURRENCY[state.values.origin ?? "LIS"] ?? "EUR");
   useFocusFirstError(state.errors);
   if (state.done) return <SubmitResult done={state.done} whatsapp={whatsapp} />;
@@ -31,6 +33,17 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoic
   const wantsInvoice = invoices && needsInvoice(cat ?? v.category ?? CATS[0], valEur);
 
   const overLimit = limitEur != null && valEur > limitEur;
+
+  // Localização atual: preenche a ligação do mapa. A pessoa confirma que é o sítio certo.
+  function fillLocation() {
+    if (!navigator.geolocation) { setGeoMsg("O teu navegador não permite obter a localização."); return; }
+    setGeoMsg("A obter a localização…");
+    navigator.geolocation.getCurrentPosition(
+      (p) => { setMap(`https://www.google.com/maps?q=${p.coords.latitude.toFixed(5)},${p.coords.longitude.toFixed(5)}`); setGeoMsg("Localização preenchida. Confirma que é o sítio certo."); },
+      () => setGeoMsg("Não foi possível obter a localização. Escreve a morada ou cola uma ligação do mapa."),
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }
 
   // Envio manual: assim o formulário não se apaga quando há um erro (a pessoa não tem de escolher a fatura outra vez).
   function onSubmit(ev: React.FormEvent<HTMLFormElement>) {
@@ -95,6 +108,44 @@ export function RequestForm({ perKg, whatsapp, defaultName, defaultPhone, invoic
           </Field>
           </div>
         </fieldset>
+        {delivery ? (
+          <>
+            <fieldset className="fs">
+              <legend>Onde pegar a encomenda</legend>
+              <p className="privacy">O entregador vê isto só depois de o pagamento ficar retido, para vir buscar a encomenda. Mais ninguém, além da equipa.</p>
+              <div className="fields">
+                <Field id="pickup_address" label="Morada de recolha" hint="Rua, número, bairro e cidade." error={e.pickup_address} full>
+                  <input id="pickup_address" name="pickup_address" maxLength={300} autoComplete="street-address" defaultValue={v.pickup_address} />
+                </Field>
+                <Field id="pickup_notes" label="Horários e referências (opcional)" hint="Ex.: depois das 18h, portão azul, tocar à campainha." error={e.pickup_notes} full>
+                  <input id="pickup_notes" name="pickup_notes" maxLength={300} defaultValue={v.pickup_notes} />
+                </Field>
+                <Field id="pickup_map" label="Localização no mapa (opcional)" hint="Cola uma ligação do Google Maps, ou usa o botão para enviar a tua localização atual." error={e.pickup_map} full>
+                  <input id="pickup_map" name="pickup_map" inputMode="url" maxLength={300} placeholder="https://maps.google.com/…" value={map} onChange={(ev) => setMap(ev.target.value)} />
+                </Field>
+                <div className="field full">
+                  <button type="button" className="btn small" onClick={fillLocation}>Usar a minha localização atual</button>
+                  {geoMsg ? <span className="hint" role="status"> {geoMsg}</span> : null}
+                </div>
+              </div>
+            </fieldset>
+            <fieldset className="fs">
+              <legend>Quem recebe em Angola</legend>
+              <p className="privacy">O entregador usa isto para entregar. Pede à pessoa que dê o código de entrega ao receber. Só o entregador e a equipa veem estes dados.</p>
+              <div className="fields">
+                <Field id="recipient_name" label="Nome de quem recebe" error={e.recipient_name}>
+                  <input id="recipient_name" name="recipient_name" maxLength={80} defaultValue={v.recipient_name} />
+                </Field>
+                <Field id="recipient_phone" label="Telefone de quem recebe" error={e.recipient_phone}>
+                  <input id="recipient_phone" name="recipient_phone" type="tel" inputMode="tel" placeholder="+244 9XX XXX XXX" defaultValue={v.recipient_phone} />
+                </Field>
+                <Field id="recipient_address" label="Onde entregar" hint="Bairro, rua e uma referência (ex.: junto ao mercado)." error={e.recipient_address} full>
+                  <input id="recipient_address" name="recipient_address" maxLength={300} defaultValue={v.recipient_address} />
+                </Field>
+              </div>
+            </fieldset>
+          </>
+        ) : null}
         <fieldset className="fs">
           <legend>Os teus dados</legend>
           <div className="fields">

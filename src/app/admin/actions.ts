@@ -258,6 +258,22 @@ export async function revealIdNumber(userId: string, kind: IdKind): Promise<{ va
   return { value };
 }
 
+/** Mostra a morada, o estado civil e os familiares de uma pessoa (decifrados só aqui, no servidor, e só à equipa). Cada consulta fica no registo. */
+export async function revealSafety(userId: string): Promise<{ address?: string; civil?: string; family?: { rel: string; name: string; phone: string }[]; error?: string }> {
+  const { supabase, profile } = await requireAdmin();
+  if (!/^[0-9a-f-]{36}$/i.test(userId)) return { error: "Pessoa inválida." };
+  const { data, error } = await supabase.from("identities").select("civil_status, address_enc, family_enc").eq("user_id", userId).maybeSingle();
+  if (error) return { error: "Ainda não está ativo (falta correr contactos.sql)." };
+  const row = data as { civil_status: string | null; address_enc: string | null; family_enc: string | null } | null;
+  if (!row?.address_enc && !row?.family_enc) return { error: "Esta pessoa ainda não indicou a morada nem os familiares." };
+  const address = row.address_enc ? decryptPii(row.address_enc) : null;
+  let family: { rel: string; name: string; phone: string }[] = [];
+  try { family = row.family_enc ? JSON.parse(decryptPii(row.family_enc) ?? "[]") : []; } catch { family = []; }
+  if (!address && !family.length) return { error: "Não foi possível ler (a chave de cifra pode estar em falta)." };
+  console.info("[auditoria] morada e familiares consultados", { equipa: profile.id, pessoa: userId });
+  return { address: address ?? undefined, civil: row.civil_status ?? undefined, family };
+}
+
 /** Ligação à foto do BI ou do passaporte, válida só 2 minutos. A foto nunca é pública. */
 export async function idPhotoUrl(userId: string, kind: IdKind | "bi_back" | "passport_last"): Promise<{ url?: string; error?: string }> {
   const { supabase, profile } = await requireAdmin();

@@ -14,13 +14,15 @@ export default async function PedirPage() {
   const ident = await myIdentity(supabase, user.id);
   const invoices = (await supabase.from("requests").select("invoice_path").limit(1)).error === null;
   if (ident.available && !ident.row) redirect("/identificacao?next=/pedir");
+  if (ident.row && ident.safety === false) redirect("/identificacao/contactos?next=/pedir");
+  const delivery = (await supabase.from("requests").select("pickup_address").limit(1)).error === null; // contactos.sql corrido?
   const rule = await getNewAccountRule();
   return (
     <section>
       <h2>Quero enviar uma encomenda</h2>
       <p className="muted">Demora dois minutos. A equipa verifica e publica.</p>
       <div className="formgrid">
-        <RequestForm perKg={config.per_kg} whatsapp={config.whatsapp} defaultName={profile?.full_name ?? ""} defaultPhone={ident.row?.phone ?? ""} invoices={invoices} minDate={today()} limitEur={rule.isNew ? rule.limit : null} />
+        <RequestForm perKg={config.per_kg} whatsapp={config.whatsapp} defaultName={profile?.full_name ?? ""} defaultPhone={ident.row?.phone ?? ""} invoices={invoices} delivery={delivery} minDate={today()} limitEur={rule.isNew ? rule.limit : null} />
       <aside className="aside" aria-label="O que acontece a seguir">
           <h3>O que acontece a seguir</h3>
           <ol className="next">

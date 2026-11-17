@@ -6,6 +6,7 @@ import { getNewAccountRule } from "@/lib/data";
 import { customsEstimate, needsInvoice } from "@/lib/customs";
 import { passportVsTrip } from "@/lib/docchecks";
 import { CURRENCIES, isCur, toEur } from "@/lib/currency";
+import { NO_CONTACTS_MSG, hasContactInfo } from "@/lib/safety";
 import { CATS, FROM, TO } from "@/lib/constants";
 import { cityName, kz, refCode, today } from "@/lib/format";
 import type { FormState, RateState } from "@/lib/types";
@@ -75,6 +76,7 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
   else if (v.origin === v.destination && v.origin !== "OTH") errors.item = "A origem e o destino não podem ser iguais.";
   if (v.deadline && v.deadline < today()) errors.deadline = "A data já passou.";
   // Bens de risco levam a fatura da compra (só se a base já guarda faturas: invoices.sql).
+  const deliveryOn = (await supabase.from("requests").select("pickup_address").limit(1)).error === null; // contactos.sql corrido?
   const currencyOn = (await supabase.from("requests").select("item_currency").limit(1)).error === null; // moeda.sql corrido?
   const invoicesOn = (await supabase.from("requests").select("invoice_path").limit(1)).error === null;
   const mustInvoice = invoicesOn && needsInvoice(v.category, valueEur);
@@ -94,10 +96,22 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
   if (overLimit && (!urgent || reason.length < 20)) {
     errors.urgent_reason = `Conta nova: o valor passa o limite de ${rule.limit} €. Marca o pedido como urgente e explica porquê, em pelo menos 20 caracteres.`;
   }
+  // O texto público não leva contactos: trocam-se na app, depois de o pagamento ficar retido.
+  if (v.item && hasContactInfo(v.item)) errors.item = NO_CONTACTS_MSG;
+  // Recolha e destinatário: o entregador precisa deles para pegar e entregar a encomenda.
+  if (deliveryOn) {
+    if ((v.pickup_address ?? "").length < 8 || v.pickup_address.length > 300) errors.pickup_address = "Escreve a morada onde o entregador pega a encomenda.";
+    if ((v.pickup_notes ?? "").length > 300) errors.pickup_notes = "Demasiado longo.";
+    if (v.pickup_map && !/^https?:\/\/\S{4,290}$/i.test(v.pickup_map)) errors.pickup_map = "Cola uma ligação do mapa que comece por https://, ou deixa em branco.";
+    if ((v.recipient_name ?? "").length < 2 || v.recipient_name.length > 80) errors.recipient_name = "Escreve o nome de quem recebe em Angola.";
+    if (!/^[0-9+() .-]{9,30}$/.test(v.recipient_phone ?? "") || (v.recipient_phone ?? "").replace(/\D/g, "").length < 9) errors.recipient_phone = "Indica o telefone de quem recebe, com indicativo.";
+    if ((v.recipient_address ?? "").length < 8 || v.recipient_address.length > 300) errors.recipient_address = "Escreve onde entregar em Angola.";
+  }
   if (Object.keys(errors).length) return { errors, values: v };
 
   const ident = await myIdentity(supabase, user.id);
   if (ident.available && !ident.row) return { errors: {}, values: v, formError: "Completa primeiro a tua identificação (BI e telefone) em Meu perfil." };
+  if (ident.safety === false) return { errors: {}, values: v, formError: "Completa primeiro a morada e os contactos de familiares: abre «Pedir envio» outra vez." };
   if (await tooManyPending(supabase, user.id)) {
     return { errors: {}, values: v, formError: "Já tens muitas entradas por verificar. Espera que a equipa as analise." };
   }
@@ -113,6 +127,7 @@ export async function submitRequest(_: FormState, fd: FormData): Promise<FormSta
   const row = {
     ...(invoicePath ? { invoice_path: invoicePath } : {}),
     ...(rule.limit != null ? { urgent, urgent_reason: urgent ? reason : null } : {}),
+    ...(deliveryOn ? { pickup_address: v.pickup_address, pickup_notes: v.pickup_notes || null, pickup_map: v.pickup_map || null, recipient_name: v.recipient_name, recipient_phone: v.recipient_phone, recipient_address: v.recipient_address } : {}),
     ...(currencyOn && currency ? { item_currency: currency, item_amount: Number(v.value) } : {}),
     user_id: user.id, name: v.name, contact: v.contact, origin: v.origin, destination: v.destination,
     item: v.item, category: v.category, kg: num(v.kg)!, item_value: valueEur, offer: Math.round(num(v.offer)!),
@@ -161,6 +176,7 @@ export async function submitTrip(_: FormState, fd: FormData): Promise<FormState>
   if (!num(v.kg) || num(v.kg)! > 100) errors.kg = "Indica quantos kg tens livres.";
   if (!num(v.perKg)) errors.perKg = "Indica o preço por kg em Kz.";
   if (v.flight && v.flight.length > 30) errors.flight = "Demasiado longo.";
+  else if (v.flight && hasContactInfo(v.flight)) errors.flight = NO_CONTACTS_MSG;
   if (v.ok !== "on") errors.ok = "Tens de confirmar para continuar.";
   if (!FROM.includes(v.origin) || !TO.includes(v.destination)) errors.date = "Escolhe valores válidos da lista.";
   else if (v.origin === v.destination && v.origin !== "OTH") errors.date = "A origem e o destino não podem ser iguais.";
@@ -183,6 +199,7 @@ export async function submitTrip(_: FormState, fd: FormData): Promise<FormState>
   }
   const ident = await myIdentity(supabase, user.id);
   if (!ident.available || !ident.row) return { errors: {}, values: safe(v), formError: "Completa primeiro a tua identificação (BI e telefone) em Meu perfil." };
+  if (ident.safety === false) return { errors: {}, values: safe(v), formError: "Completa primeiro a morada e os contactos de familiares: abre «Vou viajar» outra vez." };
   // Quem viaja tem de ter o passaporte registado (número e fotos): a equipa confere-o com o bilhete. Para só enviar, não é preciso.
   if (!ident.row.passport_last4) return { errors: {}, values: safe(v), formError: "Para viajar, tens de ter o passaporte registado (número e fotos). Abre «Vou viajar» outra vez e regista-o primeiro." };
   if (ident.row.bi_expiry && ident.row.bi_expiry <= today()) return { errors: {}, values: safe(v), formError: "O teu BI está fora de validade. Atualiza a identificação em Meu perfil." };

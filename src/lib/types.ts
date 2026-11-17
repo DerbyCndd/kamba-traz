@@ -78,3 +78,9 @@ export type ReportKind = "nao_recebida" | "volume_diferente" | "item_proibido" |
 export type ReportStatus = "aberta" | "em_analise" | "resolvida";
 export type DealReport = { id: string; deal_id: string; reporter_id: string; kind: ReportKind; message: string; status: ReportStatus; created_at: string };
 export type Reputation = { user_id: string; avg_stars: number | null; total: number; deals_done: number; id_confirmed: boolean };
+
+export type DealContacts = {
+  as_role: "traveler" | "sender"; other_name: string; other_phone: string;
+  pickup_address: string | null; pickup_notes: string | null; pickup_map: string | null;
+  recipient_name: string | null; recipient_phone: string | null; recipient_address: string | null;
+};

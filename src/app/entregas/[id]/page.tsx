@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ConfirmDelivery } from "@/components/ConfirmDelivery";
+import { DealContacts } from "@/components/DealContacts";
 import { DeliveryMap } from "@/components/DeliveryMap";
 import { LocationSharer } from "@/components/LocationSharer";
 import { PickupPanel } from "@/components/PickupPanel";
 import { ReportForm } from "@/components/ReportForm";
 import { getProfile, requireUser } from "@/lib/auth";
 import { DEAL_STEPS } from "@/lib/constants";
-import { getDeal, getDealPhotos, getDeliveryCode, getMyReports, getPositions } from "@/lib/data";
+import { getDeal, getDealPhotos, getDealContacts, getDeliveryCode, getMyReports, getPositions } from "@/lib/data";
 import { fdate, kz } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Entrega" };
@@ -44,6 +45,7 @@ export default async function EntregaPage({ params }: { params: Promise<{ id: st
   const cancelled = deal.status === "cancelado";
 
   const reports = isSender || isTraveler ? await getMyReports(id) : { available: false, reports: [] };
+  const contacts = isSender || isTraveler ? await getDealContacts(id) : null;
   const [positions, code, shots] = await Promise.all([
     deal.status === "transito" && (isSender || admin) ? getPositions(id) : Promise.resolve([]),
     isSender && (deal.status === "garantia" || deal.status === "transito") ? getDeliveryCode(id) : Promise.resolve(null),
@@ -76,6 +78,8 @@ export default async function EntregaPage({ params }: { params: Promise<{ id: st
               <b className="bigcode">{code.slice(0, 3)} {code.slice(3)}</b>
             </div>
           ) : null}
+
+          {contacts ? <DealContacts c={contacts} /> : null}
 
           {isTraveler && deal.status === "garantia" ? <PickupPanel dealId={id} photos={shots.available ? shots.photos.length : null} /> : null}
           {isTraveler && deal.status === "transito" ? (

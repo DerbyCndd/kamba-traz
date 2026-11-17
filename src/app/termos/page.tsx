@@ -78,6 +78,7 @@ export default function TermosPage() {
           <li>o conteúdo e o valor declarados são <b>verdadeiros e completos</b>, e que o item é legal e seu;</li>
           <li>não esconde nada no volume e deixa o viajante abri-lo, fotografá-lo e selá-lo à sua frente;</li>
           <li>entrega a fatura dos bens que a exigem e preenche a <Link href="/declaracao">declaração de conteúdo</Link>;</li>
+          <li>indica o local onde o entregador pega a encomenda e quem a recebe em Angola, e tem autorização dessa pessoa para dar o seu contacto;</li>
           <li>paga as taxas aduaneiras e responde pelo que declarou.</li>
         </ul>
       </DocSection>
@@ -88,7 +89,8 @@ export default function TermosPage() {
           <li><b>confere</b> o conteúdo com o remetente, abre o volume, fotografa e sela, e <b>recusa o que for suspeito</b> ou não estiver na lista. As fotos (pelo menos 2) são enviadas pela app antes de pegar a encomenda e ficam guardadas para o caso de haver um problema;</li>
           <li><b>declara</b> a mercadoria na alfândega e cumpre a lei e as condições da companhia aérea. O viajante assume o risco do que decide levar;</li>
           <li>guarda o volume em segurança, não o abre depois de selado e só o entrega a quem der o código;</li>
-          <li>aceita partilhar a localização enquanto leva a encomenda.</li>
+          <li>aceita partilhar a localização enquanto leva a encomenda;</li>
+          <li>usa o contacto, o local de recolha e a morada de entrega só para essa entrega, não os partilha e não os usa para combinar nada fora da app.</li>
         </ul>
       </DocSection>
 
@@ -133,6 +135,7 @@ export default function TermosPage() {
         <p>Dados pessoais: ver a <Link href="/privacidade">política de privacidade</Link>. Para falar connosco, usa o formulário de <Link href="/feedback">feedback</Link> ou o WhatsApp da equipa.</p>
         <div className="docversions">
           <p className="itl">O que mudou</p>
+          <p><b>17 de novembro de 2026.</b> Morada e contactos de familiares no cadastro, local de recolha e dados de quem recebe, contactos trocados dentro da app depois de o pagamento ficar retido, e a regra de que pagar ou entregar fora da app tira a proteção e pode levar à suspensão.</p>
           <p><b>15 de novembro de 2026.</b> Regras sobre uma conta por pessoa, documentos repetidos e não usar documentos nem contas de outras pessoas.</p>
           <p><b>14 de novembro de 2026.</b> Primeira versão.</p>
         </div>

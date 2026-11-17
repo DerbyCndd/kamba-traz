@@ -37,7 +37,7 @@ export type IdentityView = {
   dups?: { kind: "bi" | "passport"; name: string }[];
   status: "pendente" | "confirmado" | "recusado";
 };
-export type Req = ReqPub & { item_currency?: string | null; item_amount?: number | null; urgent?: boolean; urgent_reason?: string | null; invoice_path?: string | null; user_id: string; contact: string; item_value: number; created_at: string };
+export type Req = ReqPub & { pickup_address?: string | null; pickup_notes?: string | null; pickup_map?: string | null; recipient_name?: string | null; recipient_phone?: string | null; recipient_address?: string | null; item_currency?: string | null; item_amount?: number | null; urgent?: boolean; urgent_reason?: string | null; invoice_path?: string | null; user_id: string; contact: string; item_value: number; created_at: string };
 
 export type Deal = {
   id: string; request_id: string | null; trip_id: string | null; label: string; traveler: string; requester: string;

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { ConfirmPayment } from "./ConfirmPayment";
 import { Agreements } from "./Agreements";
 import { DealForm } from "./DealForm";
+import { PickupInfo } from "./PickupInfo";
 
 export function Entregas({ trips, reqs, deals, commission, holders, agreements }: { trips: Trip[]; reqs: Req[]; deals: Deal[]; commission: number; holders: WaiverHolder[]; agreements: Offer[] }) {
   const openReqs = reqs.filter((r) => r.status === "aberto");
@@ -36,6 +37,7 @@ export function Entregas({ trips, reqs, deals, commission, holders, agreements }
               <div><span>Comissão ({d.commission_pct}%)</span>{kz(d.commission)}</div>
               <div><span>Viajante recebe</span>{kz(d.price - d.commission)}</div>
             </div>
+            <PickupInfo r={reqs.find((x) => x.id === d.request_id)} />
             <div className="row">
               {d.status === "negociacao" ? <ConfirmPayment dealId={d.id} /> : null}
               {d.status === "garantia" ? <span className="hint">Pagamento retido. À espera de o entregador pegar a encomenda na app.</span> : null}

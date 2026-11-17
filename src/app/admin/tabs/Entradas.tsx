@@ -4,6 +4,7 @@ import { cityName, fdate, firstName, kz, waLink } from "@/lib/format";
 import type { Config, Deal, IdentityView, Req, TravelerDocView, Trip } from "@/lib/types";
 import { DocBlock } from "./DocBlock";
 import { IdentityBlock } from "./IdentityBlock";
+import { PickupInfo } from "./PickupInfo";
 import { InvoiceButton } from "./InvoiceButton";
 import { needsInvoice } from "@/lib/customs";
 import { approveItem, rejectItem } from "../actions";
@@ -78,6 +79,7 @@ export function Entradas({ trips, reqs, deals, config, docs, idents, otherPendin
                 </>
               )}
             </div>
+            {!isTrip ? <PickupInfo r={r} /> : null}
             {!isTrip && r.urgent ? (
               <div className="notice bad" role="alert">
                 <b>Pedido urgente de conta nova, acima do limite.</b> Justificação: {r.urgent_reason || "(sem texto)"}. Lê, vê os documentos da pessoa e decide: aprovar e publicar, ou recusar.

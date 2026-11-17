@@ -19,6 +19,7 @@ export function DealContacts({ c }: { c: Contacts }) {
         <div><span>{traveler ? "Quem envia" : "Entregador"}</span>{c.other_name}</div>
         <div><span>Telefone</span><a href={"tel:" + c.other_phone.replace(/[^\d+]/g, "")}>{c.other_phone}</a>{wa ? <> · <a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp</a></> : null}</div>
         {traveler && c.pickup_address ? <div><span>Onde pegar a encomenda</span>{c.pickup_address}</div> : null}
+        {traveler && !c.pickup_address ? <div><span>Onde pegar a encomenda</span>Não foi indicado neste pedido. Pergunta a quem envia, pelo telefone acima.</div> : null}
         {traveler && c.pickup_notes ? <div><span>Horários e referências</span>{c.pickup_notes}</div> : null}
         {traveler && map ? <div><span>Localização no mapa</span><a href={map} target="_blank" rel="noopener noreferrer">Abrir no mapa</a></div> : null}
         {traveler && c.recipient_name ? <div><span>Quem recebe em Angola</span>{c.recipient_name}{c.recipient_phone ? <> · <a href={"tel:" + c.recipient_phone.replace(/[^\d+]/g, "")}>{c.recipient_phone}</a></> : null}</div> : null}

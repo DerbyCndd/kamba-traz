@@ -80,6 +80,14 @@ export default async function EntregaPage({ params }: { params: Promise<{ id: st
           ) : null}
 
           {contacts ? <DealContacts c={contacts} /> : null}
+          {!contacts && deal.status === "negociacao" && (isTraveler || isSender) ? (
+            <div className="panel">
+              <h3>Contactos e recolha</h3>
+              <p className="muted">{isTraveler
+                ? "Quando o pagamento ficar retido, vês aqui o local onde pegar a encomenda, o contacto de quem envia e quem recebe em Angola."
+                : "Quando o pagamento ficar retido, vês aqui o contacto do entregador, para combinarem a recolha."}</p>
+            </div>
+          ) : null}
 
           {isTraveler && deal.status === "garantia" ? <PickupPanel dealId={id} photos={shots.available ? shots.photos.length : null} /> : null}
           {isTraveler && deal.status === "transito" ? (

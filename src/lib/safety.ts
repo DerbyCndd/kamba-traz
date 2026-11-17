@@ -17,3 +17,11 @@ export type FamilyRel = "mae" | "pai" | "conjuge";
 export type FamilyContact = { rel: FamilyRel; name: string; phone: string };
 export const REL_LABEL: Record<FamilyRel, string> = { mae: "Mãe", pai: "Pai", conjuge: "Cônjuge" };
 export const CIVIL: [string, string][] = [["solteiro", "Solteiro(a)"], ["casado", "Casado(a) ou em união de facto"], ["outro", "Divorciado(a), viúvo(a) ou outro"]];
+
+/**
+ * Selo «Conta de confiança»: quem fica na app e se porta bem ganha visibilidade. Regra: 3 ou mais entregas concluídas,
+ * 3 ou mais avaliações com média de 4,5 ou mais, e identificação confirmada pela equipa.
+ */
+export const TRUST = { deals: 3, ratings: 3, stars: 4.5 } as const;
+export const isTrusted = (r: { avg_stars: number | null; total: number; deals_done: number; id_confirmed: boolean }) =>
+  r.id_confirmed && r.deals_done >= TRUST.deals && r.total >= TRUST.ratings && (r.avg_stars ?? 0) >= TRUST.stars;

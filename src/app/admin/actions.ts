@@ -275,10 +275,10 @@ export async function revealSafety(userId: string): Promise<{ address?: string; 
 }
 
 /** Ligação à foto do BI ou do passaporte, válida só 2 minutos. A foto nunca é pública. */
-export async function idPhotoUrl(userId: string, kind: IdKind | "bi_back" | "passport_last"): Promise<{ url?: string; error?: string }> {
+export async function idPhotoUrl(userId: string, kind: IdKind | "bi_back" | "passport_last" | "selfie"): Promise<{ url?: string; error?: string }> {
   const { supabase, profile } = await requireAdmin();
   if (!/^[0-9a-f-]{36}$/i.test(userId)) return { error: "Pessoa inválida." };
-  const col = ({ bi: "bi_photo_path", bi_back: "bi_back_path", passport: "passport_photo_path", passport_last: "passport_last_path" } as const)[kind];
+  const col = ({ bi: "bi_photo_path", bi_back: "bi_back_path", passport: "passport_photo_path", passport_last: "passport_last_path", selfie: "selfie_path" } as const)[kind];
   if (!col) return { error: "Documento inválido." };
   const { data } = await supabase.from("identities").select(col).eq("user_id", userId).maybeSingle();
   const path = (data as Record<string, string | null> | null)?.[col];

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { myIdentity } from "@/lib/identity";
+import { myIdentity, safetyIncomplete } from "@/lib/identity";
 import { getProfile, requireUser } from "@/lib/auth";
 import { getConfig, getNewAccountRule } from "@/lib/data";
 import { today } from "@/lib/format";
@@ -14,7 +14,7 @@ export default async function PedirPage() {
   const ident = await myIdentity(supabase, user.id);
   const invoices = (await supabase.from("requests").select("invoice_path").limit(1)).error === null;
   if (ident.available && !ident.row) redirect("/identificacao?next=/pedir");
-  if (ident.row && ident.safety === false) redirect("/identificacao/contactos?next=/pedir");
+  if (ident.row && safetyIncomplete(ident)) redirect("/identificacao/contactos?next=/pedir");
   const delivery = (await supabase.from("requests").select("pickup_address").limit(1)).error === null; // contactos.sql corrido?
   const rule = await getNewAccountRule();
   return (

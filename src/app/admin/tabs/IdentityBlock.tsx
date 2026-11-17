@@ -36,7 +36,7 @@ export function IdentityBlock({ userId, ident, accountName, tripReturn }: { user
     if (r.error) setMsg(r.error); else setSafety(r);
     setBusy(false);
   }
-  async function photo(kind: "bi" | "bi_back" | "passport" | "passport_last") {
+  async function photo(kind: "bi" | "bi_back" | "passport" | "passport_last" | "selfie") {
     setBusy(true); setMsg("");
     const r = await idPhotoUrl(userId, kind);
     if (r.url) window.open(r.url, "_blank", "noopener"); else setMsg(r.error ?? "Não foi possível abrir a foto.");
@@ -70,6 +70,7 @@ export function IdentityBlock({ userId, ident, accountName, tripReturn }: { user
       <div className="row">
         <button type="button" className="btn small" onClick={() => photo("bi")} disabled={busy}>Ver BI: frente</button>
         {ident.has_bi_back ? <button type="button" className="btn small" onClick={() => photo("bi_back")} disabled={busy}>Ver BI: verso</button> : null}
+        <button type="button" className="btn small" onClick={() => photo("selfie")} disabled={busy}>Ver selfie com o BI</button>
         {bi === null ? <button type="button" className="btn small" onClick={() => number("bi")} disabled={busy}>Ver número do BI</button> : null}
         {ident.passport_last4 ? <button type="button" className="btn small" onClick={() => photo("passport")} disabled={busy}>Ver passaporte: 2.ª página</button> : null}
         {ident.passport_last4 && ident.has_passport_last ? <button type="button" className="btn small" onClick={() => photo("passport_last")} disabled={busy}>Ver passaporte: última página</button> : null}

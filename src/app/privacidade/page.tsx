@@ -30,6 +30,7 @@ const ROWS: [string, string, string][] = [
   ["Nome, email, palavra-passe", "Obrigatório", "Criar e proteger a tua conta. A palavra-passe é guardada cifrada."],
   ["Telefone", "Obrigatório", "A equipa fala contigo sobre pedidos e entregas."],
   ["Número, validade e fotos do BI", "Obrigatório", "Saber quem envia e quem viaja, e prevenir fraude."],
+  ["Selfie a segurar o BI", "Obrigatório", "A equipa compara o teu rosto com o BI, para reduzir documentos emprestados ou roubados. É uma verificação feita por pessoas, não reconhecimento facial automático. A foto fica em espaço privado e só a equipa a vê."],
   ["Morada, estado civil e contactos de familiares (mãe, pai, cônjuge)", "Obrigatório", "Agir depressa em caso de emergência ou de suspeita de fraude, e tornar mais difícil fugir com uma encomenda. Ficam cifrados e só a equipa os vê. Quem os indica garante que tem autorização dessas pessoas."],
   ["Passaporte (número, validade, fotos)", "Obrigatório para quem viaja", "Confirmar quem viaja, com o bilhete. Quem só envia não precisa."],
   ["Foto de perfil", "Opcional", "A equipa reconhece-te melhor."],
@@ -132,7 +133,7 @@ export default function PrivacidadePage() {
         <p>A plataforma é só para maiores de 18 anos. Podemos atualizar esta política: a versão em vigor é a desta página, e o que mudou fica registado em baixo, com a data. Ver também os <Link href="/termos">termos de uso</Link>.</p>
         <div className="docversions">
           <p className="itl">O que mudou</p>
-          <p><b>17 de novembro de 2026.</b> Passámos a pedir a morada, o estado civil e contactos de familiares (cifrados, só a equipa os vê), o local de recolha e os dados de quem recebe em Angola. Depois de o pagamento ficar retido, as duas partes veem o contacto uma da outra até a entrega ser confirmada. O passaporte passou a ser obrigatório só para quem viaja.</p>
+          <p><b>17 de novembro de 2026.</b> Passámos a pedir a morada, o estado civil e contactos de familiares (cifrados, só a equipa os vê), o local de recolha e os dados de quem recebe em Angola. Depois de o pagamento ficar retido, as duas partes veem o contacto uma da outra até a entrega ser confirmada. O passaporte passou a ser obrigatório só para quem viaja. Passámos a pedir uma selfie a segurar o BI, que a equipa compara com o documento.</p>
           <p><b>15 de novembro de 2026.</b> Passámos a indicar o Sentry e o Resend entre os serviços que usamos, explicámos o aviso de documento repetido, as propostas de valor e a contagem temporária de tentativas.</p>
           <p><b>14 de novembro de 2026.</b> Primeira versão.</p>
         </div>

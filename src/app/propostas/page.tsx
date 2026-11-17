@@ -5,6 +5,7 @@ import { getConfig, getMyOffers, getReputations } from "@/lib/data";
 import { cityName, fdate, kz } from "@/lib/format";
 import type { Offer, Reputation, ReqPub, TripPub } from "@/lib/types";
 import { Empty } from "@/components/ui";
+import { isTrusted } from "@/lib/safety";
 import { OfferActions } from "./OfferActions";
 
 export const metadata: Metadata = { title: "Propostas" };
@@ -24,6 +25,7 @@ function Rep({ r }: { r?: Reputation }) {
   const rated = r.total > 0 && r.avg_stars != null;
   return (
     <p className="hint indent">
+      {isTrusted(r) ? <><span className="pill ok">CONTA DE CONFIANÇA</span>{" "}</> : null}
       {rated ? <>★ {Number(r.avg_stars).toFixed(1).replace(".", ",")} ({r.total} {r.total === 1 ? "avaliação" : "avaliações"})</> : "Sem avaliações ainda"}
       {" · "}{r.deals_done} {r.deals_done === 1 ? "entrega concluída" : "entregas concluídas"}
       {" · "}{r.id_confirmed ? "identificação confirmada pela equipa" : "identificação ainda por confirmar"}

@@ -9,7 +9,7 @@ import { shrinkImage } from "@/lib/shrink";
 const empty: IdentityState = { errors: {}, values: {} };
 
 /** Escolhe uma foto, reduz-a e mostra uma pré-visualização (para a pessoa ver que se lê). */
-function PhotoPick({ id, label, hint, error, tag }: { id: string; label: string; hint: string; error?: string; tag: string }) {
+export function PhotoPick({ id, label, hint, error, tag }: { id: string; label: string; hint: string; error?: string; tag: string }) {
   const [prev, setPrev] = useState<{ url: string; kb: number } | null>(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => () => { if (prev) URL.revokeObjectURL(prev.url); }, [prev]);

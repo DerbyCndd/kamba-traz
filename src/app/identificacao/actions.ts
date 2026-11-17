@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/nextjs";
 import { uploadFile } from "@/lib/storage-upload";
 import { expiryError } from "@/lib/docchecks";
 import { today } from "@/lib/format";
-import { myIdentity, saveIdHashes } from "@/lib/identity";
+import { myIdentity, safetyIncomplete, saveIdHashes } from "@/lib/identity";
 import { encryptPii, piiReady } from "@/lib/pii";
 import { isLimited, recordHit, TOO_MANY } from "@/lib/ratelimit";
 
@@ -118,6 +118,6 @@ export async function saveIdentity(_: IdentityState, fd: FormData): Promise<Iden
   revalidatePath("/", "layout");
   const to = NEXT.has(values.next) ? values.next : "/";
   const after = await myIdentity(supabase, user.id);
-  if (after.safety === false) redirect("/identificacao/contactos?next=" + encodeURIComponent(to)); // falta a morada e os familiares
+  if (safetyIncomplete(after)) redirect("/identificacao/contactos?next=" + encodeURIComponent(to)); // falta a morada e os familiares
   redirect(to);
 }

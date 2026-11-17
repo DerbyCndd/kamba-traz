@@ -6,7 +6,8 @@ import { Stars } from "@/components/Stars";
 import { getProfile, requireUser } from "@/lib/auth";
 import { getMyRatings, getMyWaivers } from "@/lib/data";
 import { initials } from "@/lib/format";
-import { myIdentity } from "@/lib/identity";
+import { getMySafety, myIdentity, safetyIncomplete } from "@/lib/identity";
+import { CIVIL, REL_LABEL } from "@/lib/safety";
 import { PhotoForm } from "./PhotoForm";
 
 export const metadata: Metadata = { title: "Meu perfil" };
@@ -28,6 +29,7 @@ export default async function PerfilPage() {
   const photoPath = await supabase.from("profiles").select("photo_path").eq("id", user.id).maybeSingle().then((r) => (r.error ? null : (r.data?.photo_path as string | null)));
   const photoUrl = photoPath ? (await supabase.storage.from("avatars").createSignedUrl(photoPath, 3600)).data?.signedUrl ?? null : null;
   const ident = await myIdentity(supabase, user.id);
+  const safety = ident.row && ident.safety !== null ? await getMySafety(supabase, user.id) : null;
   const [mine, waivers] = await Promise.all([getMyRatings(), getMyWaivers()]);
   const [reqs, trips, waiting] = await Promise.all([count("requests"), count("trips"), Promise.all([count("requests", "pendente"), count("trips", "pendente")]).then(([a, b]) => a + b)]);
 
@@ -71,6 +73,27 @@ export default async function PerfilPage() {
                 {ident.row.passport_expiry ? <div><span>Validade do passaporte</span>{since(ident.row.passport_expiry)}</div> : null}
                 <div><span>Estado</span>{ident.row.status === "confirmado" ? "Confirmada pela equipa" : ident.row.status === "recusado" ? "Recusada: atualiza os documentos" : "A equipa ainda vai confirmar"}</div>
               </div>
+              {ident.safety !== null || ident.selfie !== null ? (
+                <>
+                  <h4>Segurança da conta</h4>
+                  <div className="kv one">
+                    {ident.safety !== null ? (
+                      <>
+                        <div><span>Morada</span>{safety?.address ?? "Em falta"}</div>
+                        <div><span>Estado civil</span>{CIVIL.find(([k]) => k === safety?.civil)?.[1] ?? "Em falta"}</div>
+                        {safety?.family.length ? safety.family.map((f) => <div key={f.rel + f.phone}><span>{REL_LABEL[f.rel] ?? f.rel}</span>{f.name} · {f.phone}</div>) : <div><span>Familiares</span>Em falta</div>}
+                      </>
+                    ) : null}
+                    {ident.selfie !== null ? <div><span>Selfie com o BI</span>{ident.selfie ? "Enviada" : "Em falta"}</div> : null}
+                  </div>
+                  <p className="hint">Só tu e a equipa veem isto. A outra parte de uma entrega nunca vê a tua morada nem os teus familiares.</p>
+                  {safetyIncomplete(ident) ? (
+                    <Link className="btn primary small" href="/identificacao/contactos?next=/perfil" style={{ alignSelf: "flex-start" }}>Completar a segurança da conta</Link>
+                  ) : ident.safety !== null ? (
+                    <Link className="btn small" href="/identificacao/contactos?next=/perfil&editar=1" style={{ alignSelf: "flex-start" }}>Atualizar morada e familiares</Link>
+                  ) : null}
+                </>
+              ) : null}
               <Link className="btn small" href="/identificacao?next=/perfil" style={{ alignSelf: "flex-start" }}>Atualizar ou juntar o passaporte</Link>
             </>
           ) : (

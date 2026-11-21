@@ -15,7 +15,8 @@ import { Denuncias } from "./tabs/Denuncias";
 import { Definicoes } from "./tabs/Definicoes";
 import { CheckIdentities } from "./tabs/CheckIdentities";
 import { Identificacoes } from "./tabs/Identificacoes";
-import { EquipaTab, type TeamMember } from "./tabs/EquipaTab";
+import { EquipaTab, type AccessRow, type TeamMember, type TwoFa } from "./tabs/EquipaTab";
+import { ACCESS_LABEL } from "@/lib/audit";
 
 export const metadata: Metadata = { title: "Equipa" };
 
@@ -54,6 +55,24 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const owner = await supabase.rpc("is_owner").then((r) => (r.error ? false : r.data === true)); // só o dono vê «Equipa» (equipa.sql)
   const tabs: readonly (readonly [string, string])[] = owner ? [...TABS, ["equipa", "Equipa"] as const] : TABS;
   const tab = tabs.some((t) => t[0] === raw) ? raw! : "entradas";
+  // 2FA da equipa e registo de acessos (só o dono; precisam de seguranca-equipa.sql)
+  const flag = owner ? await supabase.from("config").select("staff_2fa").eq("id", 1).maybeSingle() : null;
+  const twofa: TwoFa = {
+    available: !!flag && !flag.error, on: flag?.data?.staff_2fa === true,
+    mine: owner ? (await supabase.auth.mfa.getAuthenticatorAssuranceLevel()).data?.currentLevel === "aal2" : false,
+  };
+  let log: AccessRow[] | null = null;
+  if (owner) {
+    const raw = await supabase.from("access_log").select("id, at, staff_id, action, subject_id, detail").order("at", { ascending: false }).limit(100);
+    if (!raw.error) {
+      const rows = (raw.data ?? []) as { id: number; at: string; staff_id: string | null; action: string; subject_id: string | null; detail: string | null }[];
+      const ids = [...new Set(rows.flatMap((r) => [r.staff_id, r.subject_id]).filter((x): x is string => !!x))];
+      const names: Record<string, string> = ids.length
+        ? Object.fromEntries(((await supabase.from("profiles").select("id, full_name").in("id", ids)).data ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name || "Sem nome"]))
+        : {};
+      log = rows.map((r) => ({ id: r.id, at: r.at, staff: r.staff_id ? names[r.staff_id] ?? "Conta removida" : "Conta removida", what: ACCESS_LABEL[r.action] ?? r.action, subject: r.subject_id ? names[r.subject_id] ?? null : null, detail: r.detail }));
+    }
+  }
   const members: TeamMember[] = owner ? await supabase.rpc("team_list").then((r) => (r.error ? [] : (r.data ?? [])) as TeamMember[]) : [];
 
   const [config, holders, docs, feedback, trips, reqs, deals, idents, agreements, unchecked, reports] = await Promise.all([
@@ -111,7 +130,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       {tab === "pitch" && <Pitch />}
       {tab === "denuncias" && <Denuncias rows={reports} names={reporterNames} />}
       {tab === "feedback" && <FeedbackTab rows={feedback} />}
-      {tab === "equipa" && owner && <EquipaTab members={members} />}
+      {tab === "equipa" && owner && <EquipaTab members={members} twofa={twofa} log={log} />}
       {tab === "definicoes" && <Definicoes config={config} newLimit={newLimit} />}
     </section>
   );

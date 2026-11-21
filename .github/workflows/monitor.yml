@@ -1,0 +1,29 @@
+# Vê de 10 em 10 minutos se o site e a base de dados respondem. Se falhar, o GitHub envia um email a quem
+# editou este ficheiro pela última vez (a conta do dono). Não precisa de nenhuma conta externa.
+# Nota: o GitHub pode atrasar tarefas agendadas e desliga-as se o repositório ficar 60 dias sem atividade.
+name: Monitor do site
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  saude:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ver se o site e a base de dados respondem
+        run: |
+          for i in 1 2 3; do
+            if body=$(curl -fsS --max-time 20 https://kamba-traz-app.vercel.app/api/saude) && echo "$body" | grep -q '"ok":true'; then
+              echo "O site respondeu bem."
+              exit 0
+            fi
+            echo "Tentativa $i falhou."
+            sleep 20
+          done
+          echo "O site ou a base de dados não responderam bem."
+          exit 1

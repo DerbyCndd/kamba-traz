@@ -7,6 +7,7 @@ import { CUSTOMS } from "@/lib/customs";
 import { randomInt } from "node:crypto";
 import { decryptPii, encryptPii, piiReady } from "@/lib/pii";
 import { saveIdHashes } from "@/lib/identity";
+import { logAccess } from "@/lib/audit";
 
 export type AdminState = { error?: string; message?: string };
 
@@ -166,6 +167,7 @@ export async function revealPassport(tripId: string): Promise<{ value?: string; 
   if (!data.passport_enc) return { error: "Esta viagem não tem passaporte (a identificação está no cadastro)." };
   const value = decryptPii(data.passport_enc);
   if (!value) return { error: "Não foi possível ler o número (a chave de cifra pode estar em falta)." };
+  const le = await logAccess(supabase, "passaporte_viagem", tripId, "viagem"); if (le) return { error: le }; // fica no registo permanente
   console.info("[auditoria] passaporte consultado", { equipa: profile.id, viagem: tripId });
   return { value };
 }
@@ -177,6 +179,7 @@ export async function ticketUrl(tripId: string): Promise<{ url?: string; error?:
   if (!data) return { error: "Esta viagem não tem documentos." };
   const { data: signed, error } = await supabase.storage.from("tickets").createSignedUrl(data.ticket_path, 120);
   if (error || !signed) return { error: "Não foi possível abrir a foto." };
+  const le = await logAccess(supabase, "bilhete", tripId, "viagem"); if (le) return { error: le }; // fica no registo permanente
   console.info("[auditoria] bilhete consultado", { equipa: profile.id, viagem: tripId });
   return { url: signed.signedUrl };
 }
@@ -230,6 +233,17 @@ export async function removeTeamMember(email: string) {
   done();
 }
 
+/** O dono liga ou desliga a exigência de 2FA à equipa. A base de dados exige que o dono já tenha confirmado o 2FA nesta sessão. */
+export async function setStaff2fa(_: AdminState, fd: FormData): Promise<AdminState> {
+  const { supabase, profile } = await requireAdmin();
+  const on = String(fd.get("on") ?? "") === "1";
+  const { error } = await supabase.rpc("set_staff_2fa", { p_on: on });
+  if (error) return { error: TEAM_ERR.includes(error.code ?? "") ? error.message : "Não foi possível agora. Tenta de novo daqui a pouco." };
+  console.info("[auditoria] 2FA da equipa", { dono: profile.id, exigido: on });
+  done();
+  return { message: on ? "Ligado. Quem entrar no painel passa a precisar do código." : "Desligado." };
+}
+
 // ---------- denúncias ----------
 export async function setReportStatus(id: string, status: "aberta" | "em_analise" | "resolvida") {
   const { supabase } = await requireAdmin();
@@ -260,6 +274,7 @@ export async function invoiceUrl(requestId: string): Promise<{ url?: string; err
   if (!data?.invoice_path) return { error: "Este pedido não tem fatura." };
   const { data: signed, error } = await supabase.storage.from("invoices").createSignedUrl(data.invoice_path, 120);
   if (error || !signed) return { error: "Não foi possível abrir a fatura." };
+  const le = await logAccess(supabase, "fatura", requestId, "pedido"); if (le) return { error: le }; // fica no registo permanente
   console.info("[auditoria] fatura consultada", { equipa: profile.id, pedido: requestId });
   return { url: signed.signedUrl };
 }
@@ -277,6 +292,7 @@ export async function revealIdNumber(userId: string, kind: IdKind): Promise<{ va
   if (!enc) return { error: "Este documento não foi indicado." };
   const value = decryptPii(enc);
   if (!value) return { error: "Não foi possível ler o número (a chave de cifra pode estar em falta)." };
+  const le = await logAccess(supabase, kind === "bi" ? "bi_numero" : "passaporte_numero", userId, undefined); if (le) return { error: le }; // fica no registo permanente
   console.info("[auditoria] número de identificação consultado", { equipa: profile.id, pessoa: userId, tipo: kind });
   return { value };
 }
@@ -293,6 +309,7 @@ export async function revealSafety(userId: string): Promise<{ address?: string; 
   let family: { rel: string; name: string; phone: string }[] = [];
   try { family = row.family_enc ? JSON.parse(decryptPii(row.family_enc) ?? "[]") : []; } catch { family = []; }
   if (!address && !family.length) return { error: "Não foi possível ler (a chave de cifra pode estar em falta)." };
+  const le = await logAccess(supabase, "morada_familia", userId, undefined); if (le) return { error: le }; // fica no registo permanente
   console.info("[auditoria] morada e familiares consultados", { equipa: profile.id, pessoa: userId });
   return { address: address ?? undefined, civil: row.civil_status ?? undefined, family };
 }
@@ -308,6 +325,7 @@ export async function idPhotoUrl(userId: string, kind: IdKind | "bi_back" | "pas
   if (!path) return { error: "Este documento não foi indicado." };
   const { data: signed, error } = await supabase.storage.from("ids").createSignedUrl(path, 120);
   if (error || !signed) return { error: "Não foi possível abrir a foto." };
+  const le = await logAccess(supabase, "foto_id", userId, kind); if (le) return { error: le }; // fica no registo permanente
   console.info("[auditoria] foto de identificação consultada", { equipa: profile.id, pessoa: userId, tipo: kind });
   return { url: signed.signedUrl };
 }

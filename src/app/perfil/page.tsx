@@ -139,6 +139,7 @@ export default async function PerfilPage() {
         <h3>Segurança</h3>
         <div className="row">
           <Link className="btn" href="/nova-palavra-passe"><Icon name="key" size={18} />Alterar palavra-passe</Link>
+          <Link className="btn" href="/seguranca"><Icon name="shield" size={18} />Autenticação em dois passos</Link>
         </div>
       </div>
 

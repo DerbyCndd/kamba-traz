@@ -23,9 +23,19 @@ export async function requireUser() {
   return { user, supabase: await createClient() };
 }
 
+/** O dono exigiu 2FA à equipa e esta sessão ainda não confirmou o código? (false se supabase/seguranca-equipa.sql ainda não foi corrido) */
+async function needs2fa(supabase: Awaited<ReturnType<typeof createClient>>): Promise<boolean> {
+  const { data, error } = await supabase.from("config").select("staff_2fa").eq("id", 1).maybeSingle();
+  if (error || !data?.staff_2fa) return false;
+  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  return aal?.currentLevel !== "aal2";
+}
+
 export async function requireAdmin() {
   const profile = await getProfile();
   if (!profile) redirect("/login");
   if (profile.role !== "admin") redirect("/");
-  return { profile, supabase: await createClient() };
+  const supabase = await createClient();
+  if (await needs2fa(supabase)) redirect("/seguranca?next=/admin"); // a base de dados também recusa: aqui só se leva a pessoa ao sítio certo
+  return { profile, supabase };
 }

@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { getMyDeals, getOffersWaiting, getPendingCount, getPendingRatings } from "@/lib/data";
-import { Icon } from "./Icons";
 import { Logo } from "./Logo";
 import { MobileMenu } from "./MobileMenu";
 import { ProfileMenu, type Who } from "./ProfileMenu";
+import { SideMenu, type SideGroup } from "./SideMenu";
 import { SideNav, type NavItem } from "./SideNav";
 import { SiteFooter, type FooterColumn } from "./SiteFooter";
 import { ThemeToggle } from "./ThemeToggle";
@@ -23,24 +23,31 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
   const toDo = mine.filter((d) => d.traveler_id === profile.id && (d.status === "garantia" || d.status === "transito")).length;
   const who: Who = { name: profile.full_name, email: profile.email, admin };
 
-  const main: NavItem[] = [
-    { href: "/", label: "Início", icon: "home" },
-    { href: "/quadro", label: "Quadro", icon: "board" },
-  ];
+  // As duas ações que começam tudo: ficam em botões, no topo da barra. O logótipo leva ao início.
   const actions: NavItem[] = [
     { href: "/pedir", label: "Pedir envio", icon: "box" },
     { href: "/viajar", label: "Vou viajar", icon: "plane" },
   ];
-  const account: NavItem[] = [
+  // O que se usa todos os dias: 5 ligações, o limite que a memória de trabalho agarra de uma vez.
+  const daily: NavItem[] = [
+    { href: "/quadro", label: "Quadro", icon: "board" },
     { href: "/propostas", label: "Propostas", icon: "edit", badge: offers },
-    { href: "/meus", label: "Os meus", icon: "list", badge: toRate },
     { href: "/entregas", label: "Entregas", icon: "pin", badge: toDo },
+    { href: "/meus", label: "Os meus", icon: "list", badge: toRate },
     { href: "/carteira", label: "Carteira", icon: "wallet" },
+  ];
+  // Ajuda recolhida: consulta-se de vez em quando, não precisa de estar sempre à vista.
+  const help: NavItem[] = [
     { href: "/tutorial", label: "Como usar", icon: "help" },
     { href: "/regras", label: "Regras", icon: "shield" },
+    { href: "/feedback", label: "Deixe o seu feedback", icon: "chat" },
   ];
   // Só quem é da equipa vê a ligação. A protecção verdadeira está no servidor (requireAdmin + RLS).
-  const team: NavItem[] = admin ? [{ href: "/admin", label: "Painel da equipa", icon: "team", badge: pending }] : [];
+  const groups: SideGroup[] = [
+    { title: "A minha atividade", items: daily },
+    { title: "Ajuda", items: help, collapsible: { icon: "help" } },
+    ...(admin ? [{ title: "Equipa", items: [{ href: "/admin", label: "Painel da equipa", icon: "team" as const, badge: pending }] }] : []),
+  ];
   // Barra de baixo do telemóvel: o miolo do uso (negociar, entregar, pedir, viajar). «Os meus» e o resto ficam no menu da conta.
   const tabs: NavItem[] = [
     { href: "/quadro", label: "Quadro", icon: "board" },
@@ -58,9 +65,8 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
           <ThemeToggle />
         </div>
         <div className="sidescroll">
-          <SideNav items={[...main, ...actions, ...account, ...team]} label="Principal" />
+          <SideMenu actions={actions} groups={groups} label="Principal" />
         </div>
-        <Link className="feedlink" href="/feedback"><Icon name="chat" size={18} />Deixe o seu feedback</Link>
         <ProfileMenu who={who} />
       </aside>
 

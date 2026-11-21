@@ -747,3 +747,18 @@ ol.steps p{max-width:56ch}
 .ttips{margin:4px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:14px}
 .tart{width:100%;height:auto;display:block}
 @media(max-width:760px){.tstep{grid-template-columns:1fr;gap:14px;padding:14px}.tart{max-width:420px}}
+
+/* barra lateral organizada: ações em botões, blocos com título, ajuda recolhida */
+.sideactions{display:flex;flex-direction:column;gap:8px;margin:0 0 22px}
+.sideactions .btn{justify-content:flex-start;gap:10px;min-height:42px;padding:8px 14px}
+.sidenav .sidegroup{display:flex;flex-direction:column;gap:2px}
+.sidenav>.sidegroup+.sidegroup,.sidenav>.sidehelp,.sidenav>.sidehelp+.sidegroup{margin-top:20px}
+.sidelabel{margin:0 0 6px;padding:0 12px;font:600 11px/1.4 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sidehelp summary{display:flex;align-items:center;gap:12px;min-height:42px;padding:8px 12px;border-radius:10px;color:var(--muted);font-weight:500;font-size:15px;cursor:pointer;list-style:none}
+.sidehelp summary::-webkit-details-marker{display:none}
+.sidehelp summary:hover{background:var(--card);color:var(--ink)}
+.sidehelp .chev{margin-left:auto;transform:rotate(180deg);transition:transform .15s}
+.sidehelp[open] .chev{transform:none}
+.sidehelp .sidegroup{padding-left:10px;margin-top:2px}
+.sidehelp .sidegroup a{font-size:14px;min-height:38px}
+@media (prefers-reduced-motion:reduce){.sidehelp .chev{transition:none}}

@@ -210,6 +210,9 @@ export async function submitTrip(_: FormState, fd: FormData): Promise<FormState>
   const ident = await myIdentity(supabase, user.id);
   if (!ident.available || !ident.row) return { errors: {}, values: safe(v), formError: "Completa primeiro a tua identificação (BI e telefone) em Meu perfil." };
   if (safetyIncomplete(ident)) return { errors: {}, values: safe(v), formError: "Completa primeiro a segurança da conta (morada, familiares e selfie com o BI): abre «Vou viajar» outra vez." };
+  // Quem viaja tem de ter foto de perfil (a equipa precisa de o reconhecer). Se a coluna ainda não existe, não bloqueia.
+  const photo = await supabase.from("profiles").select("photo_path").eq("id", user.id).maybeSingle();
+  if (!photo.error && !photo.data?.photo_path) return { errors: {}, values: safe(v), formError: "Para viajar, adiciona primeiro a tua foto de perfil em Meu perfil." };
   // Quem viaja tem de ter o passaporte registado (número e fotos): a equipa confere-o com o bilhete. Para só enviar, não é preciso.
   if (!ident.row.passport_last4) return { errors: {}, values: safe(v), formError: "Para viajar, tens de ter o passaporte registado (número e fotos). Abre «Vou viajar» outra vez e regista-o primeiro." };
   if (ident.row.bi_expiry && ident.row.bi_expiry <= today()) return { errors: {}, values: safe(v), formError: "O teu BI está fora de validade. Atualiza a identificação em Meu perfil." };

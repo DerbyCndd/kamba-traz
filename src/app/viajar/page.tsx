@@ -23,7 +23,7 @@ export default async function ViajarPage() {
       <h2>Vou viajar</h2>
       <p className="muted">Ganha com o espaço livre na mala.</p>
       {hasPhoto ? null : (
-        <p className="notice"><b>Falta a tua foto de perfil.</b> A equipa precisa de te identificar. <Link href="/perfil">Adicionar foto</Link></p>
+        <p className="notice bad" role="alert"><b>Falta a tua foto de perfil, que é obrigatória para viajar.</b> A equipa precisa de te identificar. <Link href="/perfil">Adicionar foto</Link></p>
       )}
       {needsPassport ? (
         <div className="notice bad" role="alert">
@@ -32,7 +32,7 @@ export default async function ViajarPage() {
         </div>
       ) : null}
       <div className="formgrid">
-        {needsPassport ? <div className="panel"><p className="muted">O formulário da viagem abre depois de registares o passaporte.</p></div> : <TripForm perKg={config.per_kg} whatsapp={config.whatsapp} defaultName={profile?.full_name ?? ""} defaultPhone={ident.row?.phone ?? ""} minDate={today()} dropoff={dropoff} />}
+        {needsPassport || !hasPhoto ? <div className="panel"><p className="muted">O formulário da viagem abre depois de registares o que falta: o passaporte e a foto de perfil.</p></div> : <TripForm perKg={config.per_kg} whatsapp={config.whatsapp} defaultName={profile?.full_name ?? ""} defaultPhone={ident.row?.phone ?? ""} minDate={today()} dropoff={dropoff} />}
       <aside className="aside" aria-label="O que acontece a seguir">
           <h3>O que acontece a seguir</h3>
           <ol className="next">

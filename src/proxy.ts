@@ -1,10 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Páginas abertas a quem não tem sessão. A página inicial mostra uma apresentação
-// (sem dados do quadro) a visitantes e a vista completa a quem tem sessão.
-const PUBLIC = ["/login", "/registo", "/recuperar", "/auth", "/regras", "/feedback", "/robots.txt", "/termos", "/privacidade", "/declaracao", "/fontes", "/api/saude", "/api/cron", "/documentos"];
-const isPublic = (p: string) => p === "/" || PUBLIC.some((x) => p === x || p.startsWith(x + "/"));
+// Páginas que exigem sessão. Quem não a tem vai para o login (ou para o registo, ao tentar pedir ou viajar).
+// Qualquer outro endereço segue em frente: se a página existe e é pública abre, e se não existe mostra «não encontrada».
+// As próprias páginas privadas voltam a verificar a sessão no servidor.
+const PRIVATE = ["/quadro", "/pedir", "/viajar", "/perfil", "/entregas", "/propostas", "/admin", "/identificacao", "/carteira", "/meus", "/seguranca", "/nova-palavra-passe"];
+const isPrivate = (p: string) => PRIVATE.some((x) => p === x || p.startsWith(x + "/"));
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -29,7 +30,7 @@ export async function proxy(request: NextRequest) {
   const ok = !!user && !!user.email_confirmed_at; // só emails verificados usam a app
   const path = request.nextUrl.pathname;
 
-  if (!ok && !isPublic(path)) {
+  if (!ok && isPrivate(path)) {
     const url = request.nextUrl.clone();
     // Quem quer pedir um envio ou viajar e ainda não tem conta vai direito ao registo.
     const para = path === "/pedir" ? "pedir" : path === "/viajar" ? "viajar" : "";

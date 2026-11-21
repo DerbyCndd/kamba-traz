@@ -734,3 +734,16 @@ ol.steps p{max-width:56ch}
 .offeractions .row{flex-wrap:wrap;gap:8px}
 .past{margin-top:18px}
 .past summary{cursor:pointer;font-weight:600;padding:8px 0}
+
+/* tutorial: passos com ilustração */
+.tut{max-width:960px;display:flex;flex-direction:column;gap:18px}
+.tsec{margin:18px 0 0;font-size:22px}
+.tsteps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px}
+.tstep{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:22px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.ttext{display:flex;flex-direction:column;gap:8px;min-width:0}
+.ttext h3{margin:0;font-size:19px}
+.ttext p{margin:0;max-width:62ch}
+.tnum{width:30px;height:30px;border-radius:50%;background:var(--sun);color:var(--on-sun);font:700 15px/30px var(--f-display);text-align:center}
+.ttips{margin:4px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:14px}
+.tart{width:100%;height:auto;display:block}
+@media(max-width:760px){.tstep{grid-template-columns:1fr;gap:14px;padding:14px}.tart{max-width:420px}}

@@ -22,3 +22,6 @@ export const DEAL_STEPS: [string, string][] = [
 ];
 export const TRIP_STATES: [string, string][] = [["aberto", "Aberto"], ["cheia", "Mala cheia"], ["concluida", "Concluída"]];
 export const REQ_STATES: [string, string][] = [["aberto", "Aberto"], ["ligado", "Com viajante"], ["entregue", "Entregue"]];
+
+/** Versão dos termos e da privacidade em vigor (a data da última entrada em «O que mudou»). Guarda-se ao criar conta. */
+export const LEGAL_VERSION = "2026-11-17";

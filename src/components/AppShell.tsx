@@ -10,7 +10,7 @@ import { ThemeToggle } from "./ThemeToggle";
 
 const APP_COLUMNS: FooterColumn[] = [
   { title: "A minha conta", links: [["/propostas", "Propostas"], ["/meus", "Os meus"], ["/entregas", "Entregas"], ["/carteira", "Carteira"], ["/perfil", "Meu perfil"]] },
-  { title: "Ajuda", links: [["/regras", "Regras"], ["/termos", "Termos de uso"], ["/privacidade", "Privacidade"], ["/declaracao", "Declaração de conteúdo"], ["/fontes", "Fontes"], ["/feedback", "Deixe o seu feedback"]] },
+  { title: "Ajuda", links: [["/tutorial", "Como usar"], ["/regras", "Regras"], ["/termos", "Termos de uso"], ["/privacidade", "Privacidade"], ["/declaracao", "Declaração de conteúdo"], ["/fontes", "Fontes"], ["/feedback", "Deixe o seu feedback"]] },
 ];
 
 type Profile = { id: string; email: string; full_name: string; role: string };
@@ -40,7 +40,14 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
   ];
   // Só quem é da equipa vê a ligação. A protecção verdadeira está no servidor (requireAdmin + RLS).
   const team: NavItem[] = admin ? [{ href: "/admin", label: "Painel da equipa", icon: "team", badge: pending }] : [];
-  const tabs: NavItem[] = [...main, ...actions, { href: "/meus", label: "Os meus", icon: "list", badge: toRate }];
+  // Barra de baixo do telemóvel: o miolo do uso (negociar, entregar, pedir, viajar). «Os meus» e o resto ficam no menu da conta.
+  const tabs: NavItem[] = [
+    { href: "/quadro", label: "Quadro", icon: "board" },
+    { href: "/propostas", label: "Propostas", icon: "edit", badge: offers },
+    { href: "/entregas", label: "Entregas", icon: "pin", badge: toDo },
+    { href: "/pedir", label: "Pedir", icon: "box" },
+    { href: "/viajar", label: "Viajar", icon: "plane" },
+  ];
 
   return (
     <div className="app">
@@ -59,7 +66,7 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
       <div className="appmain">
         <header className="mtop">
           <Link className="brand" href="/" aria-label="Kamba Traz, início"><Logo /></Link>
-          <div className="mright"><ThemeToggle /><MobileMenu who={who} pending={pending} offers={offers} /></div>
+          <div className="mright"><ThemeToggle /><MobileMenu who={who} pending={pending} offers={offers} toRate={toRate} /></div>
         </header>
         <main id="main" tabIndex={-1}>{children}</main>
         <div className="appfoot"><SiteFooter columns={APP_COLUMNS} /></div>

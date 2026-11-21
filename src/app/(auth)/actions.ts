@@ -1,5 +1,6 @@
 "use server";
 import { headers } from "next/headers";
+import { LEGAL_VERSION } from "@/lib/constants";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { clientIp, isLimited, recordHit, TOO_MANY } from "@/lib/ratelimit";
@@ -58,7 +59,7 @@ export async function signup(_: AuthState, fd: FormData): Promise<AuthState> {
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: name }, emailRedirectTo: (await siteUrl()) + "/auth/callback" + (NEXT[str(fd, "para")] ? "?next=" + NEXT[str(fd, "para")] : "") },
+    options: { data: { full_name: name, terms_version: LEGAL_VERSION, privacy_version: LEGAL_VERSION }, emailRedirectTo: (await siteUrl()) + "/auth/callback" + (NEXT[str(fd, "para")] ? "?next=" + NEXT[str(fd, "para")] : "") },
   });
   if (error) {
     if (/rate|too many|seconds/i.test(error.message)) return { error: "Demasiadas tentativas. Espera um minuto e tenta de novo.", email };

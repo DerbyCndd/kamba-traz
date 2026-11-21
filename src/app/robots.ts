@@ -6,7 +6,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin", "/identificacao", "/perfil", "/carteira", "/entregas", "/meus", "/quadro", "/pedir", "/viajar", "/nova-palavra-passe", "/auth/", "/api/"],
+      disallow: ["/admin", "/identificacao", "/perfil", "/carteira", "/entregas", "/meus", "/quadro", "/pedir", "/viajar", "/nova-palavra-passe", "/seguranca", "/propostas", "/auth/", "/api/"],
     },
+    sitemap: (process.env.NEXT_PUBLIC_SITE_URL?.startsWith("https://") ? process.env.NEXT_PUBLIC_SITE_URL : "https://kamba-traz-app.vercel.app").replace(/\/$/, "") + "/sitemap.xml",
   };
 }

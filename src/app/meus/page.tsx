@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Empty } from "@/components/ui";
 import { RateForm } from "@/components/RateForm";
+import { DropoffForm } from "@/components/DropoffForm";
 import { getPendingRatings } from "@/lib/data";
 import { requireUser } from "@/lib/auth";
 import { cityName, fdate, refCode } from "@/lib/format";
@@ -16,6 +17,10 @@ export default async function MeusPage() {
   const toRate = await getPendingRatings();
   const { data: docRows } = await supabase.from("traveler_docs").select("trip_id, status").eq("user_id", user.id);
   const docOf = new Map((docRows ?? []).map((d) => [d.trip_id as string, d.status as string]));
+  // Onde recebo encomendas (só existe depois de entrega-local.sql)
+  const drop = await supabase.from("trips").select("id, dropoff_address, dropoff_notes, dropoff_map").eq("user_id", user.id);
+  const dropOn = !drop.error;
+  const dropOf = new Map(((drop.data ?? []) as { id: string; dropoff_address: string | null; dropoff_notes: string | null; dropoff_map: string | null }[]).map((d) => [d.id, { address: d.dropoff_address ?? "", notes: d.dropoff_notes ?? "", map: d.dropoff_map ?? "" }]));
   const [t, r] = await Promise.all([
     supabase.from("trips").select("id, origin, destination, travel_date, status, created_at").eq("user_id", user.id),
     supabase.from("requests").select("id, item, status, created_at").eq("user_id", user.id),
@@ -70,6 +75,12 @@ export default async function MeusPage() {
                 </div>
                 <p className="hint">{note(it.status)}</p>
                 {it.kind === "trip" && it.docs ? <p className="hint">{DOCS[it.docs]}</p> : null}
+                {it.kind === "trip" && dropOn && it.status !== "recusado" ? (
+                  <details className="past">
+                    <summary>Onde recebo encomendas{dropOf.get(it.id)?.address ? " (indicado)" : ""}</summary>
+                    <DropoffForm tripId={it.id} initial={dropOf.get(it.id)} />
+                  </details>
+                ) : null}
               </article>
             );
           })}

@@ -8,7 +8,7 @@ import { initials } from "@/lib/format";
 import type { Who } from "./ProfileMenu";
 
 /** No telemóvel: botão com as iniciais no topo, que abre uma folha com o perfil e as ligações secundárias. */
-export function MobileMenu({ who, pending, offers = 0 }: { who: Who; pending: number; offers?: number }) {
+export function MobileMenu({ who, pending, offers = 0, toRate = 0 }: { who: Who; pending: number; offers?: number; toRate?: number }) {
   // O menu fica aberto só enquanto a página não muda: mudar de página fecha-o sem efeitos.
   const path = usePathname();
   const [openAt, setOpenAt] = useState<string | null>(null);
@@ -44,7 +44,7 @@ export function MobileMenu({ who, pending, offers = 0 }: { who: Who; pending: nu
             <nav className="mlinks" aria-label="Conta">
               <Link href="/perfil"><Icon name="user" />Meu perfil</Link>
               <Link href="/propostas"><Icon name="edit" />Propostas{offers ? <b className="badge">{offers}</b> : null}</Link>
-              <Link href="/meus"><Icon name="list" />Os meus pedidos e viagens</Link>
+              <Link href="/meus"><Icon name="list" />Os meus pedidos e viagens{toRate ? <b className="badge">{toRate}</b> : null}</Link>
               <Link href="/entregas"><Icon name="pin" />Entregas</Link>
               <Link href="/carteira"><Icon name="wallet" />Carteira</Link>
               <Link href="/feedback"><Icon name="chat" />Deixe o seu feedback</Link>

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Field } from "./ui";
 
 /** Ligação de um mapa, escrita ou preenchida com a localização atual (a pessoa confirma que é o sítio certo). */
-export function MapField({ id, label, hint, error, defaultValue }: { id: string; label: string; hint: string; error?: string; defaultValue?: string }) {
+export function MapField({ id, name, label, hint, error, defaultValue }: { id: string; name?: string; label: string; hint: string; error?: string; defaultValue?: string }) {
   const [map, setMap] = useState(defaultValue ?? "");
   const [msg, setMsg] = useState("");
 
@@ -20,7 +20,7 @@ export function MapField({ id, label, hint, error, defaultValue }: { id: string;
   return (
     <>
       <Field id={id} label={label} hint={hint} error={error} full>
-        <input id={id} name={id} inputMode="url" maxLength={300} placeholder="https://maps.google.com/…" value={map} onChange={(ev) => setMap(ev.target.value)} />
+        <input id={id} name={name ?? id} inputMode="url" maxLength={300} placeholder="https://maps.google.com/…" value={map} onChange={(ev) => setMap(ev.target.value)} />
       </Field>
       <div className="field full">
         <button type="button" className="btn small" onClick={fill}>Usar a minha localização atual</button>

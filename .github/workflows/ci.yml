@@ -1,0 +1,29 @@
+# Verifica cada alteração antes de ser dada como boa: tipos, regras de estilo e os testes das partes críticas
+# (moedas, limites da alfândega, filtro de contactos). Se falhar, o GitHub avisa.
+name: Verificação
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # O Next gera este ficheiro ao arrancar; aqui cria-se à mão para o verificador de tipos.
+      - name: Tipos do Next
+        run: printf '/// <reference types="next" />\n/// <reference types="next/image-types/global" />\n' > next-env.d.ts
+      - run: npx tsc --noEmit
+      - run: npm run lint
+      - run: npm test

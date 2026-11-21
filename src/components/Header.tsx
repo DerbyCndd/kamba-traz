@@ -10,6 +10,7 @@ export function Header() {
         <Link className="brand" href="/" aria-label="Kamba Traz, início"><Logo /></Link>
         <nav className="toplinks" aria-label="Principal">
           <Link href="/#como-funciona">Como funciona</Link>
+          <Link href="/tutorial">Tutorial</Link>
           <Link href="/#seguranca">Segurança</Link>
           <Link href="/#duvidas">Dúvidas</Link>
         </nav>

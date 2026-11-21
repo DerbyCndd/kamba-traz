@@ -36,6 +36,7 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
     { href: "/meus", label: "Os meus", icon: "list", badge: toRate },
     { href: "/entregas", label: "Entregas", icon: "pin", badge: toDo },
     { href: "/carteira", label: "Carteira", icon: "wallet" },
+    { href: "/tutorial", label: "Como usar", icon: "help" },
     { href: "/regras", label: "Regras", icon: "shield" },
   ];
   // Só quem é da equipa vê a ligação. A protecção verdadeira está no servidor (requireAdmin + RLS).

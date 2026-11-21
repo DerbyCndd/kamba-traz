@@ -72,6 +72,7 @@ export async function Landing() {
           <p className="muted">Do pedido à entrega, em três passos.</p>
         </div>
         <HowItWorks />
+        <p style={{ marginTop: 22 }}><Link className="btn" href="/tutorial">Ver o tutorial passo a passo, com imagens</Link></p>
       </section>
 
       <section className="split">

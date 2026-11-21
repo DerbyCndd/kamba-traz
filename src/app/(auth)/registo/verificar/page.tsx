@@ -20,6 +20,7 @@ export default async function VerifyPage({ searchParams }: { searchParams: Promi
         <p className="hint">Não chegou? Verifica a pasta de spam ou pede um novo email.</p>
         <ResendForm email={email} />
         <Link className="btn" href="/login">Ir para a entrada</Link>
+        <p className="hint">Enquanto esperas: <Link href="/tutorial">vê o tutorial passo a passo</Link> para saberes o que vem a seguir.</p>
       </div>
     </section>
   );

@@ -46,3 +46,8 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# contexto de desenho e de produto (ferramentas de IA): ficam só no computador do dono, o repositório é público
+/PRODUCT.md
+/DESIGN.md
+/.impeccable/

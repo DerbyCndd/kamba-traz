@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { getAgreements, getConfig, getNewAccountLimitSetting, getWaiverHolders } from "@/lib/data";
-import { kz } from "@/lib/format";
+import { kz, today } from "@/lib/format";
+import { teamSuggestions } from "@/lib/match-data";
 import type { Deal, DealReport, FeedbackRow, IdentityView, Req, TravelerDocView, Trip } from "@/lib/types";
 import { Entradas } from "./tabs/Entradas";
 import { Entregas } from "./tabs/Entregas";
@@ -94,6 +95,10 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     : {};
 
   const newLimit = await getNewAccountLimitSetting();
+  // Sugestões de emparelhamento, só no separador Quadro (as avaliações vêm da vista pública das viagens)
+  const matchSugg = tab === "quadro"
+    ? teamSuggestions(reqs, trips, deals, await supabase.from("trips_public").select("id, rating, rating_count").then((r) => new Map(((r.data ?? []) as { id: string; rating: number | null; rating_count: number }[]).map((x) => [x.id, x]))), today())
+    : [];
   const itemUsers = new Set([...trips.filter((t) => t.status === "pendente").map((t) => t.user_id), ...reqs.filter((r) => r.status === "pendente").map((r) => r.user_id)]);
   const looseIdents = idents.filter((i) => i.status === "pendente" && !itemUsers.has(i.user_id)); // enviaram o BI mas ainda não têm viagem nem pedido por aprovar
   const pending = trips.filter((t) => t.status === "pendente").length + reqs.filter((r) => r.status === "pendente").length + looseIdents.length;
@@ -124,7 +129,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       {tab === "entradas" && <Identificacoes idents={looseIdents} />}
       {tab === "entradas" && <Entradas trips={trips} reqs={reqs} deals={deals} config={config} docs={docs} idents={idents} otherPending={looseIdents.length} />}
       {tab === "ligacoes" && <Entregas trips={trips} reqs={reqs} deals={deals} commission={config.commission} holders={holders} agreements={agreements} />}
-      {tab === "quadro" && <Quadro trips={trips} reqs={reqs} />}
+      {tab === "quadro" && <Quadro trips={trips} reqs={reqs} suggestions={matchSugg} />}
       {tab === "analise" && <Analise trips={trips} reqs={reqs} deals={deals} />}
       {tab === "economia" && <Economia perKg={config.per_kg} commission={config.commission} />}
       {tab === "pitch" && <Pitch />}

@@ -101,6 +101,20 @@ export async function createDeal(_: AdminState, fd: FormData): Promise<AdminStat
   return { message: fee_waived ? "Entrega criada, sem comissão (prémio do mês)." : "Entrega criada." };
 }
 
+/** Um clique da equipa: cria a entrega de um par sugerido pelo emparelhamento, com o valor que quem envia ofereceu.
+ *  Passa pelas mesmas verificações de createDeal (pedido aberto, pessoas diferentes, limite da alfândega, prémio do mês). */
+export async function approveMatch(requestId: string, tripId: string): Promise<AdminState> {
+  const { supabase } = await requireAdmin();
+  if (!/^[0-9a-f-]{36}$/i.test(requestId) || !/^[0-9a-f-]{36}$/i.test(tripId)) return { error: "Par inválido." };
+  const { data: r } = await supabase.from("requests").select("offer").eq("id", requestId).maybeSingle();
+  if (!r?.offer) return { error: "Este pedido não tem oferta: cria a entrega no separador Entregas, com o valor acordado." };
+  const fd = new FormData();
+  fd.set("request", requestId); fd.set("trip", tripId); fd.set("price", String(r.offer));
+  const res = await createDeal({}, fd);
+  if (res.error) return res;
+  return { message: "Entrega criada com o valor oferecido. Confirma o valor com as duas partes antes do pagamento." };
+}
+
 export async function setDealStatus(id: string, status: string) {
   const { supabase } = await requireAdmin();
   if (![...DEAL_STEPS.map((s) => s[0]), "cancelado"].includes(status)) return;

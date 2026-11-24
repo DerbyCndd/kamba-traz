@@ -3,9 +3,11 @@ import Link from "next/link";
 import { Empty } from "@/components/ui";
 import { RateForm } from "@/components/RateForm";
 import { DropoffForm } from "@/components/DropoffForm";
+import { RequestSuggestions, TripSuggestions } from "@/components/MatchList";
+import { suggestRequestsForMyTrips, suggestTripsForMyRequests } from "@/lib/match-data";
 import { getPendingRatings } from "@/lib/data";
 import { requireUser } from "@/lib/auth";
-import { cityName, fdate, refCode } from "@/lib/format";
+import { cityName, fdate, refCode, today } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Os meus" };
 
@@ -29,6 +31,10 @@ export default async function MeusPage() {
     ...(t.data ?? []).map((x) => ({ id: x.id, kind: "trip" as const, title: `${cityName(x.origin)} para ${cityName(x.destination)}, ${fdate(x.travel_date)}`, status: x.status, created_at: x.created_at, docs: docOf.get(x.id) })),
     ...(r.data ?? []).map((x) => ({ id: x.id, kind: "request" as const, title: x.item as string, status: x.status, created_at: x.created_at })),
   ].sort((a, b) => b.created_at.localeCompare(a.created_at));
+
+  // Emparelhamento: viagens sugeridas para os meus pedidos, e pedidos que cabem nas minhas viagens (top 3, sem contactos)
+  const day = today();
+  const [sugTrips, sugReqs] = await Promise.all([suggestTripsForMyRequests(supabase, user.id, day), suggestRequestsForMyTrips(supabase, user.id, day)]);
 
   const pill = (s: string): [string, string] =>
     s === "pendente" ? ["warn", "EM VERIFICAÇÃO"] : s === "recusado" ? ["bad", "RECUSADO"] : ["ok", "PUBLICADO"];
@@ -75,6 +81,8 @@ export default async function MeusPage() {
                 </div>
                 <p className="hint">{note(it.status)}</p>
                 {it.kind === "trip" && it.docs ? <p className="hint">{DOCS[it.docs]}</p> : null}
+                {it.kind === "request" && it.status === "aberto" ? <TripSuggestions items={sugTrips.get(it.id) ?? []} /> : null}
+                {it.kind === "trip" && it.status === "aberto" ? <RequestSuggestions items={sugReqs.get(it.id) ?? []} /> : null}
                 {it.kind === "trip" && dropOn && it.status !== "recusado" ? (
                   <details className="past">
                     <summary>Onde recebo encomendas{dropOf.get(it.id)?.address ? " (indicado)" : ""}</summary>

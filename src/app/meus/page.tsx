@@ -4,7 +4,7 @@ import { Empty } from "@/components/ui";
 import { RateForm } from "@/components/RateForm";
 import { DropoffForm } from "@/components/DropoffForm";
 import { RequestSuggestions, TripSuggestions } from "@/components/MatchList";
-import { suggestRequestsForMyTrips, suggestTripsForMyRequests } from "@/lib/match-data";
+import { logShown, suggestRequestsForMyTrips, suggestTripsForMyRequests } from "@/lib/match-data";
 import { getPendingRatings } from "@/lib/data";
 import { requireUser } from "@/lib/auth";
 import { cityName, fdate, refCode, today } from "@/lib/format";
@@ -35,6 +35,10 @@ export default async function MeusPage() {
   // Emparelhamento: viagens sugeridas para os meus pedidos, e pedidos que cabem nas minhas viagens (top 3, sem contactos)
   const day = today();
   const [sugTrips, sugReqs] = await Promise.all([suggestTripsForMyRequests(supabase, user.id, day), suggestRequestsForMyTrips(supabase, user.id, day)]);
+  await logShown(supabase, [
+    ...[...sugTrips].flatMap(([requestId, l]) => l.map((x) => ({ requestId, tripId: x.trip.id }))),
+    ...[...sugReqs].flatMap(([tripId, l]) => l.map((x) => ({ requestId: x.req.id, tripId }))),
+  ]);
 
   const pill = (s: string): [string, string] =>
     s === "pendente" ? ["warn", "EM VERIFICAÇÃO"] : s === "recusado" ? ["bad", "RECUSADO"] : ["ok", "PUBLICADO"];

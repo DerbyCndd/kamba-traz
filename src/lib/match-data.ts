@@ -2,6 +2,7 @@ import "server-only";
 import type { createClient } from "./supabase/server";
 import { rankRequests, rankTrips, type Match, type MatchRequest, type MatchTrip } from "./matching";
 import type { Deal, Req, Trip } from "./types";
+import { computeMetrics, type PilotEvent, type PilotMetrics } from "./metrics";
 
 type Supa = Awaited<ReturnType<typeof createClient>>;
 
@@ -106,4 +107,24 @@ export function teamSuggestions(reqs: Req[], trips: Trip[], deals: Deal[], ratin
     if (best) out.push({ match: best, req: r, trip: candidates.find((t) => t.id === best.tripId)! });
   }
   return out.sort((a, b) => b.match.score - a.match.score).slice(0, limit);
+}
+
+/** Regista as sugestões mostradas (métricas do piloto). Nunca falha a página: sem metricas.sql, não faz nada. */
+export async function logShown(supabase: Supa, pairs: { requestId: string; tripId: string }[]): Promise<void> {
+  if (!pairs.length) return;
+  const list = pairs.slice(0, 30);
+  try {
+    await supabase.rpc("log_suggestions", { p_requests: list.map((p) => p.requestId), p_trips: list.map((p) => p.tripId) });
+  } catch { /* ignora */ }
+}
+
+/** Eventos e métricas do piloto (só a equipa lê; metricas.sql). available = false se o SQL ainda não foi corrido. */
+export async function loadPilotMetrics(supabase: Supa): Promise<{ available: boolean; metrics: PilotMetrics; events: PilotEvent[] }> {
+  const [ev, avg] = await Promise.all([
+    supabase.from("pilot_events").select("kind, subject_id, ref_id, at").order("at").limit(20000),
+    supabase.rpc("pilot_rating_avg"),
+  ]);
+  const events = (ev.error ? [] : (ev.data ?? [])) as PilotEvent[];
+  const metrics = { ...computeMetrics(events, []), avgRating: avg.error || avg.data === null ? null : Number(avg.data) };
+  return { available: !ev.error, metrics, events };
 }

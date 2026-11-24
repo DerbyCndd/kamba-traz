@@ -1,7 +1,10 @@
 import { kz, pct, today } from "@/lib/format";
 import type { Deal, Req, Trip } from "@/lib/types";
+import { fmtWait, type PilotMetrics } from "@/lib/metrics";
 
-export function Analise({ trips, reqs, deals }: { trips: Trip[]; reqs: Req[]; deals: Deal[] }) {
+export function Analise({ trips, reqs, deals, pilot }: { trips: Trip[]; reqs: Req[]; deals: Deal[]; pilot?: { available: boolean; metrics: PilotMetrics } | null }) {
+  const pm = pilot?.metrics;
+  const num = (v: number | null, suffix = "") => (v === null ? "–" : String(v).replace(".", ",") + suffix);
   const real = [...trips, ...reqs].filter((x) => !x.example);
   const subs = real.length;
   const approved = real.filter((x) => x.status !== "pendente" && x.status !== "recusado").length;
@@ -33,6 +36,22 @@ export function Analise({ trips, reqs, deals }: { trips: Trip[]; reqs: Req[]; de
 
   return (
     <div className="list">
+      <div className="panel">
+        <h3>Métricas do piloto</h3>
+        {pilot?.available && pm ? (
+          <>
+            <div className="stats">
+              <div><span className="label">Tempo médio até ao acordo</span><b>{fmtWait(pm.avgHoursToAgreement)}</b></div>
+              <div><span className="label">Pedidos com sugestão</span><b>{num(pm.requestsWithSuggestionPct, "%")}</b></div>
+              <div><span className="label">Sugestões que viraram acordo</span><b>{num(pm.suggestionToAgreementPct, "%")}</b></div>
+              <div><span className="label">Entregas concluídas</span><b>{pm.deliveriesDone}</b></div>
+              <div><span className="label">Avaliação média</span><b>{num(pm.avgRating)}</b></div>
+            </div>
+            <p className="hint">{pm.requests} pedidos e {pm.trips} viagens publicados, {pm.agreements} acordos. Os eventos não guardam nomes, contactos nem valores.</p>
+            <div className="row"><a className="btn small" href="/admin/metricas" download>Exportar CSV</a></div>
+          </>
+        ) : <p className="muted">Corre o supabase/metricas.sql para começar a medir o piloto.</p>}
+      </div>
       <div className="stats">
         <div><span className="label">Taxa de aprovação</span><b>{pct(approved, subs)}</b></div>
         <div><span className="label">Conversão até entrega</span><b>{pct(done, subs)}</b></div>

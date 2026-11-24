@@ -40,8 +40,9 @@ export function Entregas({ trips, reqs, deals, commission, holders, agreements }
             <PickupInfo r={reqs.find((x) => x.id === d.request_id)} />
             <div className="row">
               {d.status === "negociacao" ? <ConfirmPayment dealId={d.id} /> : null}
-              {d.status === "garantia" ? <span className="hint">Pagamento retido. À espera de o entregador pegar a encomenda na app.</span> : null}
-              {d.status === "transito" ? <span className="hint">A caminho. A entrega fecha quando o entregador introduzir o código.</span> : null}
+              {d.status === "garantia" ? <span className="hint">Pagamento retido. À espera de o entregador recolher a encomenda na app.</span> : null}
+              {d.status === "recolhido" ? <span className="hint">Recolhida, com fotos. À espera de o entregador partir.</span> : null}
+              {d.status === "transito" ? <span className="hint">Em viagem. A entrega fecha quando o entregador introduzir o código.</span> : null}
               {d.status === "entregue" && next ? (
                 <form action={setDealStatus.bind(null, d.id, next[0])} className="inline">
                   <SubmitButton className="btn small primary" pending="A guardar…">Marcar: {next[1]} (depois de pagares ao viajante)</SubmitButton>

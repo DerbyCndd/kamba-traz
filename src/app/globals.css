@@ -772,3 +772,8 @@ ol.steps p{max-width:56ch}
 .matchrow{display:flex;align-items:baseline;justify-content:space-between;gap:12px;min-width:0}
 .matchrow>span{min-width:0;overflow-wrap:anywhere}
 .matchscore{flex:none;font:700 15px/1 var(--f-mono);font-variant-numeric:tabular-nums;color:var(--accent-text)}
+
+/* histórico da entrega */
+.history{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.history li{display:flex;justify-content:space-between;gap:12px}
+.history time{color:var(--muted);font-variant-numeric:tabular-nums}

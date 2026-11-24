@@ -20,7 +20,7 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
   const admin = profile.role === "admin";
   const [pending, toRate, mine, offers] = await Promise.all([admin ? getPendingCount() : 0, getPendingRatings().then((l) => l.length), getMyDeals(), getOffersWaiting(profile.id)]);
   // Entregas à espera de uma acção do entregador: pegar a encomenda ou confirmar a entrega.
-  const toDo = mine.filter((d) => d.traveler_id === profile.id && (d.status === "garantia" || d.status === "transito")).length;
+  const toDo = mine.filter((d) => d.traveler_id === profile.id && ["garantia", "recolhido", "transito"].includes(d.status)).length;
   const who: Who = { name: profile.full_name, email: profile.email, admin };
 
   // As duas ações que começam tudo: ficam em botões, no topo da barra. O logótipo leva ao início.

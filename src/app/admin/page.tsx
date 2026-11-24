@@ -103,7 +103,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const looseIdents = idents.filter((i) => i.status === "pendente" && !itemUsers.has(i.user_id)); // enviaram o BI mas ainda não têm viagem nem pedido por aprovar
   const pending = trips.filter((t) => t.status === "pendente").length + reqs.filter((r) => r.status === "pendente").length + looseIdents.length;
   const active = deals.filter((d) => d.status !== "liberado" && d.status !== "cancelado");
-  const held = deals.filter((d) => ["garantia", "transito", "entregue"].includes(d.status)).reduce((a, d) => a + d.price, 0);
+  const held = deals.filter((d) => ["garantia", "recolhido", "transito", "entregue"].includes(d.status)).reduce((a, d) => a + d.price, 0);
   const earned = deals.filter((d) => d.status === "liberado").reduce((a, d) => a + d.commission, 0);
   const pipeline = active.reduce((a, d) => a + d.commission, 0);
   const counts: Record<string, number> = { entradas: pending, ligacoes: deals.length + agreements.length, quadro: trips.length + reqs.length - (pending - looseIdents.length), feedback: feedback.filter((f) => f.status === "novo").length, denuncias: reports.filter((r) => r.status !== "resolvida").length };

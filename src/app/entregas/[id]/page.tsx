@@ -6,6 +6,9 @@ import { DealContacts } from "@/components/DealContacts";
 import { DeliveryMap } from "@/components/DeliveryMap";
 import { LocationSharer } from "@/components/LocationSharer";
 import { PickupPanel } from "@/components/PickupPanel";
+import { DeliveryCodePanel } from "@/components/DeliveryCodePanel";
+import { StartTrip } from "@/components/StartTrip";
+import { DEAL_LABEL, codeAllowed, type DealStatus } from "@/lib/deal-flow";
 import { ReportForm } from "@/components/ReportForm";
 import { getProfile, requireUser } from "@/lib/auth";
 import { DEAL_STEPS } from "@/lib/constants";
@@ -16,16 +19,18 @@ export const metadata: Metadata = { title: "Entrega" };
 
 const FOR_SENDER: Record<string, string> = {
   negociacao: "A equipa está a combinar contigo o pagamento.",
-  garantia: "O pagamento está retido. À espera de que o entregador pegue a encomenda.",
-  transito: "A encomenda vai a caminho. Acompanha-a no mapa.",
+  garantia: "O pagamento está retido. Gera o código de entrega e dá-o a quem recebe. À espera de que o entregador recolha a encomenda.",
+  recolhido: "O entregador recolheu a encomenda, com fotos do volume. À espera de que parta.",
+  transito: "A encomenda está em viagem. Acompanha-a no mapa.",
   entregue: "Entrega confirmada. A equipa vai pagar ao viajante.",
   liberado: "Entrega concluída. O valor foi libertado ao viajante.",
   cancelado: "Entrega cancelada.",
 };
 const FOR_TRAVELER: Record<string, string> = {
   negociacao: "A equipa está a acertar o pagamento. Ainda não podes pegar a encomenda.",
-  garantia: "O pagamento está retido. Podes pegar a encomenda.",
-  transito: "Estás a levar a encomenda. Quando entregares, confirma com o código.",
+  garantia: "O pagamento está retido. Podes recolher a encomenda.",
+  recolhido: "Recolheste a encomenda. Quando partires, confirma que estás em viagem.",
+  transito: "Estás em viagem com a encomenda. Quando entregares, confirma com o código de quem recebe.",
   entregue: "Entrega confirmada. A equipa vai pagar-te o valor retido.",
   liberado: "Entrega concluída e paga.",
   cancelado: "Entrega cancelada.",
@@ -33,7 +38,7 @@ const FOR_TRAVELER: Record<string, string> = {
 
 export default async function EntregaPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { user } = await requireUser();
+  const { user, supabase } = await requireUser();
   const [profile, deal] = await Promise.all([getProfile(), getDeal(id)]);
   if (!deal) notFound(); // quem não participa nesta entrega também não a vê (regras de acesso)
 
@@ -48,9 +53,13 @@ export default async function EntregaPage({ params }: { params: Promise<{ id: st
   const contacts = isSender || isTraveler ? await getDealContacts(id) : null;
   const [positions, code, shots] = await Promise.all([
     deal.status === "transito" && (isSender || admin) ? getPositions(id) : Promise.resolve([]),
-    isSender && (deal.status === "garantia" || deal.status === "transito") ? getDeliveryCode(id) : Promise.resolve(null),
+    isSender && codeAllowed(deal.status) ? getDeliveryCode(id) : Promise.resolve(null), // só códigos antigos, ainda guardados cifrados
     getDealPhotos(id),
   ]);
+  const codeState = isSender && codeAllowed(deal.status)
+    ? await supabase.rpc("delivery_code_status", { p_deal: id }).then((r) => ((Array.isArray(r.data) ? r.data[0] : null) ?? null) as { has_code: boolean; expires_at: string | null } | null)
+    : null;
+  const history = await supabase.from("deal_history").select("id, to_status, at").eq("deal_id", id).order("at").then((r) => (r.error ? [] : (r.data ?? []) as { id: number; to_status: string; at: string }[]));
 
   return (
     <section>
@@ -71,13 +80,7 @@ export default async function EntregaPage({ params }: { params: Promise<{ id: st
 
       <div className="dealgrid">
         <div className="stack">
-          {code ? (
-            <div className="panel">
-              <h3>Código de entrega</h3>
-              <p className="muted">Dá este código só a quem recebe a encomenda, quando ela chegar. O entregador precisa dele para concluir a entrega.</p>
-              <b className="bigcode">{code.slice(0, 3)} {code.slice(3)}</b>
-            </div>
-          ) : null}
+          {isSender && codeAllowed(deal.status) ? <DeliveryCodePanel dealId={id} hasCode={!!codeState?.has_code} expiresAt={codeState?.expires_at ?? null} legacy={code} /> : null}
 
           {contacts ? <DealContacts c={contacts} /> : null}
           {!contacts && deal.status === "negociacao" && (isTraveler || isSender) ? (
@@ -90,6 +93,7 @@ export default async function EntregaPage({ params }: { params: Promise<{ id: st
           ) : null}
 
           {isTraveler && deal.status === "garantia" ? <PickupPanel dealId={id} photos={shots.available ? shots.photos.length : null} /> : null}
+          {isTraveler && deal.status === "recolhido" ? <StartTrip dealId={id} /> : null}
           {isTraveler && deal.status === "transito" ? (
             <>
               <LocationSharer dealId={id} />
@@ -111,7 +115,7 @@ export default async function EntregaPage({ params }: { params: Promise<{ id: st
           ) : null}
 
           {(isSender || admin) && deal.status === "transito" ? <DeliveryMap dealId={id} initial={positions} /> : null}
-          {(isSender || admin) && deal.status === "garantia" ? <p className="muted">O mapa aparece quando o entregador pegar a encomenda.</p> : null}
+          {(isSender || admin) && (deal.status === "garantia" || deal.status === "recolhido") ? <p className="muted">O mapa aparece quando o entregador partir em viagem.</p> : null}
           {deal.status === "entregue" || deal.status === "liberado" ? <p className="muted">A localização foi apagada quando a entrega terminou.</p> : null}
 
           {reports.available && (isSender || isTraveler) ? (
@@ -139,6 +143,14 @@ export default async function EntregaPage({ params }: { params: Promise<{ id: st
             <div><span>O viajante recebe</span>{kz(deal.price - deal.commission)}</div>
           </div>
           <p className="hint">O valor fica retido até a entrega ser confirmada com o código. <Link href="/carteira">Ver a carteira</Link></p>
+          {history.length ? (
+            <>
+              <h3>Histórico</h3>
+              <ol className="history">
+                {history.map((h) => <li key={h.id}><b>{DEAL_LABEL[h.to_status as DealStatus] ?? h.to_status}</b> <time dateTime={h.at}>{new Date(h.at).toLocaleString("pt-PT", { dateStyle: "short", timeStyle: "short", timeZone: "Africa/Luanda" })}</time></li>)}
+              </ol>
+            </>
+          ) : null}
         </aside>
       </div>
     </section>

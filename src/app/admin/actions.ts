@@ -5,9 +5,11 @@ import { CATS, DEAL_STEPS, REQ_STATES, TRIP_STATES } from "@/lib/constants";
 import { firstName } from "@/lib/format";
 import { CUSTOMS } from "@/lib/customs";
 import { randomInt } from "node:crypto";
-import { decryptPii, encryptPii, piiReady } from "@/lib/pii";
+import { decryptPii, piiReady } from "@/lib/pii";
 import { saveIdHashes } from "@/lib/identity";
 import { logAccess } from "@/lib/audit";
+import { canTransition } from "@/lib/deal-flow";
+import { notifyDeal } from "@/lib/notify";
 
 export type AdminState = { error?: string; message?: string };
 
@@ -118,8 +120,13 @@ export async function approveMatch(requestId: string, tripId: string): Promise<A
 export async function setDealStatus(id: string, status: string) {
   const { supabase } = await requireAdmin();
   if (![...DEAL_STEPS.map((s) => s[0]), "cancelado"].includes(status)) return;
-  if (status === "garantia") return; // o pagamento só se confirma pela acção própria (gera o código de entrega)
-  await supabase.from("deals").update({ status }).eq("id", id);
+  if (status === "garantia") return; // o pagamento só se confirma pela acção própria
+  const { data: cur } = await supabase.from("deals").select("status").eq("id", id).maybeSingle();
+  if (!cur || !canTransition(cur.status, status, "equipa")) return; // a base de dados confirma (deals_transition_guard)
+  const { error } = await supabase.from("deals").update({ status }).eq("id", id);
+  if (error) return;
+  console.info("[auditoria] estado da entrega", { entrega: id, de: cur.status, para: status });
+  await notifyDeal(id);
   done();
 }
 
@@ -215,11 +222,12 @@ export async function fundDeal(dealId: string, _: AdminState, fd: FormData): Pro
   const method = String(fd.get("method") ?? "");
   const reference = String(fd.get("reference") ?? "").trim().slice(0, 120);
   if (!METHODS.includes(method)) return { error: "Escolhe como o pagamento foi feito." };
-  if (!piiReady()) return { error: "Falta a chave de cifra (PII_KEY): não é possível criar o código de entrega." };
+  // Um valor aleatório que ninguém vê: quem envia gera o código verdadeiro na app (só o hash fica guardado).
   const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
-  const { error } = await supabase.rpc("fund_deal", { p_deal: dealId, p_method: method, p_reference: reference, p_code: code, p_code_enc: encryptPii(code) });
+  const { error } = await supabase.rpc("fund_deal", { p_deal: dealId, p_method: method, p_reference: reference, p_code: code, p_code_enc: "" });
   if (error) return { error: ["P0001", "42501", "22023"].includes(error.code ?? "") ? error.message : "Não foi possível confirmar o pagamento." };
   console.info("[auditoria] pagamento confirmado", { equipa: profile.id, entrega: dealId, metodo: method });
+  await notifyDeal(dealId);
   done();
   return { message: "Pagamento confirmado. O valor ficou retido." };
 }

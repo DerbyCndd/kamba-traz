@@ -1,3 +1,4 @@
+import { DEAL_FLOW, DEAL_LABEL } from "./deal-flow";
 export const CITY: Record<string, string> = {
   LIS: "Lisboa", OPO: "Porto", FAO: "Faro", GRU: "São Paulo", DXB: "Dubai", JNB: "Joanesburgo", CDG: "Paris", LHR: "Londres",
   LAD: "Luanda", BUG: "Benguela", SDD: "Lubango", NOV: "Huambo", CAB: "Cabinda", OTH: "Outra cidade",
@@ -13,13 +14,8 @@ export const CATS = [
   "Brinquedos e artigos de bebé",
   "Outro item legal",
 ];
-export const DEAL_STEPS: [string, string][] = [
-  ["negociacao", "Em negociação"],
-  ["garantia", "Pagamento retido"],
-  ["transito", "Em trânsito"],
-  ["entregue", "Entregue"],
-  ["liberado", "Pago ao viajante"],
-];
+/** Acordo → pagamento retido → recolhido → em viagem → entregue → libertado (ver src/lib/deal-flow.ts). */
+export const DEAL_STEPS: [string, string][] = DEAL_FLOW.map((s) => [s, DEAL_LABEL[s]]);
 export const TRIP_STATES: [string, string][] = [["aberto", "Aberto"], ["cheia", "Mala cheia"], ["concluida", "Concluída"]];
 export const REQ_STATES: [string, string][] = [["aberto", "Aberto"], ["ligado", "Com viajante"], ["entregue", "Entregue"]];
 

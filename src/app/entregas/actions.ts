@@ -3,6 +3,8 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { uploadFile } from "@/lib/storage-upload";
 import { isLimited, recordHit, TOO_MANY } from "@/lib/ratelimit";
+import { randomInt } from "node:crypto";
+import { notifyDeal } from "@/lib/notify";
 
 export type DeliveryState = { error?: string; done?: boolean };
 
@@ -17,27 +19,61 @@ export async function pickupDeal(dealId: string): Promise<DeliveryState> {
   if (!UUID.test(dealId)) return { error: "Entrega inválida." };
   const { error } = await supabase.rpc("pickup_deal", { p_deal: dealId });
   if (error) return { error: safe(error) };
+  await notifyDeal(dealId);
   revalidatePath(`/entregas/${dealId}`);
   revalidatePath("/entregas");
   return { done: true };
 }
 
+/** O entregador parte com a encomenda: recolhido → em viagem (começa a partilha de localização). */
+export async function startTripDeal(dealId: string): Promise<DeliveryState> {
+  const { supabase } = await requireUser();
+  if (!UUID.test(dealId)) return { error: "Entrega inválida." };
+  const { error } = await supabase.rpc("start_trip_deal", { p_deal: dealId });
+  if (error) return { error: safe(error) };
+  await notifyDeal(dealId);
+  revalidatePath(`/entregas/${dealId}`);
+  revalidatePath("/entregas");
+  return { done: true };
+}
+
+/**
+ * Quem envia gera o código de entrega. É criado aqui, no servidor; a base de dados guarda só o hash (com validade de 30 dias)
+ * e o código volta uma única vez para ser mostrado. Gerar outro invalida o anterior.
+ */
+export async function newDeliveryCode(dealId: string): Promise<{ error?: string; code?: string; expires?: string }> {
+  const { user, supabase } = await requireUser();
+  if (!UUID.test(dealId)) return { error: "Entrega inválida." };
+  if (await isLimited("deal-code-new", user.id, 5, 3600)) return { error: TOO_MANY };
+  await recordHit("deal-code-new", user.id);
+  const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
+  const { data, error } = await supabase.rpc("set_delivery_code", { p_deal: dealId, p_code: code });
+  if (error) return { error: error.code === "PGRST202" ? "Falta correr o estados-entrega.sql." : safe(error) };
+  revalidatePath(`/entregas/${dealId}`);
+  return { code, expires: typeof data === "string" ? data : undefined };
+}
+
 /** O entregador introduz o código que quem recebe lhe deu. A verificação é feita na base de dados, com limite de tentativas. */
 export async function confirmDelivery(_: DeliveryState, fd: FormData): Promise<DeliveryState> {
-  const { supabase } = await requireUser();
+  const { user, supabase } = await requireUser();
   const deal = String(fd.get("deal") ?? "");
   const code = String(fd.get("code") ?? "").replace(/\D/g, "");
   if (!UUID.test(deal)) return { error: "Entrega inválida." };
   if (code.length !== 6) return { error: "O código tem 6 dígitos." };
+  // Além das 5 tentativas por código na base de dados, um limite por pessoa (também entre entregas).
+  if (await isLimited("deal-code-try", user.id, 10, 900)) return { error: TOO_MANY };
+  await recordHit("deal-code-try", user.id);
 
   const { data, error } = await supabase.rpc("confirm_delivery", { p_deal: deal, p_code: code });
   if (error) return { error: safe(error) };
   if (data === "ok") {
+    await notifyDeal(deal);
     revalidatePath(`/entregas/${deal}`);
     revalidatePath("/entregas");
     revalidatePath("/carteira");
     return { done: true };
   }
+  if (data === "expirado") return { error: "Este código expirou. Pede a quem envia que gere um novo na app." };
   if (data === "bloqueado") return { error: "Demasiadas tentativas erradas. Fala com a equipa." };
   const left = /^errado:(\d+)/.exec(String(data))?.[1];
   return { error: left ? `Código errado. Restam ${left} tentativas.` : "Código errado." };

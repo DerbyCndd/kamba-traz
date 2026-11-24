@@ -5,7 +5,8 @@
 --  Nível 2 (publicar uma viagem, ou aceitar levar um pedido): o nível 1, mais passaporte e foto de perfil.
 --  A app mostra o que falta; aqui a base de dados garante a regra mesmo para quem fale com a API diretamente.
 
-create or replace function public.verification_level(p_user uuid) returns int
+-- Interna: o nível de qualquer pessoa. Só a usam o gatilho das propostas e a função abaixo (ninguém a chama de fora).
+create or replace function public._verification_level(p_user uuid) returns int
 language sql stable security definer set search_path = public as $$
   select case
     when i.user_id is null or i.bi_enc is null or i.selfie_path is null or i.address_enc is null or i.family_enc is null then 0
@@ -14,8 +15,14 @@ language sql stable security definer set search_path = public as $$
   end
   from (select p_user as uid) u
   left join public.identities i on i.user_id = u.uid
-  left join public.profiles p on p.id = u.uid
-  where p_user = auth.uid() or public.is_admin(); -- só responde sobre a própria pessoa (ou à equipa); de outra pessoa devolve nulo
+  left join public.profiles p on p.id = u.uid;
+$$;
+revoke execute on function public._verification_level(uuid) from public, anon, authenticated;
+
+-- Pública: só responde sobre a própria pessoa (ou à equipa); de outra pessoa devolve nulo.
+create or replace function public.verification_level(p_user uuid) returns int
+language sql stable security definer set search_path = public as $$
+  select case when p_user = auth.uid() or public.is_admin() then public._verification_level(p_user) end;
 $$;
 -- As regras de acesso chamam-na com os privilégios de quem faz o pedido, por isso tem de estar disponível a authenticated.
 revoke execute on function public.verification_level(uuid) from public, anon;
@@ -65,15 +72,15 @@ create or replace function public.offers_level_guard() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
   if tg_op = 'INSERT' then
-    if new.from_role = 'traveler' and coalesce(public.verification_level(new.from_user), 0) < 2 then
+    if new.from_role = 'traveler' and coalesce(public._verification_level(new.from_user), 0) < 2 then
       raise exception 'Para propor levar uma encomenda precisas do nível 2 de verificação (passaporte e foto de perfil incluídos). Vê o que falta em Meu perfil.' using errcode = 'P0001';
-    elsif new.from_role = 'requester' and coalesce(public.verification_level(new.from_user), 0) < 1 then
+    elsif new.from_role = 'requester' and coalesce(public._verification_level(new.from_user), 0) < 1 then
       raise exception 'Para propor precisas do nível 1 de verificação. Vê o que falta em Meu perfil.' using errcode = 'P0001';
     end if;
   elsif new.status = 'aceite' and old.status is distinct from 'aceite' then
-    if new.from_role = 'requester' and coalesce(public.verification_level(new.to_user), 0) < 2 then
+    if new.from_role = 'requester' and coalesce(public._verification_level(new.to_user), 0) < 2 then
       raise exception 'Para aceitar levar esta encomenda precisas do nível 2 de verificação. Vê o que falta em Meu perfil.' using errcode = 'P0001';
-    elsif new.from_role = 'traveler' and coalesce(public.verification_level(new.to_user), 0) < 1 then
+    elsif new.from_role = 'traveler' and coalesce(public._verification_level(new.to_user), 0) < 1 then
       raise exception 'Para aceitar precisas do nível 1 de verificação. Vê o que falta em Meu perfil.' using errcode = 'P0001';
     end if;
   end if;

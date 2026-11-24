@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { myVerification } from "@/lib/identity";
+import { missingFor, needsText } from "@/lib/verification";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { getConfig } from "@/lib/data";
@@ -29,6 +31,9 @@ export default async function NovaPropostaPage({ searchParams }: { searchParams:
     const req = data as ReqPub | null;
     if (!req || req.status !== "aberto") return fail("Este pedido já não está aberto", "Escolhe outro no quadro.");
     const own = await supabase.from("requests").select("id").eq("id", pedido).eq("user_id", user.id).maybeSingle();
+    const lvl = await myVerification(supabase, user);
+    const falta = missingFor("aceitar_pedido", lvl.input);
+    if (!own.data && falta.length) return fail("Para levar encomendas precisas do nível 2 de verificação", `Falta: ${needsText(falta)}.`, ["Ver o que falta", "/perfil"]);
     if (own.data) return fail("Este pedido é teu", "Quem viaja é que te propõe um valor. Podes ver as propostas que recebeste.", ["Ver propostas", "/propostas"]);
     const { data: mine } = await supabase.from("trips").select("id, origin, destination, travel_date, kg, per_kg").eq("user_id", user.id).eq("status", "aberto").gte("travel_date", today());
     const trips = ((mine ?? []) as { id: string; origin: string; destination: string; travel_date: string; kg: number; per_kg: number }[]).filter((t) => routeMatches(req, t));

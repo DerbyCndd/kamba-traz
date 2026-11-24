@@ -6,7 +6,8 @@ import { Stars } from "@/components/Stars";
 import { getProfile, requireUser } from "@/lib/auth";
 import { getMyRatings, getMyWaivers } from "@/lib/data";
 import { initials } from "@/lib/format";
-import { getMySafety, myIdentity, safetyIncomplete } from "@/lib/identity";
+import { getMySafety, myIdentity, myVerification, safetyIncomplete } from "@/lib/identity";
+import { missingForLevel, needsText } from "@/lib/verification";
 import { CIVIL, REL_LABEL } from "@/lib/safety";
 import { PhotoForm } from "./PhotoForm";
 
@@ -29,6 +30,8 @@ export default async function PerfilPage() {
   const photoPath = await supabase.from("profiles").select("photo_path").eq("id", user.id).maybeSingle().then((r) => (r.error ? null : (r.data?.photo_path as string | null)));
   const photoUrl = photoPath ? (await supabase.storage.from("avatars").createSignedUrl(photoPath, 3600)).data?.signedUrl ?? null : null;
   const ident = await myIdentity(supabase, user.id);
+  const verif = await myVerification(supabase, user);
+  const falta1 = missingForLevel(verif.input, 1), falta2 = missingForLevel(verif.input, 2);
   const safety = ident.row && ident.safety !== null ? await getMySafety(supabase, user.id) : null;
   const [mine, waivers] = await Promise.all([getMyRatings(), getMyWaivers()]);
   const [reqs, trips, waiting] = await Promise.all([count("requests"), count("trips"), Promise.all([count("requests", "pendente"), count("trips", "pendente")]).then(([a, b]) => a + b)]);
@@ -104,6 +107,20 @@ export default async function PerfilPage() {
           )}
         </div>
       ) : null}
+
+      <div className="panel">
+        <h3>Nível de verificação: {verif.level}</h3>
+        <p className="muted">{verif.level === 2 ? "Podes enviar encomendas e viajar." : verif.level === 1 ? "Podes enviar encomendas. Para viajar e levar encomendas falta o nível 2." : "Completa o nível 1 para poderes enviar encomendas."}</p>
+        <div className="kv one">
+          <div><span>Nível 1: enviar encomendas</span>{falta1.length ? "Falta: " + needsText(falta1) : "Completo"}</div>
+          <div><span>Nível 2: viajar e levar encomendas</span>{falta2.length ? "Falta: " + needsText(falta2) : "Completo"}</div>
+        </div>
+        {falta2.length ? (
+          <div className="row">
+            {falta2.map((n) => <Link key={n.key} className="btn small" href={n.href}>{n.label}</Link>)}
+          </div>
+        ) : null}
+      </div>
 
       <div className="two">
         <div className="panel">

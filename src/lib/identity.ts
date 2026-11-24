@@ -2,6 +2,7 @@ import "server-only";
 import type { createClient } from "./supabase/server";
 import { decryptPii, idHash } from "./pii";
 import type { FamilyContact } from "./safety";
+import { verificationLevel, type Level, type VerifInput } from "./verification";
 
 type Supa = Awaited<ReturnType<typeof createClient>>;
 
@@ -58,4 +59,22 @@ export async function getMySafety(supabase: Supa, userId: string): Promise<MySaf
   let family: FamilyContact[] = [];
   try { family = row.family_enc ? JSON.parse(decryptPii(row.family_enc) ?? "[]") : []; } catch { family = []; }
   return { civil: row.civil_status, address: row.address_enc ? decryptPii(row.address_enc) : null, family };
+}
+
+/** O nível de verificação da pessoa (0, 1 ou 2) e os dados de que depende. Ver src/lib/verification.ts. */
+export async function myVerification(supabase: Supa, user: { id: string; email_confirmed_at?: string | null }): Promise<{ input: VerifInput; level: Level }> {
+  const [id, ph] = await Promise.all([
+    myIdentity(supabase, user.id),
+    supabase.from("profiles").select("photo_path").eq("id", user.id).maybeSingle(),
+  ]);
+  const has = !id.available || !!id.row; // sem o SQL da identificação, a app não bloqueia
+  const input: VerifInput = {
+    emailVerified: !!user.email_confirmed_at,
+    identity: has,
+    selfie: id.selfie === null ? null : !!id.row && id.selfie,
+    safety: id.safety === null ? null : !!id.row && id.safety,
+    passport: !!id.row?.passport_last4,
+    profilePhoto: ph.error ? null : !!ph.data?.photo_path,
+  };
+  return { input, level: verificationLevel(input) };
 }

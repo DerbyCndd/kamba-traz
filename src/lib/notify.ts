@@ -18,7 +18,7 @@ export async function notifyDeal(dealId: string): Promise<void> {
     if (error || !row || !(row.status in DEAL_LABEL)) return;
     const to = [row.sender_email, row.traveler_email].filter((e): e is string => !!e);
     if (!to.length) return;
-    const site = (process.env.NEXT_PUBLIC_SITE_URL || "https://kamba-traz.vercel.app").replace(/\/$/, "");
+    const site = (process.env.NEXT_PUBLIC_SITE_URL || "https://kamba-traz-app.vercel.app").replace(/\/$/, "");
     const { subject, text } = statusEmail(row.status as DealStatus, row.label, refCode(dealId), `${site}/entregas/${dealId}`);
     // Um email por pessoa: nenhuma vê o endereço da outra.
     await Promise.all(to.map((addr) => fetch("https://api.resend.com/emails", {

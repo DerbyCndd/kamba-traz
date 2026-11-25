@@ -23,7 +23,7 @@ export function buildAgenda(i: AgendaInput): AgendaItem[] {
   if (i.missingLevel1.length) {
     const first = i.missingLevel1[0];
     out.push({ key: "verif", ref: null, tone: "now", title: "Completa a tua verificação",
-      detail: `Falta: ${i.missingLevel1.map((n) => n.label.toLowerCase()).join(", ")}. Sem isto não podes publicar pedidos.`, href: first.href, cta: "Continuar" });
+      detail: `Falta: ${i.missingLevel1.map((n) => n.label.charAt(0).toLowerCase() + n.label.slice(1)).join(", ")}. Sem isto não podes publicar pedidos.`, href: first.href, cta: "Continuar" });
   }
   for (const d of i.deals) {
     const ref = i.refOf(d.id);
